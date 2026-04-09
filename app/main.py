@@ -4,7 +4,7 @@ import uvicorn
 import os
 
 
-app = FastAPI(title="FastAPI Project")
+app = FastAPI(title="RAG with Role Based Access Control")
 
 load_dotenv()  # Loads .env contents into environment
 
