@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from dotenv import load_dotenv
 import uvicorn
 import os
+from models import Company
 
 
 app = FastAPI(title="RAG with Role Based Access Control")
@@ -10,7 +11,8 @@ load_dotenv()  # Loads .env contents into environment
 
 api_key = os.getenv("API_KEY")
 
-company = {"company_name": "Global solutions GMBH", "domain": "www.global.com", "location": "Berlin"}
+company = Company(id = 1, company_name =  "Global solutions GMBH", domain =  "www.global.com", location = "Berlin")
+
 departments = [{"dept_id": 1, "dept_name": "Engineering"},
                {"dept_id": 2, "dept_name": "Finance"},
                {"dept_id": 3, "dept_name": "Marketing"},
