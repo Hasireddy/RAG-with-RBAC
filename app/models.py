@@ -13,6 +13,8 @@ class CompanyCreate(BaseModel):
 
 
 class CompanyResponse(BaseModel):
+    """Company response model"""
+
     id: int
     company_name: str
     domain: str
@@ -32,6 +34,8 @@ class DepartmentCreate(BaseModel):
 
 
 class DepartmentResponse(BaseModel):
+    """Department response model"""
+
     dept_id: int
     dept_name: str
     created_at: datetime
@@ -41,6 +45,10 @@ class DepartmentResponse(BaseModel):
         from_attributes = True
 
 
+class DepartmentUpdate(BaseModel):
+    """Department update model to update a department"""
+
+    dept_name:Optional[str] = None
 
 
 class EmployeeCreate(BaseModel):

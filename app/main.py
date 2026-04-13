@@ -76,26 +76,45 @@ def update_company():
 
 
 # Create a Department
-@app.post("/department")
-def create_department():
-    pass
+@app.post("/department", response_model=DepartmentResponse)
+def create_department(department: DepartmentCreate, db: Session = Depends(get_db)):
+    """Create new Department"""
+
+    db_department = DepartmentDB(dept_name=department.dept_name)
+    db.add(db_department)
+    db.commit()
+    db.refresh(db_department)
+    return db_department
 
 
 # Get all departments
-@app.get("/departments")
-def get_all_departments():
-    pass
+@app.get("/department", response_model=DepartmentResponse)
+def get_all_departments(skip: int = 0, limit: int = 10, db:Session=Depends(get_db)):
+    departments = db.query(DepartmentDB).offset(skip).limit(limit).all()
 
-# Create a department
-@app.post("/departments")
-def add_department():
-    pass
+    if not departments:
+        raise HTTPException(
+            status_code=404,
+            detail="Company not found. Please create a Company first."
+        )
+
+    return DepartmentResponse.model_validate(departments)
+
+
 
 
 # Update a department
-@app.put("/department/dept_name")
-def update_department():
-    pass
+@app.put("/department/{dept_id}", response_model=DepartmentResponse)
+def update_department(dept_id: int, department: DepartmentUpdate, db: Session = Depends(get_db) ):
+    department_to_update = db.query(DepartmentDB).filter(DepartmentDB.id == dept_id).first()
+    if department_to_update is None:
+        raise HTTPException(status_code=404, detail="Department with given id not found")
+
+    department_to_update.dept_name = department.dept_name is not None else department_to_update.dept_name
+    db.commit()
+    db.refresh(department_to_update)
+    return department_to_update
+
 
 # Delete a department
 @app.delete("/department")
@@ -104,9 +123,14 @@ def delete_department():
 
 
 # Sort departments by department name
-@app.get("/department/dept_name")
-def get_single_department():
-    pass
+@app.get("/department/{dept_id}", response_model=DepartmentResponse)
+def get_single_department_by_id(dept_id: int, db: Session = Depends(get_db)):
+    department = db.query(DepartmentDB).filter(DepartmentDB.id == dept_id).first()
+
+    if department is None:
+        raise HTTPException(status_code=404, detail = "Department with given id not found")
+    return department
+
 
 
 
