@@ -106,20 +106,31 @@ def get_all_departments(skip: int = 0, limit: int = 10, db:Session=Depends(get_d
 # Update a department
 @app.put("/department/{dept_id}", response_model=DepartmentResponse)
 def update_department(dept_id: int, department: DepartmentUpdate, db: Session = Depends(get_db) ):
-    department_to_update = db.query(DepartmentDB).filter(DepartmentDB.id == dept_id).first()
+    department_to_update = db.query(DepartmentDB).filter(DepartmentDB.dept_id == dept_id).first()
+
     if department_to_update is None:
         raise HTTPException(status_code=404, detail="Department with given id not found")
 
-    department_to_update.dept_name = department.dept_name is not None else department_to_update.dept_name
+    if department_to_update is None:
+        department_to_update.dept_name = department.dept_name
+
     db.commit()
     db.refresh(department_to_update)
     return department_to_update
 
 
 # Delete a department
-@app.delete("/department")
-def delete_department():
-    pass
+@app.delete("/department/{dept_id}", response_model=DepartmentResponse)
+def delete_department(dept_id: int, db: Session = Depends(get_db)):
+    department_to_delete = db.query(DepartmentDB).filter(DepartmentDB.dept_id == dept_id).first()
+
+    if department_to_delete is None:
+        raise HTTPException(status_code=404, detail="Department with given id not found")
+
+    db.delete(department_to_delete)
+    db.commit()
+    return f"Department with id {dept_id} deleted successfully"
+
 
 
 # Sort departments by department name
