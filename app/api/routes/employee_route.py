@@ -1,0 +1,46 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+from app.schemas.employee_schema import EmployeeCreate, EmployeeResponse
+from app.database.session import get_db
+from app.models.employee_model import EmployeeDB
+
+router = APIRouter()
+
+
+
+# Get all employees
+@router.get("/employees")
+def get_employees():
+    pass
+
+# Create an employee
+@router.post("/employees")
+def add_employee():
+    pass
+
+
+# Update an employee
+@router.put("/employees")
+def update_employee():
+    pass
+
+
+# Delete an employee
+@router.delete("/employees")
+def delete_employee():
+    pass
+
+
+# Get employee by id
+@router.get("/employee/id")
+def get_employee_by_id():
+    pass
+
+
+# Get employees by department
+@router.get("/employees/dept")
+def get_employees_by_department():
+    pass
+
+

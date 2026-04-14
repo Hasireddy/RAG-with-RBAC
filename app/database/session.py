@@ -1,12 +1,3 @@
-"""import sqlite3
-
-conn = sqlite3.connect("company_database.db")
-db = conn.cursor()
-print(db)
-
-# Enable foreign keys
-db.execute("PRAGMA foreign_keys = ON")"""
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from typing import Generator
