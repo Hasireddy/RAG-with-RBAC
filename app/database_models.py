@@ -30,6 +30,7 @@ class DepartmentDB(Base):
 
     dept_id = Column(Integer, primary_key=True, index=True)
     dept_name = Column(String, index=True, nullable=False)
+    dept_code = Column(String, unique=True, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Foreign key: Each department belongs to the Company

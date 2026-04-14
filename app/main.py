@@ -80,11 +80,11 @@ def update_company():
 def create_department(department: DepartmentCreate, db: Session = Depends(get_db)):
     """Create new Department"""
 
-    db_department = DepartmentDB(dept_name=department.dept_name)
+    db_department = DepartmentDB(dept_name=department.dept_name, dept_code = department.dept_code)
     db.add(db_department)
     db.commit()
     db.refresh(db_department)
-    return db_department
+    return DepartmentResponse.model_validate(db_department)
 
 
 # Get all departments
