@@ -7,7 +7,11 @@ from pydantic import BaseModel, Field
 class CompanyCreate(BaseModel):
     """Model for creating Company"""
 
-    company_name:str
+    company_name:str = Field(
+        min_length=3,
+        max_length=50,
+        description="Company name (alphabets only)",
+    )
     domain:str
     location:str
 
@@ -30,7 +34,16 @@ class CompanyResponse(BaseModel):
 class DepartmentCreate(BaseModel):
     """Model for creating a Department"""
 
-    dept_name:str
+    dept_name: str = Field(
+        min_length=3,
+        max_length=50,
+        description="Department name (alphabets only)",
+    )
+    dept_code: str= Field(
+        min_length=3,
+        max_length=20,
+        description="Department Code (alphabets only)",
+    )
 
 
 class DepartmentResponse(BaseModel):
@@ -38,6 +51,7 @@ class DepartmentResponse(BaseModel):
 
     dept_id: int
     dept_name: str
+    dept_code: str= Field(min_length=2, max_length=10)
     created_at: datetime
     company_id: int
 
@@ -49,13 +63,24 @@ class DepartmentUpdate(BaseModel):
     """Department update model to update a department"""
 
     dept_name:Optional[str] = None
+    dept_code:Optional[str] = None
+
+    model_config = {"extra": "forbid"}
 
 
 class EmployeeCreate(BaseModel):
     """Model for creating a Department"""
 
-    emp_name:str
-    job_title:str
+    emp_name:str= Field(
+        min_length=3,
+        max_length=50,
+        description="Employee name (alphabets only)",
+    )
+    job_title:str= Field(
+        min_length=3,
+        max_length=50,
+        description="Job title (alphabets only)",
+    )
 
 
 
@@ -74,7 +99,11 @@ class EmployeeResponse(BaseModel):
 
 
 class RoleCreate(BaseModel):
-    role_name:str
+    role_name:str= Field(
+        min_length=3,
+        max_length=50,
+        description="Role (alphabets only)",
+    )
 
 
 class RoleResponse(BaseModel):
