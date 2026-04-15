@@ -14,7 +14,7 @@ class DepartmentCreate(BaseModel):
         description="Department name (alphabets only)",
     )
     dept_code: str= Field(
-        min_length=3,
+        min_length=2,
         max_length=20,
         description="Department Code (alphabets only)",
     )

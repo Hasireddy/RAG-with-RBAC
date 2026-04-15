@@ -18,11 +18,25 @@ def create_department(department: DepartmentCreate, db: Session = Depends(get_db
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
 
-    db_department = DepartmentDB(dept_name=department.dept_name, dept_code = department.dept_code, company_id=company.id)
+    # Check duplicate dept_code
+    existing_dept = db.query(DepartmentDB).filter(DepartmentDB.dept_code == department.dept_code).first()
+
+    if existing_dept:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Department code '{department.dept_code}' already exists"
+        )
+
+    db_department = DepartmentDB(
+        dept_name=department.dept_name,
+        dept_code=department.dept_code,
+        company_id=company.id
+    )
     db.add(db_department)
     db.commit()
     db.refresh(db_department)
-    return DepartmentResponse.model_validate(db_department)
+
+    return db_department
 
 
 # Get all departments
@@ -55,7 +69,7 @@ def update_department(dept_id: int, department: DepartmentUpdate, db: Session = 
     if department.dept_name is not None:
         department_to_update.dept_name = department.dept_name
 
-    if department.dept_name is not None:
+    if department.dept_code is not None:
         department_to_update.dept_code = department.dept_code
 
     db.commit()
