@@ -14,7 +14,7 @@ class RoleDB(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     role_name = Column(String, unique=True, nullable=False, index=True)
 
-    employees = relationship("EmployeeDB", back_populates="role",  passive_deletes=True)
+    employees = relationship("EmployeeDB", back_populates="role")
 
     permissions = relationship(
         "PermissionDB",

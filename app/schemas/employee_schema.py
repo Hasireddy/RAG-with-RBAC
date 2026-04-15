@@ -1,23 +1,34 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, EmailStr
+import re
 
 # pydantic models for API validation
 
 class EmployeeCreate(BaseModel):
-    """Model for creating a Department"""
+    """Model for creating an Employee"""
 
-    emp_name:str= Field(
+    emp_name:EmailStr= Field(
         min_length=3,
         max_length=50,
         description="Employee name (alphabets only)",
     )
+
     job_title:str= Field(
         min_length=3,
         max_length=50,
         description="Job title (alphabets only)",
     )
 
+    email: str = Field(
+        description="Employee email (must be unique)"
+    )
 
+    @field_validator("emp_name", "job_title")
+    @classmethod
+    def validate_alpha(cls, v):
+        if not re.match(r"^[A-Za-z ]+$", v):
+            raise ValueError("Only alphabets and spaces allowed")
+        return v
 
 class EmployeeResponse(BaseModel):
     emp_id: int
@@ -26,6 +37,7 @@ class EmployeeResponse(BaseModel):
     dept_id: int
     company_id: int
     role_id: int | None
+    is_active: bool
     created_at: datetime
 
     class Config:
