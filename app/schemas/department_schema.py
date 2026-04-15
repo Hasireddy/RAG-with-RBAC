@@ -1,6 +1,6 @@
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 import re
 
 # pydantic models for API validation
@@ -41,8 +41,7 @@ class DepartmentResponse(BaseModel):
     created_at: datetime
     company_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(extra="forbid")
 
 
 class DepartmentUpdate(BaseModel):
