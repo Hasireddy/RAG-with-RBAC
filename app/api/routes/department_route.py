@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+
 from app.schemas.department_schema import DepartmentCreate, DepartmentResponse, DepartmentUpdate
 from app.database.session import get_db
+from app.models.company_model import CompanyDB
 from app.models.department_model import DepartmentDB
 
 router = APIRouter()
@@ -11,8 +13,12 @@ router = APIRouter()
 @router.post("/department", response_model=DepartmentResponse)
 def create_department(department: DepartmentCreate, db: Session = Depends(get_db)):
     """Create new Department"""
+    company = db.query(CompanyDB).first()
 
-    db_department = DepartmentDB(dept_name=department.dept_name, dept_code = department.dept_code)
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+
+    db_department = DepartmentDB(dept_name=department.dept_name, dept_code = department.dept_code, company_id=company.id)
     db.add(db_department)
     db.commit()
     db.refresh(db_department)
@@ -20,7 +26,7 @@ def create_department(department: DepartmentCreate, db: Session = Depends(get_db
 
 
 # Get all departments
-@router.get("/department", response_model=DepartmentResponse)
+@router.get("/department", response_model=list[DepartmentResponse])
 def get_all_departments(skip: int = 0, limit: int = 10, db:Session=Depends(get_db)):
     """Get all available Departments"""
 
@@ -29,10 +35,10 @@ def get_all_departments(skip: int = 0, limit: int = 10, db:Session=Depends(get_d
     if not departments:
         raise HTTPException(
             status_code=404,
-            detail="Company not found. Please create a Company first."
+            detail="Departments not found. Please create a department first."
         )
 
-    return DepartmentResponse.model_validate(departments)
+    return departments
 
 
 
