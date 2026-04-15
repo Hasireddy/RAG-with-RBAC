@@ -25,7 +25,7 @@ class CompanyCreate(BaseModel):
 
 
   # Validate company_name
-    @field_validator("company_name")
+    @field_validator("name")
     @classmethod
     def validate_name(cls, value):
         if not re.match(r"^[A-Za-z ]+$", value):
