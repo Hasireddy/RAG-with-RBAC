@@ -42,19 +42,21 @@ def get_all_departments(skip: int = 0, limit: int = 10, db:Session=Depends(get_d
 
 
 
-
 # Update a department
 @router.put("/department/{dept_id}", response_model=DepartmentResponse)
 def update_department(dept_id: int, department: DepartmentUpdate, db: Session = Depends(get_db) ):
     """Update a department based on given id"""
 
-    department_to_update = db.query(DepartmentDB).filter(DepartmentDB.dept_id == dept_id).first()
+    department_to_update = db.query(DepartmentDB).filter(DepartmentDB.id == dept_id).first()
 
-    if department_to_update is None:
+    if not department_to_update:
         raise HTTPException(status_code=404, detail="Department with given id not found")
 
-    if department_to_update is None:
+    if department.dept_name is not None:
         department_to_update.dept_name = department.dept_name
+
+    if department.dept_name is not None:
+        department_to_update.dept_code = department.dept_code
 
     db.commit()
     db.refresh(department_to_update)
@@ -62,18 +64,18 @@ def update_department(dept_id: int, department: DepartmentUpdate, db: Session = 
 
 
 # Delete a department
-@router.delete("/department/{dept_id}", response_model=DepartmentResponse)
+@router.delete("/department/{dept_id}")
 def delete_department(dept_id: int, db: Session = Depends(get_db)):
     """Deletes a department by given id"""
 
-    department_to_delete = db.query(DepartmentDB).filter(DepartmentDB.dept_id == dept_id).first()
+    department_to_delete = db.query(DepartmentDB).filter(DepartmentDB.id == dept_id).first()
 
-    if department_to_delete is None:
+    if not department_to_delete:
         raise HTTPException(status_code=404, detail="Department with given id not found")
 
     db.delete(department_to_delete)
     db.commit()
-    return f"Department with id {dept_id} deleted successfully"
+    return {"message": f"Department {dept_id} deleted successfully"}
 
 
 
@@ -84,7 +86,7 @@ def get_single_department_by_id(dept_id: int, db: Session = Depends(get_db)):
 
     department = db.query(DepartmentDB).filter(DepartmentDB.id == dept_id).first()
 
-    if department is None:
+    if not department:
         raise HTTPException(status_code=404, detail = "Department with given id not found")
     return department
 
