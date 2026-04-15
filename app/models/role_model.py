@@ -11,10 +11,10 @@ class RoleDB(Base):
 
     __tablename__ = "roles"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     role_name = Column(String, unique=True, nullable=False, index=True)
 
-    employees = relationship("EmployeeDB", back_populates="role")
+    employees = relationship("EmployeeDB", back_populates="role",  passive_deletes=True)
 
     permissions = relationship(
         "PermissionDB",

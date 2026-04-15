@@ -11,16 +11,16 @@ class DepartmentDB(Base):
 
     __tablename__ = "departments"
 
-    dept_id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     dept_name = Column(String, index=True, nullable=False)
     dept_code = Column(String, unique=True, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Foreign key: Each department belongs to the Company
-    company_id = Column(Integer, ForeignKey("companies.id", ondelete="CASCADE"))
+    company_id = Column(Integer, ForeignKey("companies.id", ondelete="CASCADE"), nullable=False)
 
     # Relationship: Departments are in Company and department has employees
-    company = relationship("CompanyDB", back_populates="departments")
+    company = relationship("CompanyDB", back_populates="departments",  passive_deletes=True)
     employees = relationship("EmployeeDB", back_populates="department",  cascade="all, delete")
 
 
