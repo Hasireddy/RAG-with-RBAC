@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database.base import Base
@@ -17,10 +17,14 @@ class DepartmentDB(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Foreign key: Each department belongs to the Company
-    company_id = Column(Integer, ForeignKey("companies.id", ondelete="CASCADE"), nullable=False)
+    company_id = Column(Integer, ForeignKey("companies.id", ondelete="CASCADE"), index=True, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("company_id", "dept_code", name="uq_company_dept_code"),
+    )
 
     # Relationship: Departments are in Company and department has employees
     company = relationship("CompanyDB", back_populates="departments",  passive_deletes=True)
-    employees = relationship("EmployeeDB", back_populates="department",  cascade="all, delete")
+    employees = relationship("EmployeeDB", back_populates="department",  cascade="all, delete-orphan")
 
 
