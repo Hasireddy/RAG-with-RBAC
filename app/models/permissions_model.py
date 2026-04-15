@@ -10,7 +10,7 @@ class PermissionDB(Base):
 
     __tablename__ = "permissions"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     permission_name = Column(String, unique=True, nullable=False, index=True)
 
     roles = relationship(

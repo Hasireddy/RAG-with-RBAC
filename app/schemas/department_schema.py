@@ -22,7 +22,6 @@ class DepartmentCreate(BaseModel):
 class DepartmentResponse(BaseModel):
     """Department response model"""
 
-    dept_id: int
     dept_name: str
     dept_code: str= Field(min_length=2, max_length=10)
     created_at: datetime
