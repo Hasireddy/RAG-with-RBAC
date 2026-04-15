@@ -2,7 +2,7 @@ from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-# pydantic models for API validation
+# pydantic model for API validation
 
 
 class RoleCreate(BaseModel):

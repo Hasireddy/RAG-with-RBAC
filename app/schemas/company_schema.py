@@ -4,7 +4,7 @@ from typing import Optional
 import re
 
 
-# pydantic models for API validation
+# pydantic model for API validation
 
 class CompanyCreate(BaseModel):
     """Schema for creating Company"""
