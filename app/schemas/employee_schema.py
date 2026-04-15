@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field, field_validator, EmailStr
 import re
 
-# pydantic models for API validation
+# pydantic model for API validation
 
 class EmployeeCreate(BaseModel):
     """Model for creating an Employee"""
