@@ -55,3 +55,14 @@ class CompanyResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CompanyUpdate(BaseModel):
+    """Department update model to update a department"""
+
+    name:Optional[str] = None
+    domain:Optional[str] = None
+    location: Optional[str] = None
+    is_active: Optional[bool] = None
+
+    model_config = {"extra": "forbid"}
