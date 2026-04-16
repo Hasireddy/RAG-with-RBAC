@@ -131,9 +131,17 @@ def delete_employee(emp_id: int, db: Session = Depends(get_db)):
 
 
 # Get employee by id
-@router.get("/employee/id")
-def get_employee_by_id():
-    pass
+@router.get("/employee/{emp_id}", response_model=EmployeeResponse)
+def get_employee_by_id(emp_id: int, db: Session = Depends(get_db)):
+    emp = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
+
+    if not emp:
+        raise HTTPException(
+            status_code=400,
+            detail="Employee with given id not found"
+        )
+
+    return emp
 
 
 # Get employees by department
