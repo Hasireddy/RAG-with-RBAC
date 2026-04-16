@@ -5,7 +5,7 @@ import re
 # pydantic model for API validation
 
 class EmployeeCreate(BaseModel):
-    """Model for creating an Employee"""
+    """Schema for creating an Employee"""
 
     emp_name: str= Field(
         min_length=3,
@@ -22,6 +22,9 @@ class EmployeeCreate(BaseModel):
     email: EmailStr = Field(
         description="Employee email (must be unique)"
     )
+    company_id: int
+    dept_id: int
+    role_id: int | None = None
 
     @field_validator("emp_name", "job_title")
     @classmethod
@@ -32,10 +35,12 @@ class EmployeeCreate(BaseModel):
 
 
 class EmployeeResponse(BaseModel):
+    """Employee Response Model"""
+
     emp_id: int
     emp_name: str
     job_title: str
-    email: str
+    email: EmailStr
     dept_id: int
     company_id: int
     role_id: int | None
@@ -44,3 +49,16 @@ class EmployeeResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class EmployeeUpdate(BaseModel):
+    """Employee update model"""
+
+    emp_name:Optional[str] = None
+    job_title: Optional[str] = None
+    email:Optional[EmailStr] = None
+    company_id: Optional[int] = None
+    dept_id: Optional[int] = None
+    role_id: Optional[int] = None
+
+    model_config = {"extra": "forbid"}
