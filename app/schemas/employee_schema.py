@@ -7,7 +7,7 @@ import re
 class EmployeeCreate(BaseModel):
     """Model for creating an Employee"""
 
-    emp_name:EmailStr= Field(
+    emp_name: str= Field(
         min_length=3,
         max_length=50,
         description="Employee name (alphabets only)",
@@ -19,7 +19,7 @@ class EmployeeCreate(BaseModel):
         description="Job title (alphabets only)",
     )
 
-    email: str = Field(
+    email: EmailStr = Field(
         description="Employee email (must be unique)"
     )
 
@@ -30,10 +30,12 @@ class EmployeeCreate(BaseModel):
             raise ValueError("Only alphabets and spaces allowed")
         return v
 
+
 class EmployeeResponse(BaseModel):
     emp_id: int
     emp_name: str
     job_title: str
+    email: str
     dept_id: int
     company_id: int
     role_id: int | None
