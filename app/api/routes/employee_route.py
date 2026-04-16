@@ -74,7 +74,7 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
 
 # Update an employee
 @router.put("/employees/{emp_id}", response_model=EmployeeResponse)
-def update_employee(emp_id: int, payload : EmployeeUpdate, db: Session = Depends(get_db)):
+def update_employee(emp_id: int, employee : EmployeeUpdate, db: Session = Depends(get_db)):
 
     # Find employee with given id
     emp_to_update = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
@@ -85,34 +85,27 @@ def update_employee(emp_id: int, payload : EmployeeUpdate, db: Session = Depends
             detail="Employee with given id not found"
         )
 
-    # Convert request to dict(only sent fields)
-    update_data = payload.model_dump(exclude_unset=True)
 
-    # Validate email uniqueness
-    if "email" in update_data:
-        existing = db.query(EmployeeDB).filter(EmployeeDB.email == update_data["email"]).first()
-        if existing and existing.emp_id != emp_id:
-            raise HTTPException(status_code=400, detail="Email already in use")
+    # 2. Update only provided fields
+    # for field, value in employee.dict(exclude_unset=True).items():
+        setattr(emp_to_update, field, value)
+    if employee.emp_name is not None:
+        emp_to_update.emp_name = employee.emp_name
 
-        # 4. Validate foreign keys (if provided)
+    if employee.job_title is not None:
+        emp_to_update.job_title = employee.job_title
 
-        if "company_id" in update_data:
-            company = db.query(CompanyDB).filter(CompanyDB.id == update_data["company_id"]).first()
-            if not company:
-                raise HTTPException(status_code=404, detail="Company not found")
+    if employee.email is not None:
+        emp_to_update.email = employee.email
 
-        if "dept_id" in update_data:
-            department = db.query(DepartmentDB).filter(DepartmentDB.id == update_data["dept_id"]).first()
-            if not department:
-                raise HTTPException(status_code=404, detail="Department not found")
+    if employee.company_id is not None:
+        emp_to_update.company_id = employee.company_id
 
-        #if "role_id" in update_data:
-            #role = db.query(RoleDB).filter(RoleDB.id == update_data["role_id"]).first()
-            #if not role:
-                raise HTTPException(status_code=404, detail="Role not found")
+    if employee.dept_id is not None:
+        emp_to_update.dept_id = employee.dept_id
 
-    for key, value in update_data.items():
-        setattr(emp_to_update, key, value)
+    if employee.role_id is not None:
+        emp_to_update.role_id = employee.role_id
 
     db.commit()
     db.refresh(emp_to_update)
