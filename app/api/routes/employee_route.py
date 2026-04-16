@@ -115,9 +115,19 @@ def update_employee(emp_id: int, employee : EmployeeUpdate, db: Session = Depend
 
 
 # Delete an employee
-@router.delete("/employees")
-def delete_employee():
-    pass
+@router.delete("/employees/{emp_id}")
+def delete_employee(emp_id: int, db: Session = Depends(get_db)):
+    emp_to_delete = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
+
+    if not emp_to_delete:
+        raise HTTPException(
+            status_code=400,
+            detail="Employee with given id not found"
+        )
+
+    db.delete(emp_to_delete)
+    db.commit()
+    return {"message": f"Employee with id {emp_id} deleted successfully"}
 
 
 # Get employee by id
