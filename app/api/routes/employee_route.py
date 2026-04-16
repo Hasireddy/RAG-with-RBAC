@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import List
 
 from app.schemas.employee_schema import EmployeeCreate, EmployeeResponse
 from app.database.session import get_db
@@ -10,9 +11,16 @@ router = APIRouter()
 
 
 # Get all employees
-@router.get("/employees")
-def get_employees():
-    pass
+@router.get("/employees", response_model=List[EmployeeResponse])
+def get_employees(db: Session = Depends(get_db)):
+    employees = db.query(EmployeeDB).all()
+    if not employees:
+        raise HTTPException(
+            status_code=404,
+            detail="Employees not found. Please create a new employee"
+        )
+    return employees
+
 
 # Create an employee
 @router.post("/employees")
