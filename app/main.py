@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from dotenv import load_dotenv
 from openai import OpenAI
+from pydantic import BaseModel
 import os
 import uvicorn
 
@@ -37,12 +38,31 @@ app.include_router(api_router)
 
 client = OpenAI(api_key=API_KEY)
 
+class Step(BaseModel):
+    explanation: str
+    output: str
+
+class MathReasoning(BaseModel):
+    steps: list[Step]
+    final_answer: str
+
+
 @app.get("/")
 def root():
     try:
        response = client.responses.create(
            model="gpt-4o-mini",
-           input="Explain python programming language in 2 sentences"
+           temperature=0.7,
+           input=[
+               {
+                   "role": "system",
+                   "content": "You are a creative assistant"
+               },
+               {
+                   "role": "user",
+                   "content": "write a 50 word story about unicorn"
+               }
+           ]
        )
        return {"result": response.output_text}
 
