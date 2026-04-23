@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, Request
 from dotenv import load_dotenv
+from openai import OpenAI
 import os
 import uvicorn
 
@@ -8,16 +9,18 @@ from app.database.init_db import init_db
 from app.api.api import api_router
 
 
+
 # Load environment variables
 load_dotenv()
-API_KEY = os.getenv("API_KEY")
+API_KEY=os.getenv("API_KEY")
 
 
 # Initialize the database
 @asynccontextmanager
-async def lifespan(app):
+async def lifespan(app:FastAPI):
     init_db()
     yield
+
 
 
 # Create FastAPI app
@@ -32,12 +35,19 @@ app = FastAPI(
 app.include_router(api_router)
 
 
+client = OpenAI(api_key=API_KEY)
+
 @app.get("/")
 def root():
-    return {
-        "status": "ok",
-        "message": "API is running"
-    }
+    try:
+       response = client.responses.create(
+           model="gpt-4o-mini",
+           input="Explain python programming language in 2 sentences"
+       )
+       return {"result": response.output_text}
+
+    except Exception as e:
+        return {"error": str(e)}
 
 
 if __name__ == "__main__":
@@ -46,3 +56,4 @@ if __name__ == "__main__":
         port=8000,
         reload=True
     )
+
