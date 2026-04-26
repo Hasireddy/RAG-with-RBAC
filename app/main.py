@@ -33,9 +33,11 @@ app = FastAPI(
     lifespan=lifespan
   )
 
+
 # Include all routes
 app.include_router(api_router)
 
+#Templates and static folders
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 templates = Jinja2Templates(directory="frontend/templates")
 
@@ -46,32 +48,6 @@ def read_root(request: Request):
     return templates.TemplateResponse(
         request=request, name="index.html"
     )
-
-
-
-client = OpenAI(api_key=API_KEY)
-
-@app.get("/root")
-def root():
-    try:
-       response = client.responses.create(
-           model="gpt-4o-mini",
-           temperature=0.7,
-           input=[
-               {
-                   "role": "system",
-                   "content": "You are a creative assistant"
-               },
-               {
-                   "role": "user",
-                   "content": "write a 50 word story about unicorn"
-               }
-           ]
-       )
-       return {"result": response.output_text}
-
-    except Exception as e:
-        return {"error": str(e)}
 
 
 
