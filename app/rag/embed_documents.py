@@ -48,14 +48,18 @@ def get_documents():
             )
         )
 
+
     if not docs:
         raise FileNotFoundError(f"No Markdown files found in {base_path}")
 
+    for d in docs:
+        print(d.metadata)
     return docs  # Return the full list after processing all files
 
 
 all_documents = get_documents()
-print(f"Loaded {len(all_documents)} Markdown files.")
+#print(f"Loaded {len(all_documents)} Markdown files.")
+
 
 # Step2: Splitting documents into chunks. Splitting markdown files by headers
 
@@ -83,6 +87,7 @@ def split_documents_chunks():
             all_chunks.append(Document(page_content=content, metadata=doc.metadata.copy()))
 
     return all_chunks
+
 
 
 # Step3: Create Embeddings and vector store
@@ -114,9 +119,11 @@ vector_store = create_vector_store()
 
 # User Query
 #query = "What is FinSolve Technologies's revenue growth in 2024?"
-#query = "What is python?"
+
+query = "What is python?"
 #query = "What is software development lifecycle?"
-query = "Which department has more expenses in 2024?"
+#query = "Which department has more expenses in 2024?"
+
 
 
 # Run a semantic search
@@ -125,10 +132,10 @@ def semantic_search(vector_store):
 
     results = vector_store.similarity_search(query=query, k=3)
 
-    for i, doc in enumerate(results, start=1):
-        print(f"\n---Result{i}---")
-        print(doc.page_content)
-        print(doc.metadata)
+    #for i, doc in enumerate(results, start=1):
+        #print(f"\n---Result{i}---")
+        #print(doc.page_content)
+        #print(doc.metadata)
 
     # Build a clean context from top-3 chunks
     context = "\n\n".join(
@@ -143,6 +150,7 @@ def semantic_search(vector_store):
     return context
 
 
+
 def get_response():
     """Returns API response"""
 
@@ -152,19 +160,21 @@ def get_response():
     prompt = f"""
     You are a technical documentation expert. Act as a kind and respectful assistant for a company.
     Answer the question using only the information provided in the context.
-    - Be concise and exact
+    - Be concise and exact.
     - If the answer is too long, summarize  into four or five sentences. Otherwise provide the answer in one or two sentences.
-    - Each sentence should be a new line
-    - Use bullet points if appropriate
-    -Do not add external knowledge and do not hallucinate
+    - Each sentence should be a new line.
+    - Use bullet points if appropriate.
+    -Do not add external knowledge and do not hallucinate.
     - If the answer is not fully present, say "Information not provided in the documents."
     - If the answer is present answer in the following format.
+    
+    Here are some examples of how to respond.
+    
     user: What is the revenue growth in 2024?
     system: The revenue growth in 2024 is 28%
     
     user: What are client applications?
     system: The client applications are Mobile,web or API interfaces.
-    
     
     Context:
     {context}
