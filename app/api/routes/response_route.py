@@ -6,8 +6,8 @@ import os
 
 from app.schemas.response_schema import  ResponseSchema
 from app.database.session import get_db
-from app.models.response_model import AIResponseDB
-from app.rag.embed_documents import get_response
+#from app.models.response_model import AIResponseDB
+#from app.rag.embed_documents import get_response
 
 
 # Load environment variables
@@ -19,24 +19,9 @@ router = APIRouter()
 client = OpenAI(api_key=API_KEY)
 
 
-# Get a response
+"""# Get a response
 @router.get("/chatbot", response_model=ResponseSchema)
 def create_response(db: Session = Depends(get_db)):
-    try:
-        """response = client.responses.create(
-            model="gpt-4o-mini",
-            temperature=0.7,
-            input=[
-                {
-                    "role": "system",
-                    "content": "You are a creative assistant"
-                },
-                {
-                    "role": "user",
-                    "content": "write a 50 word story about unicorn"
-                }
-            ]
-        )"""
         response_text =  get_response()
         print(response_text)
 
@@ -57,7 +42,7 @@ def create_response(db: Session = Depends(get_db)):
             detail=str(e)
         )
 
-
+"""
 
 
 

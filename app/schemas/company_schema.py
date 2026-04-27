@@ -1,6 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel, Field, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
+from pydantic import ConfigDict
 import re
 
 
@@ -24,7 +25,7 @@ class CompanyCreate(BaseModel):
     is_active: Optional[bool] = True
 
 
-  # Validate company_name
+   # Validate company_name
     @field_validator("name")
     @classmethod
     def validate_name(cls, value):
@@ -53,8 +54,7 @@ class CompanyResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CompanyUpdate(BaseModel):
@@ -65,4 +65,4 @@ class CompanyUpdate(BaseModel):
     location: Optional[str] = None
     is_active: Optional[bool] = None
 
-    model_config = {"extra": "forbid"}
+    model_config = ConfigDict(extra="forbid")
