@@ -114,7 +114,8 @@ vector_store = create_vector_store()
 
 # User Query
 #query = "What is FinSolve Technologies's revenue growth in 2024?"
-query = "What is python?"
+#query = "What is python?"
+query = "What is software development lifecycle?"
 
 
 # Run a semantic search
@@ -151,9 +152,18 @@ def get_response():
     You are a technical documentation expert. Act as a kind and respectful assistant for a company.
     Answer the question using only the information provided in the context.
     - Be concise and exact
+    - If the answer is too long, summarize  into four or five sentences. Otherwise provide the answer in one or two sentences.
     - Use bullet points if appropriate
     -Do not add external knowledge and do not hallucinate
     - If the answer is not fully present, say "Information not provided in the documents."
+    - If the answer is present answer in the following format.
+    user- What is the revenue growth in 2024?
+    system-The revenue growth in 2024 is 28%
+    
+    user-What are client applications?
+    system-The client applications are Mobile,web or API interfaces.
+    
+    
     Context:
     {context}
     
