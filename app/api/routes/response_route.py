@@ -20,7 +20,7 @@ client = OpenAI(api_key=API_KEY)
 
 
 # Get a response
-@router.get("/reply", response_model=ResponseSchema)
+@router.get("/chatbot", response_model=ResponseSchema)
 def create_response(db: Session = Depends(get_db)):
     try:
         """response = client.responses.create(
