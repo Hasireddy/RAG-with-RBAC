@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -7,6 +8,7 @@ import json
 
 from fastapi.responses import JSONResponse
 from app.schemas.response_schema import  ResponseSchema
+from app.schemas.query_schema import QueryRequest
 from app.database.session import get_db
 from app.models.response_model import AIResponseDB
 #from app.rag.embed_documents import get_response
@@ -21,9 +23,11 @@ router = APIRouter(prefix="/chatbot", tags=["OpenAIAPIResponse"])
 
 client = OpenAI(api_key=API_KEY)
 
+templates = Jinja2Templates(directory="frontend/templates")
+
 #query = "What is Python?"
 #query="List all employees details in sales department who took more then 10 leaves?"
-query="Explain Public Holidays Policy?"
+#query="Explain Public Holidays Policy?"
 #query="Explain employee onboarding benefits?"
 
 # Get a response
@@ -66,12 +70,15 @@ def create_response(db: Session = Depends(get_db)):
 
 
 # Get a response
-@router.get("/", response_model=ResponseSchema)
-def create_response(db: Session = Depends(get_db)):
+@router.post("/", response_model=ResponseSchema)
+def create_response(payload: QueryRequest, db: Session = Depends(get_db)):
     """Gets response from openai API"""
 
     try:
+        query = payload.query
+
         response_text =  get_response(query)
+
         if not  response_text:
             response_text = "No response generated."
 
@@ -80,7 +87,7 @@ def create_response(db: Session = Depends(get_db)):
         db.add(ai_response)
         db.commit()
         db.refresh(ai_response)
-
+        #print(ai_response)
         return ai_response
 
     except Exception as e:
@@ -91,3 +98,9 @@ def create_response(db: Session = Depends(get_db)):
 
 
 
+@router.get("/")
+def render_chat(request:Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="chatbot.html",
+    )

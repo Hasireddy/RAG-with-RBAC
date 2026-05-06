@@ -118,5 +118,5 @@ def get_response(query:str):
 #query = "What is Python?"
 #query="List all employees details in sales department who took more then 10 leaves?"
 #query="Explain employee onboarding benefits?"
-query="Explain Public Holidays Policy?"
+#query="Explain Public Holidays Policy?"
 #print("API Response:", get_response(query))
