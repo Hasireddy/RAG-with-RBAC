@@ -7,12 +7,12 @@ from app.database.session import get_db
 from app.models.company_model import CompanyDB
 from app.models.department_model import DepartmentDB
 
-router = APIRouter()
+router = APIRouter(prefix="/department", tags=["Departments"])
 
 # Create a Department
-@router.post("/department", response_model=DepartmentResponse)
+"""@router.post("/department", response_model=DepartmentResponse)
 def create_department(department: DepartmentCreate, db: Session = Depends(get_db)):
-    """Create new Department"""
+   
     company = db.query(CompanyDB).first()
 
     if not company:
@@ -36,11 +36,47 @@ def create_department(department: DepartmentCreate, db: Session = Depends(get_db
     db.commit()
     db.refresh(db_department)
 
+    return db_department"""
+
+@router.post("/company/{company_id}/", response_model=DepartmentResponse)
+def create_department(company_id: int, department: DepartmentCreate, db: Session = Depends(get_db)):
+    """Create new Department"""
+
+    # Check company exists
+    company = db.query(CompanyDB).filter(
+        CompanyDB.id == company_id
+    ).first()
+
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+
+    # Check duplicate ONLY within company
+    existing_dept = db.query(DepartmentDB).filter(
+        DepartmentDB.company_id == company_id,
+        DepartmentDB.dept_code == department.dept_code
+    ).first()
+
+    if existing_dept:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Department code '{department.dept_code}' already exists in this company"
+        )
+
+    db_department = DepartmentDB(
+        dept_name=department.dept_name,
+        dept_code=department.dept_code,
+        company_id=company_id
+    )
+
+    db.add(db_department)
+    db.commit()
+    db.refresh(db_department)
+
     return db_department
 
 
 # Get all departments
-@router.get("/department", response_model=list[DepartmentResponse])
+@router.get("/", response_model=list[DepartmentResponse])
 def get_all_departments(skip: int = 0, limit: int = 10, db:Session=Depends(get_db)):
     """Get all available Departments"""
 
@@ -57,7 +93,7 @@ def get_all_departments(skip: int = 0, limit: int = 10, db:Session=Depends(get_d
 
 
 # Update a department
-@router.put("/department/{dept_id}", response_model=DepartmentResponse)
+@router.put("/{dept_id}", response_model=DepartmentResponse)
 def update_department(dept_id: int, department: DepartmentUpdate, db: Session = Depends(get_db) ):
     """Update a department based on given id"""
 
@@ -78,7 +114,7 @@ def update_department(dept_id: int, department: DepartmentUpdate, db: Session = 
 
 
 # Delete a department
-@router.delete("/department/{dept_id}")
+@router.delete("/{dept_id}")
 def delete_department(dept_id: int, db: Session = Depends(get_db)):
     """Deletes a department by given id"""
 
@@ -94,7 +130,7 @@ def delete_department(dept_id: int, db: Session = Depends(get_db)):
 
 
 # Get departments by department id
-@router.get("/department/{dept_id}", response_model=DepartmentResponse)
+@router.get("/{dept_id}", response_model=DepartmentResponse)
 def get_single_department_by_id(dept_id: int, db: Session = Depends(get_db)):
     """Get department by id"""
 

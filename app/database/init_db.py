@@ -5,5 +5,5 @@ from app.models import CompanyDB, DepartmentDB, EmployeeDB
 import app.models  # ensures models are loaded
 
 
-def init_db():
-    Base.metadata.create_all(bind=engine)
+#def init_db():
+    #Base.metadata.create_all(bind=engine)

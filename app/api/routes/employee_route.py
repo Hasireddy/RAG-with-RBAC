@@ -9,10 +9,10 @@ from app.models.company_model import CompanyDB
 from app.models.department_model import DepartmentDB
 from app.models.role_model import RoleDB
 
-router = APIRouter()
+router = APIRouter(prefix="/employees", tags=["Employees"])
 
 # Get all employees
-@router.get("/employees", response_model=List[EmployeeResponse])
+@router.get("/", response_model=List[EmployeeResponse])
 def get_employees(db: Session = Depends(get_db)):
     employees = db.query(EmployeeDB).all()
     if not employees:
@@ -25,7 +25,7 @@ def get_employees(db: Session = Depends(get_db)):
 
 # Create a new employee, link them to the company, link them to a department, link them to a role
 # Save everything in DB
-@router.post("/employees", response_model=EmployeeResponse)
+@router.post("/", response_model=EmployeeResponse)
 def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
     # Check if employee already exists
     existing_employee = db.query(EmployeeDB).filter(EmployeeDB.email == employee.email).first()
@@ -73,7 +73,7 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
 
 
 # Update an employee
-@router.put("/employees/{emp_id}", response_model=EmployeeResponse)
+@router.put("/{emp_id}", response_model=EmployeeResponse)
 def update_employee(emp_id: int, employee : EmployeeUpdate, db: Session = Depends(get_db)):
 
     # Find employee with given id
@@ -115,7 +115,7 @@ def update_employee(emp_id: int, employee : EmployeeUpdate, db: Session = Depend
 
 
 # Delete an employee
-@router.delete("/employees/{emp_id}")
+@router.delete("/{emp_id}")
 def delete_employee(emp_id: int, db: Session = Depends(get_db)):
     emp_to_delete = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
 
@@ -145,7 +145,7 @@ def get_employee_by_id(emp_id: int, db: Session = Depends(get_db)):
 
 
 # Get employees by department
-@router.get("/employees/dept")
+@router.get("/dept")
 def get_employees_by_department():
     pass
 

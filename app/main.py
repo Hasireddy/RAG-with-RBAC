@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 import uvicorn
 
-from app.database.init_db import init_db
+#from app.database.init_db import init_db
 from app.api.api import api_router
 
 
@@ -21,7 +21,6 @@ API_KEY=os.getenv("API_KEY")
 # Initialize the database
 @asynccontextmanager
 async def lifespan(app:FastAPI):
-    init_db()
     yield
 
 
