@@ -4,3 +4,4 @@ from app.models.employee_model import EmployeeDB
 from app.models.role_model import RoleDB
 from app.models.permissions_model import PermissionDB
 from app.models.document_model import DocumentDB
+from app.models.response_model import  AIResponseDB

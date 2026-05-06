@@ -7,10 +7,10 @@ from app.schemas.company_schema import CompanyCreate, CompanyResponse, CompanyUp
 from app.database.session import get_db
 from app.models.company_model import CompanyDB
 
-router = APIRouter()
+router = APIRouter(prefix="/company", tags=["Companies"])
 
 # Create a company
-@router.post("/company", response_model=CompanyResponse)
+@router.post("/", response_model=CompanyResponse)
 def create_company(company: CompanyCreate, db: Session = Depends(get_db)):
     try:
         existing_company = db.query(CompanyDB).filter(
@@ -35,7 +35,7 @@ def create_company(company: CompanyCreate, db: Session = Depends(get_db)):
 
 
 # Get Company details
-@router.get("/company", response_model=list[CompanyResponse])
+@router.get("/", response_model=list[CompanyResponse])
 def get_company_info(db: Session = Depends(get_db)):
     companies = db.query(CompanyDB).all()
 
@@ -50,7 +50,7 @@ def get_company_info(db: Session = Depends(get_db)):
 
 
 # Update Company details
-@router.put("/company/{company_id}", response_model=CompanyResponse)
+@router.put("/{company_id}", response_model=CompanyResponse)
 def update_company(company_id:int, company:CompanyUpdate, db: Session = Depends(get_db) ):
     company_to_update = db.query(CompanyDB).filter(CompanyDB.id == company_id).first()
 
@@ -78,7 +78,7 @@ def update_company(company_id:int, company:CompanyUpdate, db: Session = Depends(
     return company_to_update
 
 
-@router.delete("/company/{company_id}")
+@router.delete("/{company_id}")
 def delete_company(company_id: int, db: Session = Depends(get_db)):
     company_to_delete = db.query(CompanyDB).filter(CompanyDB.id == company_id).first()
 
