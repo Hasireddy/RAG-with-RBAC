@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Chatbot</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block content %}
+<div>
 
 <h2>Chatbot</h2>
 
@@ -40,8 +37,6 @@ async function sendMessage() {
     document.getElementById("response").innerText =
         responseText
 }
-
 </script>
-
-</body>
-</html>
+</div>
+{% endblock %}
