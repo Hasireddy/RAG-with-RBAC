@@ -7,7 +7,7 @@ vector_store = create_vector_store()
 def semantic_search(vector_store, query):
     """Runs a semantic search and retrieves top 3 formatted context(matching results)"""
 
-    results = vector_store.similarity_search(query=query, k=5)
+    results = vector_store.similarity_search(query=query, k=3)
 
     # for i, doc in enumerate(results, start=1):
     # print(f"\n---Result{i}---")
