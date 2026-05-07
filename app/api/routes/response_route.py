@@ -98,7 +98,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db)):
 
 
 
-@router.get("/")
+@router.get("/", name="chatbot")
 def render_chat(request:Request):
     return templates.TemplateResponse(
         request=request,
