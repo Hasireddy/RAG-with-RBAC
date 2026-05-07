@@ -26,7 +26,8 @@ def get_response(query:str):
     prompt_step1 = [
         {"role": "system",
          "content": """You are a technical documentation expert and a helpful assistant for a company.
-                        Your task is to help answer a question given in a document.    
+                        Your task is to help answer a question given in a document.  
+                        If the user greets, greet them with their name. 
                         The first step is to extract the relevant quotes from the document."""
          },
         {"role": "user",
@@ -51,7 +52,7 @@ def get_response(query:str):
                        Please compare the question to the answer.
                        Use only the information provided in the context to answer.
                        Be concise and exact. Do not add external knowledge and hallucinate.
-                       If the information is not fully present, say "Information not provided in the documents.
+                       If the information is not fully present or not at all present, say "Information not provided in the documents.
                        Ensure the answer is the accurate, has a friendly tone like you are explaining it to a colleague.
                      """
          },
@@ -75,8 +76,8 @@ def get_response(query:str):
                         Use Bullet points if appropriate.
                         Use Json format if required.
                         Here are few examples of the input and output .
-                        input:"Hi"
-                        output:"Hello, How can I help you?
+                        input:"Hi my name is uma"
+                        output:"Hello Uma, How can I help you?
                         input: What are Client applications?
                         output: Client applications are Mobile, Web and API applications.
                         input: What is the financial overview of 2024?
