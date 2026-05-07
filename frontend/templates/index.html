@@ -1,560 +1,248 @@
-
 {% extends "base.html" %}
 {% block content %}
-    <!-- Hero Section -->
-    <section id="home" class="hero-section gradient-bg">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold text-white mb-4">
-                        Unleash the Power of AI for Your Business
-                    </h1>
-                    <p class="lead text-white-50 mb-4">
-                        Transform your operations with cutting-edge artificial intelligence. Automate processes, gain insights, and make smarter decisions with our comprehensive AI platform.
-                    </p>
-                    <div class="d-flex flex-column flex-sm-row gap-3">
-                        <a href="#pricing" class="btn btn-light btn-lg px-4">
-                            <i class="bi bi-rocket-takeoff me-2"></i>Start Free Trial
-                        </a>
-                        <a href="#how-it-works" class="btn btn-outline-light btn-lg px-4">
-                            <i class="bi bi-play-circle me-2"></i>Watch Demo
-                        </a>
-                    </div>
-                    <div class="mt-4">
-                        <small class="text-white-50">
-                            <i class="bi bi-check-circle me-1"></i>No credit card required
-                            <span class="mx-2">•</span>
-                            <i class="bi bi-check-circle me-1"></i>14-day free trial
-                            <span class="mx-2">•</span>
-                            <i class="bi bi-check-circle me-1"></i>Cancel anytime
-                        </small>
-                    </div>
-                </div>
-                <div class="col-lg-6 text-center">
-                    <div class="position-relative">
-                        <img src="https://cdn.flyonui.com/fy-assets/blocks/marketing-ui/hero/hero-21.png" class="img-fluid rounded-3 shadow-lg" alt="AI PowerTool Dashboard">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- About Section -->
-    <section id="about" class="py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center mb-5">
-                    <h2 class="display-5 fw-bold mb-4">About AI PowerTool</h2>
-                    <p class="lead text-muted">
-                        We're on a mission to democratize AI and make advanced artificial intelligence accessible to businesses of all sizes.
-                    </p>
+<!-- Hero Section -->
+<section id="home" class="hero-section gradient-bg">
+    <div class="container">
+        <div class="row align-items-center">
+
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-white mb-4">
+                    Empowering Businesses with Intelligent AI Automation
+                </h1>
+
+                <p class="lead text-white-50 mb-4">
+                    FinSolve Technologies builds next-generation AI-powered solutions that help businesses automate operations, unlock real-time insights, and make smarter decisions at scale.
+
+                    Our flagship platform, <strong>AI PowerTool</strong>, combines machine learning, automation, and analytics into one seamless system designed for modern enterprises.
+                </p>
+
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    <a href="#how-it-works" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-play-circle me-2"></i>Watch Demo
+                    </a>
                 </div>
             </div>
 
-            <div class="row g-4 align-items-center">
-                <div class="col-lg-6">
-                    <h3 class="h2 mb-4">Pioneering the Future of Business Intelligence</h3>
-                    <p class="mb-4">
-                        Founded in 2020 by a team of AI researchers and industry veterans, AI PowerTool has quickly become the leading platform for enterprise AI solutions. We combine cutting-edge machine learning algorithms with intuitive user interfaces to deliver powerful insights and automation capabilities.
-                    </p>
-                    <p class="mb-4">
-                        Our platform serves over 10,000 companies worldwide, from startups to Fortune 500 enterprises, helping them transform their operations through intelligent automation and data-driven decision making.
-                    </p>
-
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <div class="text-center">
-                                <h4 class="h2 text-primary fw-bold">10K+</h4>
-                                <p class="text-muted mb-0">Happy Customers</p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-center">
-                                <h4 class="h2 text-primary fw-bold">99.9%</h4>
-                                <p class="text-muted mb-0">Uptime</p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-center">
-                                <h4 class="h2 text-primary fw-bold">50+</h4>
-                                <p class="text-muted mb-0">AI Models</p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-center">
-                                <h4 class="h2 text-primary fw-bold">24/7</h4>
-                                <p class="text-muted mb-0">Support</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 text-center">
-                    <img src="https://cdn.flyonui.com/fy-assets/blocks/marketing-ui/about/about-17.png" class="img-fluid" alt="Our Team">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="py-5 bg-light">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center mb-5">
-                    <h2 class="display-5 fw-bold mb-4">Powerful Features</h2>
-                    <p class="lead text-muted">
-                        Discover the comprehensive suite of AI tools designed to supercharge your business operations.
-                    </p>
+            <div class="col-lg-6 text-center">
+                <div class="position-relative">
+                    <img src="/static/images/chatbot.png"
+                         class="img-fluid rounded-3 shadow-lg"
+                         alt="AI PowerTool Dashboard">
                 </div>
             </div>
 
-            <div class="row g-4">
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-primary bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
-                                <i class="bi bi-sliders text-white fs-2"></i>
-                            </div>
-                            <h5 class="card-title">Machine Learning</h5>
-                            <p class="card-text text-muted">
-                                Advanced ML algorithms that learn from your data to provide accurate predictions and insights.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-success bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
-                                <i class="bi bi-gear-wide-connected text-white fs-2"></i>
-                            </div>
-                            <h5 class="card-title">Process Automation</h5>
-                            <p class="card-text text-muted">
-                                Automate repetitive tasks and workflows to increase efficiency and reduce human error.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-info bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
-                                <i class="bi bi-graph-up-arrow text-white fs-2"></i>
-                            </div>
-                            <h5 class="card-title">Real-time Analytics</h5>
-                            <p class="card-text text-muted">
-                                Get instant insights from your data with our powerful real-time analytics dashboard.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-warning bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
-                                <i class="bi bi-shield-check text-white fs-2"></i>
-                            </div>
-                            <h5 class="card-title">Enterprise Security</h5>
-                            <p class="card-text text-muted">
-                                Bank-level security with end-to-end encryption and compliance with industry standards.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-danger bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
-                                <i class="bi bi-puzzle text-white fs-2"></i>
-                            </div>
-                            <h5 class="card-title">Easy Integration</h5>
-                            <p class="card-text text-muted">
-                                Seamlessly integrate with your existing tools and systems using our comprehensive APIs.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <div class="feature-icon bg-dark bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
-                                <i class="bi bi-people text-white fs-2"></i>
-                            </div>
-                            <h5 class="card-title">Collaborative Workspace</h5>
-                            <p class="card-text text-muted">
-                                Work together with your team in a shared environment with role-based access controls.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center mb-5">
-                    <h2 class="display-5 fw-bold mb-4">How It Works</h2>
-                    <p class="lead text-muted">
-                        Get started with AI PowerTool in just three simple steps and transform your business operations.
-                    </p>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <div class="text-center">
-                        <div class="step-number mx-auto mb-4">1</div>
-                        <h4 class="mb-3">Connect Your Data</h4>
-                        <p class="text-muted">
-                            Easily connect your existing data sources, databases, and applications through our secure APIs and integrations.
-                        </p>
-                        <img src="https://cdn.flyonui.com/fy-assets/blocks/marketing-ui/features/features-8-1.png" class="img-fluid rounded-3" alt="Connect Data" style="width: 50%;">
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="text-center">
-                        <div class="step-number mx-auto mb-4">2</div>
-                        <h4 class="mb-3">Configure AI Models</h4>
-                        <p class="text-muted">
-                            Choose from our library of pre-trained models or create custom AI solutions tailored to your specific needs.
-                        </p>
-                        <img src="https://cdn.flyonui.com/fy-assets/blocks/marketing-ui/features/features-8-2.png" class="img-fluid rounded-3" alt="AI Models" style="width: 50%;">
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="text-center">
-                        <div class="step-number mx-auto mb-4">3</div>
-                        <h4 class="mb-3">Get Insights & Automate</h4>
-                        <p class="text-muted">
-                            Start receiving intelligent insights and automated workflows that drive better business decisions and efficiency.
-                        </p>
-                        <img src="https://cdn.flyonui.com/fy-assets/blocks/marketing-ui/features/features-8.png" class="img-fluid rounded-3" alt="Insights" style="width: 50%;">
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mt-5">
-                <div class="col-lg-8 mx-auto text-center">
-                    <div class="bg-light rounded-3 p-4">
-                        <h5 class="mb-3">Ready to get started?</h5>
-                        <p class="text-muted mb-3">Join thousands of companies already using AI PowerTool to transform their business.</p>
-                        <a href="#pricing" class="btn btn-primary btn-lg">Start Your Free Trial</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section id="faq" class="py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center mb-5">
-                    <h2 class="display-5 fw-bold mb-4">Frequently Asked Questions</h2>
-                    <p class="lead text-muted">
-                        Find answers to the most common questions about AI PowerTool.
-                    </p>
-                </div>
-            </div>
-
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="accordion" id="faqAccordion">
-                        <div class="accordion-item">
-                            <h3 class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
-                                    What is AI PowerTool and how does it work?
-                                </button>
-                            </h3>
-                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    AI PowerTool is a comprehensive artificial intelligence platform that helps businesses automate processes, analyze data, and make intelligent decisions. It works by connecting to your existing data sources, applying advanced machine learning models, and providing actionable insights through an intuitive dashboard.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h3 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
-                                    How long does it take to set up and see results?
-                                </button>
-                            </h3>
-                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    Most customers can set up AI PowerTool and start seeing initial results within 24-48 hours. Our onboarding team will help you connect your data sources and configure the AI models that best fit your needs. Complex custom integrations may take 1-2 weeks depending on your requirements.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h3 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
-                                    Is my data secure with AI PowerTool?
-                                </button>
-                            </h3>
-                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    Absolutely. We use bank-level security with end-to-end encryption, SOC 2 Type II compliance, and GDPR compliance. Your data is processed securely and never shared with third parties. We also offer on-premise deployment options for enterprises with strict security requirements.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h3 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
-                                    Can I integrate AI PowerTool with my existing systems?
-                                </button>
-                            </h3>
-                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    Yes! AI PowerTool offers comprehensive APIs and pre-built integrations with popular platforms like Salesforce, HubSpot, Slack, Microsoft Office 365, and many more. Our technical team can also help you build custom integrations for your specific systems.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h3 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">
-                                    What kind of support do you provide?
-                                </button>
-                            </h3>
-                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    We provide comprehensive support including email support for all plans, priority support for Professional plans, and 24/7 dedicated support for Enterprise customers. We also offer training sessions, detailed documentation, video tutorials, and a community forum where users can share best practices.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item">
-                            <h3 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6" aria-expanded="false" aria-controls="faq6">
-                                    Can I cancel my subscription anytime?
-                                </button>
-                            </h3>
-                            <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    Yes, you can cancel your subscription at any time with no cancellation fees. Your service will continue until the end of your current billing period. We also offer a 14-day free trial for all new customers, so you can try AI PowerTool risk-free before committing to a paid plan.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-5 bg-light">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center mb-5">
-                    <h2 class="display-5 fw-bold mb-4">Get In Touch</h2>
-                    <p class="lead text-muted">
-                        Ready to transform your business with AI? Contact us today and let's discuss your needs.
-                    </p>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <form class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="firstName" class="form-label">First Name</label>
-                                    <input type="text" class="form-control" id="firstName" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="lastName" class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" id="lastName" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="company" class="form-label">Company</label>
-                                    <input type="text" class="form-control" id="company">
-                                </div>
-                                <div class="col-12">
-                                    <label for="subject" class="form-label">Subject</label>
-                                    <select class="form-select" id="subject">
-                                        <option selected>General Inquiry</option>
-                                        <option>Sales Question</option>
-                                        <option>Technical Support</option>
-                                        <option>Partnership</option>
-                                    </select>
-                                </div>
-                                <div class="col-12">
-                                    <label for="message" class="form-label">Message</label>
-                                    <textarea class="form-control" id="message" rows="4" placeholder="Tell us about your project or questions..."></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="newsletter">
-                                        <label class="form-check-label" for="newsletter">
-                                            Subscribe to our newsletter for AI insights and updates
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-primary btn-lg px-4">
-                                        <i class="bi bi-send me-2"></i>Send Message
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="contact-info">
-                        <div class="mb-4">
-                            <h5 class="fw-bold mb-3">Contact Information</h5>
-
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="contact-icon bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                    <i class="bi bi-geo-alt text-primary"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">Address</h6>
-                                    <p class="text-muted mb-0">123 AI Street, Tech City, TC 12345</p>
-                                </div>
-                            </div>
-
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="contact-icon bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                    <i class="bi bi-telephone text-success"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">Phone</h6>
-                                    <p class="text-muted mb-0">+1 (555) 123-4567</p>
-                                </div>
-                            </div>
-
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="contact-icon bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                    <i class="bi bi-envelope text-info"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">Email</h6>
-                                    <p class="text-muted mb-0">contact@aitoolkit.com</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="social-links">
-                            <h5 class="fw-bold mb-3">Follow Us</h5>
-                            <div class="d-flex gap-2">
-                                <a href="#" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-twitter"></i>
-                                </a>
-                                <a href="#" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-linkedin"></i>
-                                </a>
-                                <a href="#" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-github"></i>
-                                </a>
-                                <a href="#" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-youtube"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Video Modal -->
-    <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="videoModalLabel">AI PowerTool Demo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="ratio ratio-16x9">
-                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="AI PowerTool Demo" allowfullscreen></iframe>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
+</section>
 
-    <!-- Bootstrap 5.3 JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<!-- About Section -->
+<section id="about" class="py-5">
+    <div class="container">
 
-    <!-- Custom JavaScript -->
-    <script src="/static/js/script.js"></script>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-4">About FinSolve Technologies</h2>
+                <p class="lead text-muted">
+                    Building intelligent AI solutions that help businesses operate smarter, faster, and more efficiently.
+                </p>
+            </div>
+        </div>
 
-    <script>
-        // Contact form handling
-        document.getElementById('contactForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+        <div class="row g-4 align-items-center">
 
-            // Show success message (you would implement actual form submission here)
-            const button = e.target.querySelector('button[type="submit"]');
-            const originalText = button.innerHTML;
+            <div class="col-lg-6">
+                <h3 class="h2 mb-4">Transforming Business with AI Innovation</h3>
 
-            button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Message Sent!';
-            button.classList.remove('btn-primary');
-            button.classList.add('btn-success');
+                <p class="mb-4">
+                    FinSolve Technologies is a modern fintech and AI solutions company focused on building intelligent tools that simplify complex business operations.
+                    Founded in 2020, we combine artificial intelligence, automation, and data analytics to create scalable digital platforms for real-world challenges.
+                </p>
 
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.classList.remove('btn-success');
-                button.classList.add('btn-primary');
-                e.target.reset();
-            }, 3000);
-        });
+                <p class="mb-4">
+                    Our flagship product, <strong>AI PowerTool</strong>, enables organizations to automate workflows, analyze data in real time, and unlock actionable insights for better decision-making.
+                </p>
 
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    const navbarHeight = document.querySelector('.navbar').offsetHeight;
-                    const targetPosition = target.offsetTop - navbarHeight;
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
+                <p class="mb-4">
+                    With a growing presence across India and global markets, we work with startups and enterprises to deliver secure, reliable, and future-ready technology solutions.
+                </p>
 
-        // Active navigation highlighting
-        window.addEventListener('scroll', function () {
-            const sections = document.querySelectorAll('section[id]');
-            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-            const navbarHeight = document.querySelector('.navbar').offsetHeight;
+                <div class="row g-3">
+                    <div class="col-6 text-center">
+                        <h4 class="h2 text-primary fw-bold">10K+</h4>
+                        <p class="text-muted mb-0">Customers</p>
+                    </div>
+                    <div class="col-6 text-center">
+                        <h4 class="h2 text-primary fw-bold">99.9%</h4>
+                        <p class="text-muted mb-0">Uptime</p>
+                    </div>
+                    <div class="col-6 text-center">
+                        <h4 class="h2 text-primary fw-bold">50+</h4>
+                        <p class="text-muted mb-0">AI Models</p>
+                    </div>
+                    <div class="col-6 text-center">
+                        <h4 class="h2 text-primary fw-bold">24/7</h4>
+                        <p class="text-muted mb-0">Support</p>
+                    </div>
+                </div>
 
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop - navbarHeight - 50;
-                if (window.pageYOffset >= sectionTop) {
-                    current = section.getAttribute('id');
-                }
-            });
+            </div>
 
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === '#' + current) {
-                    link.classList.add('active');
-                }
-            });
-        });
-    </script>
+            <div class="col-lg-6 text-center">
+                <img src="https://cdn.flyonui.com/fy-assets/blocks/marketing-ui/about/about-17.png"
+                     class="img-fluid"
+                     alt="Team Collaboration">
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5 bg-light">
+    <div class="container">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-4">Powerful Features</h2>
+                <p class="lead text-muted">
+                    Everything you need to automate workflows, analyze data, and scale your business intelligently.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-sliders text-white fs-2"></i>
+                        </div>
+                        <h5>Machine Learning Intelligence</h5>
+                        <p class="text-muted">
+                            Adaptive AI models that learn from your data to improve predictions and insights over time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-gear-wide-connected text-white fs-2"></i>
+                        </div>
+                        <h5>Workflow Automation</h5>
+                        <p class="text-muted">
+                            Automate repetitive tasks and streamline operations to increase efficiency and reduce errors.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-info bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-graph-up-arrow text-white fs-2"></i>
+                        </div>
+                        <h5>Real-Time Analytics</h5>
+                        <p class="text-muted">
+                            Get instant insights with live dashboards and performance tracking tools.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-warning bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-shield-check text-white fs-2"></i>
+                        </div>
+                        <h5>Enterprise Security</h5>
+                        <p class="text-muted">
+                            End-to-end encryption and enterprise-grade security for complete data protection.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-danger bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-puzzle text-white fs-2"></i>
+                        </div>
+                        <h5>Seamless Integration</h5>
+                        <p class="text-muted">
+                            Connect easily with existing tools, APIs, and enterprise systems.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-dark bg-gradient d-inline-flex align-items-center justify-content-center mb-3">
+                            <i class="bi bi-people text-white fs-2"></i>
+                        </div>
+                        <h5>Collaborative Platform</h5>
+                        <p class="text-muted">
+                            Work efficiently with teams using role-based access and shared workflows.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="py-5">
+    <div class="container">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center mb-5">
+                <h2 class="display-5 fw-bold mb-4">How It Works</h2>
+                <p class="lead text-muted">
+                    Get started in minutes and transform your business with AI automation.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4 text-center">
+                <div class="step-number mx-auto mb-4">1</div>
+                <h4 class="mb-3">Connect Data</h4>
+                <p class="text-muted">
+                    Integrate your business systems securely with our APIs.
+                </p>
+            </div>
+
+            <div class="col-lg-4 text-center">
+                <div class="step-number mx-auto mb-4">2</div>
+                <h4 class="mb-3">Configure AI</h4>
+                <p class="text-muted">
+                    Choose or customize AI models for your business needs.
+                </p>
+            </div>
+
+            <div class="col-lg-4 text-center">
+                <div class="step-number mx-auto mb-4">3</div>
+                <h4 class="mb-3">Automate & Scale</h4>
+                <p class="text-muted">
+                    Get insights and automate workflows instantly.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
 {% endblock %}
