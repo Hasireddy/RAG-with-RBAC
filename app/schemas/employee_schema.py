@@ -27,6 +27,12 @@ class EmployeeCreate(BaseModel):
     dept_id: int
     role_id: int | None = None
 
+    password: str = Field(
+        min_length=8,
+        max_length=128,
+        description="Employee account password"
+    )
+
     @field_validator("emp_name", "job_title")
     @classmethod
     def validate_alpha(cls, v):
