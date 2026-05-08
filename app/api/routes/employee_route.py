@@ -8,6 +8,7 @@ from app.models.employee_model import EmployeeDB
 from app.models.company_model import CompanyDB
 from app.models.department_model import DepartmentDB
 from app.models.role_model import RoleDB
+from app.auth.hash_password import hash_password
 
 router = APIRouter(prefix="/employees", tags=["Employees"])
 
@@ -49,15 +50,20 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Department not found")
 
     # Check a role if it exists to assign to the employee
-    #role = db.query(RoleDB).filter(RoleDB.id == employee.role_id).first()
+    role = None
+    if employee.role_id is not None:
+        role = db.query(RoleDB).filter(
+            RoleDB.id == employee.role_id
+        ).first()
 
-    #if not role:
-        raise HTTPException(status_code=404, detail="Role not found")
+        if not role:
+            raise HTTPException(status_code=404, detail="Role not found")
 
     # Create a new employee
     new_employee = EmployeeDB(
         emp_name=employee.emp_name,
         email=employee.email,
+        hashed_password=hash_password(employee.password),
         job_title=employee.job_title,
         company_id=employee.company_id,
         dept_id=employee.dept_id,
