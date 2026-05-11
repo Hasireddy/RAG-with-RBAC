@@ -12,6 +12,7 @@ from langchain_openai import ChatOpenAI
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
 api_key = os.getenv("API_KEY")
 
+
 client = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=api_key)
 
 
