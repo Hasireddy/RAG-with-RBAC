@@ -4,6 +4,10 @@ from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException
 from typing import Optional
 from jose import jwt, JWTError
+from sqlalchemy.orm import Session
+
+from app.models.employee_model import EmployeeDB
+from app.auth.hash_password import verify_password
 
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev_secret_only")
@@ -32,6 +36,55 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
+
+
+def get_user_by_email(db: Session, email: str) -> EmployeeDB | None:
+    """
+    Retrieve a user from the database by email.
+
+    Args:
+        db: Database session
+        username: Username to look up
+
+    Returns:
+        UserDB object if found, None otherwise
+    """
+    return db.query(EmployeeDB).filter(EmployeeDB.email == email).first()
+
+
+
+def authenticate_user(db: Session, email: str, password: str) -> EmployeeDB | None:
+    """
+    Authenticate a user by username and password.
+
+    Args:
+        db: Database session
+        username: The username to authenticate
+        password: The password to verify
+
+    Returns:
+        UserDB object if authenticated, None otherwise
+    """
+    password = password.strip()
+    user = get_user_by_email(db, email)
+
+    print("USER:", user)
+
+    if not user:
+        print("NO USER FOUND")
+        return None
+
+    print("DB HASH:", user.hashed_password)
+    print("INPUT PASSWORD:", password)
+
+    valid = verify_password(password, user.hashed_password)
+
+    print("PASSWORD MATCH:", valid)
+
+    if not valid:
+        return None
+
+    return user
 
 
 def get_current_user(token=Depends(oauth2_scheme)):
