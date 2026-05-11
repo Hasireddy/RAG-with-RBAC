@@ -1,12 +1,14 @@
 from .create_vector_store import create_vector_store
 
+
 # Build vector store once on import/startup
 vector_store = create_vector_store()
 
 # Step4:Run a semantic search
 def semantic_search(vector_store, query):
-    """Runs a semantic search and retrieves top 3 formatted context(matching results)"""
+    """Runs a semantic search with department based RAG and retrieves top 3 formatted context(matching results)"""
 
+    #results = vector_store.similarity_search(query=query, k=3, filter={"department": department})
     results = vector_store.similarity_search(query=query, k=3)
 
     # for i, doc in enumerate(results, start=1):

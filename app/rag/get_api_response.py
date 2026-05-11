@@ -20,6 +20,7 @@ vector_store = create_vector_store()
 def get_response(query:str):
     """Returns API response  based on semantic search context"""
     print(query)
+    #context = semantic_search(vector_store, query, department=dept_id)
     context = semantic_search(vector_store, query)
 
     # User prompt
@@ -52,7 +53,7 @@ def get_response(query:str):
                        Please compare the question to the answer.
                        Use only the information provided in the context to answer.
                        Be concise and exact. Do not add external knowledge and hallucinate.
-                       If the information is not fully present or not at all present, say "Information not provided in the documents.
+                       If the information is not fully present or not relevant to the provided documents, say "Information not provided in the documents.
                        Ensure the answer is the accurate, has a friendly tone like you are explaining it to a colleague.
                      """
          },

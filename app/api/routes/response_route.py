@@ -4,15 +4,15 @@ from sqlalchemy.orm import Session
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
-import json
 
-from fastapi.responses import JSONResponse
+
 from app.schemas.response_schema import  ResponseSchema
 from app.schemas.query_schema import QueryRequest
 from app.database.session import get_db
 from app.models.response_model import AIResponseDB
 #from app.rag.embed_documents import get_response
 from app.rag.get_api_response import get_response
+from app.auth.jwt import get_current_user
 
 
 # Load environment variables
@@ -77,7 +77,16 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db)):
     try:
         query = payload.query
 
-        response_text =  get_response(query)
+        #dept_id = user.get("dept_id")
+
+        #if dept_id is None:
+            #raise HTTPException(
+                #status_code=401,
+                #detail="Invalid token payload"
+            #)
+
+        #response_text =  get_response(query, dept_id)
+        response_text = get_response(query)
 
         if not  response_text:
             response_text = "No response generated."

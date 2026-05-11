@@ -12,7 +12,6 @@ import uvicorn
 from app.api.api import api_router
 
 
-
 # Load environment variables
 load_dotenv()
 API_KEY=os.getenv("API_KEY")
@@ -35,6 +34,7 @@ app = FastAPI(
 
 # Include all routes
 app.include_router(api_router)
+
 
 #Templates and static folders
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
