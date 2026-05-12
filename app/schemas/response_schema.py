@@ -10,3 +10,5 @@ class ResponseSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+

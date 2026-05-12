@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+import uuid
 
 
 from app.schemas.response_schema import  ResponseSchema
@@ -86,12 +87,14 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db)):
             #)
 
         #response_text =  get_response(query, dept_id)
-        response_text = get_response(query)
+        session_id = payload.session_id or str(uuid.uuid4())
+        response_text = get_response(query, session_id)
 
         if not  response_text:
             response_text = "No response generated."
 
         # Save response in DB
+        print("TYPE:", type(response_text))
         ai_response = AIResponseDB(result=response_text)
         db.add(ai_response)
         db.commit()

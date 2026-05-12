@@ -5,6 +5,7 @@ from openai import OpenAI
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from app.database.init_db import init_db
 import os
 import uvicorn
 
@@ -20,6 +21,7 @@ API_KEY=os.getenv("API_KEY")
 # Initialize the database
 @asynccontextmanager
 async def lifespan(app:FastAPI):
+    #init_db()
     yield
 
 

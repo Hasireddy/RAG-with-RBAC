@@ -1,8 +1,10 @@
 from pydantic import BaseModel
+from typing import Optional
 
 # user query request
 class QueryRequest(BaseModel):
     query: str
+    session_id: Optional[str] = None
 
 
 
