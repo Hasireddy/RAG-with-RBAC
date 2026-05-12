@@ -3,9 +3,11 @@ from pathlib import Path
 import os
 
 from langchain_openai import ChatOpenAI
+from langchain_community.chat_message_histories import SQLChatMessageHistory
 
 from .create_vector_store import create_vector_store
 from .semantic_docs_search import semantic_search
+
 
 # Load environment variables
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
@@ -17,19 +19,36 @@ client = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=api_key)
 vector_store = create_vector_store()
 
 
-def get_response(query:str):
+def get_memory(session_id: str):
+    return SQLChatMessageHistory(
+        session_id=session_id,
+        connection_string="sqlite:///chat_history.db"
+    )
+
+def format_history(history):
+    return "\n".join([f"{m.type}: {m.content}" for m in history.messages])
+
+
+def get_response(query:str, session_id: str):
     """Returns API response  based on semantic search context"""
     print(query)
     #context = semantic_search(vector_store, query, department=dept_id)
     context = semantic_search(vector_store, query)
+    history = get_memory(session_id)
+    chat_history = format_history(history)
 
     # User prompt
     prompt_step1 = [
         {"role": "system",
-         "content": """You are a technical documentation expert and a helpful assistant for a company.
-                        Your task is to help answer a question given in a document.  
+         "content": f"""You are a technical documentation expert and a helpful assistant for a company.
+                        Your task is to help answer a question given in a document. 
+                        If the question is about the user (e.g., name, greetings, personal context), always use chat history first. 
                         If the user greets, greet them with their name. 
-                        The first step is to extract the relevant quotes from the document."""
+                        Only use document context for factual/company-related queries.
+                        The first step is to extract the relevant quotes from the document.
+                         Chat history:
+                        {chat_history}   
+                        """
          },
         {"role": "user",
          "content": f"""Question:
@@ -48,12 +67,13 @@ def get_response(query:str):
 
     prompt_step2 = [
         {"role": "system",
-         "content": """
+         "content": f"""
+                      You are a technical documentation expert.
                       Given a set of relevant quotes extracted from the document.
                        Please compare the question to the answer.
                        Use only the information provided in the context to answer.
                        Be concise and exact. Do not add external knowledge and hallucinate.
-                       If the information is not fully present or not relevant to the provided documents, say "Information not provided in the documents.
+                       If the information is not fully present or not relevant to the provided documents, say "Information not provided in the documents."
                        Ensure the answer is the accurate, has a friendly tone like you are explaining it to a colleague.
                      """
          },
@@ -73,9 +93,16 @@ def get_response(query:str):
 
     prompt_step3 = [
         {"role": "system",
-         "content": """Summarize the information into one or two sentences.
-                        Use Bullet points if appropriate.
-                        Use Json format if required.
+         "content": """You are a response formatting assistant. 
+                        Rewrite the answer clearly and naturally.
+                        Summarize the information into one or two sentences.
+                        Use Bullet points if multiple items exist.
+                        Return Json format if the user requested structured data.
+                        Special rules:
+                        - If answer contains:
+                        "Information not provided in the documents."
+                        then return it exactly as-is.
+                        
                         Here are few examples of the input and output .
                         input:"Hi my name is uma"
                         output:"Hello Uma, How can I help you?
@@ -110,10 +137,12 @@ def get_response(query:str):
     print(f"step3:{answer3.content}")
 
     # generate answer
-    response = answer3
+    response = answer3.content
 
-    print(response.content)
-    return response.content
+    print(response)
+    history.add_user_message(query)
+    history.add_ai_message(response)
+    return response
 
 
 # Example usage
