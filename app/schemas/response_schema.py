@@ -1,12 +1,12 @@
-from pydantic import BaseModel
-from typing import Any
+from pydantic import BaseModel, Field
+from app.schemas.messages_schema import  MessageSchema
 
 
 # pydantic model for API validation
 
 class ResponseSchema(BaseModel):
-    id: int
-    result: Any #str,dict,list
+    session_id: str
+    messages: list[MessageSchema] = Field(default_factory=list)
 
     class Config:
         from_attributes = True

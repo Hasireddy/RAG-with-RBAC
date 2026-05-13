@@ -1,9 +1,12 @@
 from dotenv import load_dotenv
-from pathlib import Path
 import os
 
 from langchain_openai import ChatOpenAI
-from langchain_community.chat_message_histories import SQLChatMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.output_parsers import StrOutputParser
+
 
 from .create_vector_store import create_vector_store
 from .semantic_docs_search import semantic_search
@@ -18,15 +21,57 @@ client = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=api_key)
 # Build vector store once
 vector_store = create_vector_store()
 
+# prompt
+prompt = ChatPromptTemplate.from_messages([
+        (
+            "system",
+            """
+    You are a technical documentation expert and helpful assistant.
 
-def get_memory(session_id: str):
-    return SQLChatMessageHistory(
-        session_id=session_id,
-        connection_string="sqlite:///chat_history.db"
-    )
+    Rules:
+    - Use chat history for greetings, names, and conversational context.
+    - Use document context only for company/document-related answers.
+    - Answer only from the provided context.
+    - Do not hallucinate.
+    - If information is unavailable, say:
+      "Information not provided in the documents."
 
-def format_history(history):
-    return "\n".join([f"{m.type}: {m.content}" for m in history.messages])
+    Formatting:
+    - Keep answers concise.
+    - Use bullet points if needed.
+    - Return JSON only if the user explicitly asks for structured output.
+    """
+        ),
+
+        MessagesPlaceholder(variable_name="history"),
+
+        (
+            "human",
+            """
+    Question:
+    {query}
+
+    Document Context:
+    {context}
+    """
+        )
+    ])
+# Chain
+chain = prompt | client
+store = {}
+
+def get_session_history(session_id: str):
+    if session_id not in store:
+        store[session_id] = ChatMessageHistory()
+    return store[session_id]
+
+chain_with_memory = RunnableWithMessageHistory(
+    chain,
+    get_session_history,
+    input_messages_key="query",
+    history_messages_key="history"
+
+)
 
 
 def get_response(query:str, session_id: str):
@@ -34,120 +79,32 @@ def get_response(query:str, session_id: str):
     print(query)
     #context = semantic_search(vector_store, query, department=dept_id)
     context = semantic_search(vector_store, query)
-    history = get_memory(session_id)
-    chat_history = format_history(history)
 
-    # User prompt
-    prompt_step1 = [
-        {"role": "system",
-         "content": f"""You are a technical documentation expert and a helpful assistant for a company.
-                        Your task is to help answer a question given in a document. 
-                        If the question is about the user (e.g., name, greetings, personal context), always use chat history first. 
-                        If the user greets, greet them with their name. 
-                        Only use document context for factual/company-related queries.
-                        The first step is to extract the relevant quotes from the document.
-                         Chat history:
-                        {chat_history}   
-                        """
-         },
-        {"role": "user",
-         "content": f"""Question:
-                {query}
+    # Invoke chain
+    response = chain_with_memory.invoke(
+        {
+            "query": query,
+            "context": context
+        },
+        config={
+            "configurable": {
+                "session_id": session_id
+            }
+        }
+    )
 
-                Context:
-                {context}
+    return response.content
 
-                """
-         }
-    ]
+"""while True:
+    user_input = input("user: ")
+    if user_input.lower() == "exit":
+        print("Goodbye!")
+        break
 
-    step1_response = client.invoke(prompt_step1)
-    answer1 = step1_response.content
-    print(f"step1:{answer1}")
+    response = chain_with_memory.invoke(
+        {"query": user_input},
+        config={"configurable": {"session_id": "user1"}}
+    )
+    print(response.content)
 
-    prompt_step2 = [
-        {"role": "system",
-         "content": f"""
-                      You are a technical documentation expert.
-                      Given a set of relevant quotes extracted from the document.
-                       Please compare the question to the answer.
-                       Use only the information provided in the context to answer.
-                       Be concise and exact. Do not add external knowledge and hallucinate.
-                       If the information is not fully present or not relevant to the provided documents, say "Information not provided in the documents."
-                       Ensure the answer is the accurate, has a friendly tone like you are explaining it to a colleague.
-                     """
-         },
-        {"role": "user",
-         "content": f"""Question:
-                {query}
-
-                Context:
-                {answer1}
-
-                """
-         }
-    ]
-
-    answer2 = client.invoke(prompt_step2)
-    print(f"step2:{answer2.content}")
-
-    prompt_step3 = [
-        {"role": "system",
-         "content": """You are a response formatting assistant. 
-                        Rewrite the answer clearly and naturally.
-                        Summarize the information into one or two sentences.
-                        Use Bullet points if multiple items exist.
-                        Return Json format if the user requested structured data.
-                        Special rules:
-                        - If answer contains:
-                        "Information not provided in the documents."
-                        then return it exactly as-is.
-                        
-                        Here are few examples of the input and output .
-                        input:"Hi my name is uma"
-                        output:"Hello Uma, How can I help you?
-                        input: What are Client applications?
-                        output: Client applications are Mobile, Web and API applications.
-                        input: What is the financial overview of 2024?
-                        output: The financial overview of 2024 is 28%.
-                        input: What are Databases?
-                        output: Information about Databases is not provided in the documents.
-                        "input": List the full name, email id and location of employees in the sales department who took more than 10 leaves?
-                        "output": 
-                                    {  "name": "Krishna Verma",
-                                        "email": "vihaan.garg@fintechco.com",
-                                         "location": "Jaipur",
-                                          "leaves_taken": 21
-                                    }
-                """
-         },
-
-        {"role": "user",
-         "content": f"""Question:
-                {query}
-
-                Context:
-                {answer2}
-
-                """
-         }
-    ]
-
-    answer3 = client.invoke(prompt_step3)
-    print(f"step3:{answer3.content}")
-
-    # generate answer
-    response = answer3.content
-
-    print(response)
-    history.add_user_message(query)
-    history.add_ai_message(response)
-    return response
-
-
-# Example usage
-#query = "What is Python?"
-#query="List all employees details in sales department who took more then 10 leaves?"
-#query="Explain employee onboarding benefits?"
-#query="Explain Public Holidays Policy?"
-#print("API Response:", get_response(query))
+#print(store)"""
