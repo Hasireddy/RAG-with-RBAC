@@ -5,3 +5,4 @@ from .role_model import RoleDB
 from .permissions_model import PermissionDB
 from .document_model import DocumentDB
 from .response_model import  AIResponseDB
+from .messages_model import  ChatMessage
