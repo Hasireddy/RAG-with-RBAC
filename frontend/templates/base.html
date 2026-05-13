@@ -20,6 +20,114 @@
         {% block content %}{% endblock %}
     </main>
     {% include "footer.html" %}
+    <!-- Chat Bubble Button -->
+<div id="chat-bubble">
+    💬
+</div>
+
+<!-- Chat Window -->
+<div id="chat-window">
+    <div class="chat-header">
+        AI Chatbot
+        <span id="close-chat">✖</span>
+    </div>
+
+    <div class="chat-body">
+        <p>Hello 👋 How can I help you?</p>
+    </div>
+
+    <div class="chat-footer">
+        <input type="text" placeholder="Type a message..." />
+    </div>
+</div>
+
+<style>
+
+    /* Floating Bubble */
+    #chat-bubble {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: #0d6efd;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        z-index: 9999;
+    }
+
+    /* Chat Window */
+    #chat-window {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 320px;
+        height: 420px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 9999;
+    }
+
+    .chat-header {
+        background: #0d6efd;
+        color: white;
+        padding: 15px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .chat-body {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+    }
+
+    .chat-footer {
+        padding: 10px;
+        border-top: 1px solid #ddd;
+    }
+
+    .chat-footer input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+
+    #close-chat {
+        cursor: pointer;
+    }
+
+</style>
+
+<script>
+
+    const bubble = document.getElementById("chat-bubble");
+    const chatWindow = document.getElementById("chat-window");
+    const closeChat = document.getElementById("close-chat");
+
+    // Open chat
+    bubble.addEventListener("click", () => {
+        chatWindow.style.display = "flex";
+    });
+
+    // Close chat
+    closeChat.addEventListener("click", () => {
+        chatWindow.style.display = "none";
+    });
+
+</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script src="/static/js/script.js"></script>
 </body>
