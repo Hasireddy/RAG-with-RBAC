@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse,  RedirectResponse
 
 
 from app.database.session import get_db
@@ -13,6 +13,7 @@ from app.models.employee_model import EmployeeDB
 from app.models.department_model import DepartmentDB
 from app.auth.hash_password import verify_password
 from app.auth.jwt import create_access_token, get_current_user, authenticate_user
+from app.database.session import get_db
 
 
 
@@ -24,10 +25,11 @@ templates = Jinja2Templates(directory="frontend/templates")
 
 # Employee login
 @router.post("/token", response_model=TokenResponse)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
       Authenticate user and return JWT access token.
       Use the returned token in the Authorization header as: Bearer <token>
+      Render User details
       """
     user = authenticate_user(db, form_data.username, form_data.password)
 
@@ -38,44 +40,62 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token = create_access_token(
-        data={
-            "sub": str(user.emp_id),
-            "name": user.emp_name,
+    data={
+            "emp_id": str(user.emp_id),
+            "emp_name": user.emp_name,
             "email": user.email,
-            "role_id": user.role_id,
-            "dept_id": user.dept_id
+            #"role_id": user.role_id,
+            "job_title": user.job_title,
+            "dept_id": user.dept_id,
+            "dept_name": user.department.dept_name if user.department else None
         }
-    )
 
-    return {"access_token": token, "token_type": "bearer"}
+    token = create_access_token(data=data)
+
+    print("USER:", data["emp_id"])
+    print("NAME:", data["emp_name"])
+    print("EMAIL:", data["email"])
+    print("ROLE:", data["job_title"])
+    print("DEPARTMENT ID:", data["dept_id"])
+    print("DEPARTMENT:", data["dept_name"])
+
+
+    return {"access_token": token, "token_type": "bearer", "data": data}
+    #return templates.TemplateResponse(
+        #name="user_details.html",
+        #context={"access_token": token, "token_type": "bearer", "data": data}
+    #)
 
 
 
 
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
+    """Render the login page"""
     return templates.TemplateResponse(
         request=request, name="login.html"
     )
 
 
-# Get current user
-@router.get("/me")
-def get_me(
-    user=Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Get information about the currently authenticated user."""
 
-    dept = db.query(DepartmentDB).filter(
-        DepartmentDB.id == user["dept_id"]
-    ).first()
+@router.get("/logout", response_class=HTMLResponse)
+def logout(request: Request):
+    """
+    Render logout page and instruct client to remove JWT from storage.
+    """
+    return templates.TemplateResponse(
+        request=request, name="logout.html"
+    )
 
-    return {
-        "user": user,
-        "department_name": dept.dept_name if dept else None
-    }
+
+"""@router.get("/me", response_class=HTMLResponse)
+def login_page(request: Request):
+    Render the login page
+    return templates.TemplateResponse(
+        request=request, name="user_details.html")"""
+
+
+
 
 
 

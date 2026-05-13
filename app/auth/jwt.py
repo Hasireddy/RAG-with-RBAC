@@ -91,7 +91,16 @@ def get_current_user(token=Depends(oauth2_scheme)):
     try:
         jwt_token = token.credentials
         payload = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
+
+        return {
+            "emp_id": payload.get("emp_id"),
+            "emp_name": payload.get("emp_name"),
+            "email": payload.get("email"),
+            #"role_id": payload.get("role_id"),
+            "job_title": payload.get("job_title"),
+            "dept_id": payload.get("dept_id"),
+            "dept_name": payload.get("department.dept_name")
+        }
 
     except JWTError as e:
         print(" JWT ERROR:", str(e))
