@@ -23,39 +23,63 @@ vector_store = create_vector_store()
 
 # prompt
 prompt = ChatPromptTemplate.from_messages([
-        (
-            "system",
-            """
-    You are a technical documentation expert and helpful assistant.
+    (
+        "system",
+        """
+You are a technical documentation expert and helpful assistant.
 
-    Rules:
-    - Use chat history for greetings, names, and conversational context.
-    - Use document context only for company/document-related answers.
-    - Answer only from the provided context.
-    - Do not hallucinate.
-    - If information is unavailable, say:
-      "Information not provided in the documents."
+You have access to three sources of information:
 
-    Formatting:
-    - Keep answers concise.
-    - Use bullet points if needed.
-    - Return JSON only if the user explicitly asks for structured output.
-    """
-        ),
+---
 
-        MessagesPlaceholder(variable_name="history"),
+1. USER CONTEXT (personal information about the logged-in user):
+- Name: {emp_name}
+- Email: {email}
+- Department ID: {dept_id}
 
-        (
-            "human",
-            """
-    Question:
-    {query}
+RULES FOR USER CONTEXT:
+Always use this for identity-related questions such as:
+- If the question asks about the user (name, email, identity), answer ONLY from this section.
+- Never say "information not provided" if emp_name exists.
+- Always greet the user using emp_name when starting conversation like:
+"Hello {emp_name}"
 
-    Document Context:
-    {context}
-    """
-        )
-    ])
+---
+
+2. CHAT HISTORY:
+You may use previous conversation context to maintain continuity and understand references.
+
+---
+
+3. DOCUMENT CONTEXT (company knowledge base):
+{context}
+
+Use DOCUMENT CONTEXT ONLY for company, technical, or documentation-related questions.
+
+---
+
+RULES:
+- Never mix user context with document context.
+- If the answer is not found in either USER CONTEXT or DOCUMENT CONTEXT, say:
+  "Information not provided in the documents."
+- Do not hallucinate or assume missing information.
+- Be concise and professional.
+- Use bullet points if needed.
+- Return JSON only if explicitly requested.
+"""
+    ),
+
+    MessagesPlaceholder(variable_name="history"),
+
+    (
+        "human",
+        """
+Question:
+{query}
+"""
+    )
+])
+
 # Chain
 chain = prompt | client
 store = {}
@@ -74,7 +98,7 @@ chain_with_memory = RunnableWithMessageHistory(
 )
 
 
-def get_response(query:str, session_id: str):
+def get_response(query:str, session_id: str, emp_name: str, email: str, dept_id: str):
     """Returns API response  based on semantic search context"""
     print(query)
     #context = semantic_search(vector_store, query, department=dept_id)
@@ -84,7 +108,10 @@ def get_response(query:str, session_id: str):
     response = chain_with_memory.invoke(
         {
             "query": query,
-            "context": context
+            "context": context,
+            "emp_name": emp_name,
+            "email": email,
+            "dept_id": dept_id
         },
         config={
             "configurable": {
