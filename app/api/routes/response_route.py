@@ -72,13 +72,25 @@ def create_response(db: Session = Depends(get_db)):
 
 # Get a response
 @router.post("/", response_model=ResponseSchema)
-def create_response(payload: QueryRequest, db: Session = Depends(get_db)):
+def create_response(payload: QueryRequest, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
     """Gets response from openai API"""
 
     try:
         query = payload.query
+        #User details
+        emp_id =user.get("emp_id")
+        emp_name = user.get("emp_name")
+        email = user.get("email")
+        role_id = user.get("role_id")
 
-        #dept_id = user.get("dept_id")
+        # Department details
+        dept_id = user.get("dept_id")
+
+        print("USER:", emp_id)
+        print("NAME:", emp_name)
+        print("EMAIL:", email)
+        print("ROLE:", role_id)
+        print("DEPARTMENT:", dept_id)
 
         #if dept_id is None:
             #raise HTTPException(
