@@ -103,7 +103,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user: 
         if not session_id:
             session_id = str(uuid.uuid4())
 
-        response_text = get_response(query=query, session_id=session_id)
+        response_text = get_response(query=query, session_id=session_id, emp_name=emp_name, email=email, dept_id=dept_id)
 
         if not  response_text:
             response_text = "No response generated."
