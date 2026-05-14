@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database.base import Base
@@ -19,7 +19,7 @@ class ChatMessage(Base):
     # "assistant"
     # "system"
 
-    message = Column(Text, nullable=False)
+    message = Column(JSON, nullable=False)
 
     created_at = Column(
         DateTime(timezone=True),

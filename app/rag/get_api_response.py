@@ -184,18 +184,15 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, dept_id:
     if len(history) > 20:
         history.pop(0)
 
-    return {
-        "success": True,
-        "data": {
+    data = {
             "answer": final_answer,
-            "user": {
-                "name": emp_name,
-                "email": email,
-                "department_id": dept_id
-            },
-            "session_id": session_id
+            "name": emp_name,
+            "email": email,
+            "department_id": dept_id,
+            "session_id": session_id,
         }
-    }
+
+    return data
     """response = chain_with_memory.invoke(
         {
             "query": query,

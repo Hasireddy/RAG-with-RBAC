@@ -66,8 +66,6 @@ def create_response(db: Session = Depends(get_db)):
 
 
 
-
-
 # Get a response
 @router.post("/", response_model=ResponseSchema)
 def create_response(payload: QueryRequest, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
@@ -127,7 +125,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user: 
             emp_id=emp_id,
             role="assistant",
             #message=json.dumps(response_text)
-            message = response_text["data"]["answer"]
+            message = response_text
         )
 
         db.add(assistant_message)
@@ -135,13 +133,19 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user: 
         db.commit()
         db.refresh(user_message)
         db.refresh(assistant_message)
+        print(assistant_message.message["answer"])
         #print(ai_response)
         #return ai_response
         # Return response + session_id
         return {
             "session_id": session_id,
-            "query": query,
-            "result": response_text
+            "messages": [
+                {
+                    "role": assistant_message.role,
+                    "message": assistant_message.message["answer"],
+                    "created_at": assistant_message.created_at
+                }
+            ]
         }
 
     except Exception as e:

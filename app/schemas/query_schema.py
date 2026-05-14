@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict, Any
 
 # user query request
 class QueryRequest(BaseModel):
@@ -12,4 +12,4 @@ class QueryRequest(BaseModel):
 # Response from the system
 class ResponseSchema(BaseModel):
     id: int
-    result: str
+    result: Dict[str, Any]
