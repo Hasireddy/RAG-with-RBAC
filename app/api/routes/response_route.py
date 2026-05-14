@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import os
 import uuid
 import traceback
-
+import json
 
 from app.schemas.response_schema import  ResponseSchema
 from app.schemas.query_schema import QueryRequest
@@ -126,7 +126,8 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user: 
             session_id=session_id,
             emp_id=emp_id,
             role="assistant",
-            message=response_text
+            #message=json.dumps(response_text)
+            message = response_text["data"]["answer"]
         )
 
         db.add(assistant_message)
