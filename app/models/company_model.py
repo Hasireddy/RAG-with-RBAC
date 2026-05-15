@@ -22,5 +22,5 @@ class CompanyDB(Base):
     # Relationship: One Company can have many departments and employees
     departments = relationship("DepartmentDB", back_populates="company", cascade="all, delete-orphan")
     employees = relationship("EmployeeDB", back_populates="company", cascade="all, delete-orphan")
-    documents = relationship("DocumentDB", back_populates="company", cascade="all, delete-orphan")
+
 
