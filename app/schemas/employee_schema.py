@@ -24,7 +24,7 @@ class EmployeeCreate(BaseModel):
         description="Employee email (must be unique)"
     )
     company_id: int
-    dept_id: List
+    dept_id: List[int]
 
     password: str = Field(
         min_length=8,
@@ -40,6 +40,7 @@ class EmployeeCreate(BaseModel):
         return v
 
 
+
 class EmployeeResponse(BaseModel):
     """Employee Response Model"""
 
@@ -47,7 +48,7 @@ class EmployeeResponse(BaseModel):
     emp_name: str
     job_title: str
     email: EmailStr
-    dept_id: int
+    dept_id: List[int]
     company_id: int
     is_active: bool
     created_at: datetime
@@ -57,6 +58,7 @@ class EmployeeResponse(BaseModel):
     }
 
 
+
 class EmployeeUpdate(BaseModel):
     """Employee update model"""
 
@@ -64,6 +66,6 @@ class EmployeeUpdate(BaseModel):
     job_title: Optional[str] = None
     email:Optional[EmailStr] = None
     company_id: Optional[int] = None
-    dept_id: Optional[int] = None
+    dept_id: Optional[List[int]] = None
 
     model_config = {"extra": "forbid"}
