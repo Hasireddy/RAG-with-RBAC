@@ -47,7 +47,7 @@ class EmployeeResponse(BaseModel):
     emp_name: str
     job_title: str
     email: EmailStr
-    dept_id: List
+    dept_id: int
     company_id: int
     is_active: bool
     created_at: datetime
@@ -64,6 +64,6 @@ class EmployeeUpdate(BaseModel):
     job_title: Optional[str] = None
     email:Optional[EmailStr] = None
     company_id: Optional[int] = None
-    dept_id: Optional[List] = None
+    dept_id: Optional[int] = None
 
     model_config = {"extra": "forbid"}

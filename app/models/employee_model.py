@@ -22,7 +22,7 @@ class EmployeeDB(Base):
 
     # Foreign key: Each employee belongs to a department and each department belongs to a company
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
-    dept_id = Column(List, ForeignKey("departments.id", ondelete="CASCADE"), index=True, nullable=False)
+    dept_id = Column(Integer, ForeignKey("departments.id", ondelete="CASCADE"), index=True, nullable=False)
 
 
     # Relationship: Employee is in Department and in a Company
