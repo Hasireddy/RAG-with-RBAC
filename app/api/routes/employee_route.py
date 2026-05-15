@@ -188,22 +188,79 @@ def delete_employee(emp_id: int, db: Session = Depends(get_db)):
 
 
 # Get employee by id
+@router.get("/", response_model=List[EmployeeResponse])
+def get_employees(db: Session = Depends(get_db)):
+
+    employees = db.query(EmployeeDB).all()
+
+    result = []
+
+    for emp in employees:
+
+        departments = db.query(DepartmentDB).filter(
+            DepartmentDB.id.in_(emp.dept_id or [])
+        ).all()
+
+        dept_list = [
+            {
+                "id": d.id,
+                "dept_name": d.dept_name
+            }
+            for d in departments
+        ]
+
+        result.append(
+            EmployeeResponse(
+                emp_id=emp.emp_id,
+                emp_name=emp.emp_name,
+                job_title=emp.job_title,
+                email=emp.email,
+                dept_id=emp.dept_id,
+                departments=dept_list,
+                company_id=emp.company_id,
+                is_active=emp.is_active,
+                created_at=emp.created_at
+            )
+        )
+
+    return result
+
+
+
 @router.get("/employee/{emp_id}", response_model=EmployeeResponse)
 def get_employee_by_id(emp_id: int, db: Session = Depends(get_db)):
-    emp = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
+
+    emp = db.query(EmployeeDB).filter(
+        EmployeeDB.emp_id == emp_id
+    ).first()
 
     if not emp:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail="Employee with given id not found"
         )
 
-    return emp
+    departments = db.query(DepartmentDB).filter(
+        DepartmentDB.id.in_(emp.dept_id or [])
+    ).all()
 
+    dept_list = [
+        {
+            "id": d.id,
+            "dept_name": d.dept_name
+        }
+        for d in departments
+    ]
 
-# Get employees by department
-@router.get("/dept")
-def get_employees_by_department():
-    pass
-
+    return EmployeeResponse(
+        emp_id=emp.emp_id,
+        emp_name=emp.emp_name,
+        job_title=emp.job_title,
+        email=emp.email,
+        dept_id=emp.dept_id,
+        departments=dept_list,
+        company_id=emp.company_id,
+        is_active=emp.is_active,
+        created_at=emp.created_at
+    )
 
