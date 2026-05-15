@@ -43,10 +43,13 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Company not found")
 
     # Check if department exists
-    department = db.query(DepartmentDB).filter(DepartmentDB.id == employee.dept_id).first()
+    departments = db.query(DepartmentDB).filter(DepartmentDB.id.in_(employee.dept_id)).all()
 
-    if not department:
-        raise HTTPException(status_code=404, detail="Department not found")
+    if len(departments) != len(employee.dept_id):
+        raise HTTPException(
+            status_code=404,
+            detail="One or more departments not found"
+        )
 
     # Create a new employee
     new_employee = EmployeeDB(
@@ -55,6 +58,7 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
         hashed_password=hash_password(employee.password),
         job_title=employee.job_title,
         company_id=employee.company_id,
+        dept_id=employee.dept_id
     )
 
     db.add(new_employee)
@@ -67,42 +71,40 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
 
 # Update an employee
 @router.put("/{emp_id}", response_model=EmployeeResponse)
-def update_employee(emp_id: int, employee : EmployeeUpdate, db: Session = Depends(get_db)):
+def update_employee(emp_id: int, employee: EmployeeUpdate, db: Session = Depends(get_db)):
 
-    # Find employee with given id
-    emp_to_update = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
+    emp_to_update = db.query(EmployeeDB).filter(
+        EmployeeDB.emp_id == emp_id
+    ).first()
 
     if not emp_to_update:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail="Employee with given id not found"
         )
 
+    data = employee.model_dump(exclude_unset=True)
 
-    # 2. Update only provided fields
-    # for field, value in employee.dict(exclude_unset=True).items():
+    # Validate dept_id if present
+    if "dept_id" in data and data["dept_id"] is not None:
+        departments = db.query(DepartmentDB).filter(
+            DepartmentDB.id.in_(data["dept_id"])
+        ).all()
+
+        if len(departments) != len(data["dept_id"]):
+            raise HTTPException(
+                status_code=404,
+                detail="One or more departments not found"
+            )
+
+    # Apply updates safely
+    for field, value in data.items():
         setattr(emp_to_update, field, value)
-    if employee.emp_name is not None:
-        emp_to_update.emp_name = employee.emp_name
-
-    if employee.job_title is not None:
-        emp_to_update.job_title = employee.job_title
-
-    if employee.email is not None:
-        emp_to_update.email = employee.email
-
-    if employee.company_id is not None:
-        emp_to_update.company_id = employee.company_id
-
-    if employee.dept_id is not None:
-        emp_to_update.dept_id = employee.dept_id
 
     db.commit()
     db.refresh(emp_to_update)
 
     return emp_to_update
-
-
 
 # Delete an employee
 @router.delete("/{emp_id}")
