@@ -1,5 +1,5 @@
 from .company_schema import CompanyCreate, CompanyResponse
-from .department_schema import DepartmentCreate, DepartmentUpdate, DepartmentResponse
+from .department_schema import DepartmentCreate, DepartmentUpdate, DepartmentResponse, DepartmentInfo
 from .employee_schema import EmployeeCreate, EmployeeResponse
 from .messages_schema import MessageSchema
 from .query_schema import QueryRequest, ResponseSchema

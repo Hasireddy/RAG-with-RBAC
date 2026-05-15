@@ -50,5 +50,11 @@ class DepartmentUpdate(BaseModel):
     dept_name:Optional[str] = None
     dept_code:Optional[str] = None
 
-    model_config = {"extra": "forbid"}
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+
+
+class DepartmentInfo(BaseModel):
+    id: int
+    dept_name: str
 

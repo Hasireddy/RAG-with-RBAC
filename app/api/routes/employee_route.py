@@ -51,6 +51,7 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
             detail="One or more departments not found"
         )
 
+
     # Create a new employee
     new_employee = EmployeeDB(
         emp_name=employee.emp_name,
@@ -65,7 +66,31 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_employee)
 
-    return new_employee
+    # 5. Fetch department names for response
+    departments = db.query(DepartmentDB).filter(
+        DepartmentDB.id.in_(new_employee.dept_id)
+    ).all()
+
+    dept_list = [
+        {
+            "id": d.id,
+            "dept_name": d.dept_name
+        }
+        for d in departments
+    ]
+
+    # 6. Return structured response
+    return EmployeeResponse(
+        emp_id=new_employee.emp_id,
+        emp_name=new_employee.emp_name,
+        job_title=new_employee.job_title,
+        email=new_employee.email,
+        dept_id=new_employee.dept_id,
+        departments=dept_list,
+        company_id=new_employee.company_id,
+        is_active=new_employee.is_active,
+        created_at=new_employee.created_at
+    )
 
 
 
@@ -85,26 +110,66 @@ def update_employee(emp_id: int, employee: EmployeeUpdate, db: Session = Depends
 
     data = employee.model_dump(exclude_unset=True)
 
-    # Validate dept_id if present
+    # 3. Validate company if provided
+    if "company_id" in data:
+        company = db.query(CompanyDB).filter(
+            CompanyDB.id == data["company_id"]
+        ).first()
+
+        if not company:
+            raise HTTPException(
+                status_code=404,
+                detail="Company not found"
+            )
+
+    # 4. Validate departments if provided
     if "dept_id" in data and data["dept_id"] is not None:
+
         departments = db.query(DepartmentDB).filter(
             DepartmentDB.id.in_(data["dept_id"])
         ).all()
 
-        if len(departments) != len(data["dept_id"]):
+        if len(departments) != len(set(data["dept_id"])):
             raise HTTPException(
                 status_code=404,
                 detail="One or more departments not found"
             )
 
-    # Apply updates safely
+    # 5. Apply updates safely
     for field, value in data.items():
         setattr(emp_to_update, field, value)
 
     db.commit()
     db.refresh(emp_to_update)
 
-    return emp_to_update
+    # 6. Build department response (IMPORTANT)
+    departments = db.query(DepartmentDB).filter(
+        DepartmentDB.id.in_(emp_to_update.dept_id)
+    ).all()
+
+    dept_list = [
+        {
+            "id": d.id,
+            "dept_name": d.dept_name
+        }
+        for d in departments
+    ]
+
+    # 7. Return structured response
+    return EmployeeResponse(
+        emp_id=emp_to_update.emp_id,
+        emp_name=emp_to_update.emp_name,
+        job_title=emp_to_update.job_title,
+        email=emp_to_update.email,
+        dept_id=emp_to_update.dept_id,
+        departments=dept_list,
+        company_id=emp_to_update.company_id,
+        is_active=emp_to_update.is_active,
+        created_at=emp_to_update.created_at
+    )
+
+
+
 
 # Delete an employee
 @router.delete("/{emp_id}")

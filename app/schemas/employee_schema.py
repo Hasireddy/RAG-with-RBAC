@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field, field_validator, EmailStr
 from typing import Optional, List
 import re
+from department_schema import DepartmentInfo
 
 # pydantic model for API validation
 
@@ -49,6 +50,7 @@ class EmployeeResponse(BaseModel):
     job_title: str
     email: EmailStr
     dept_id: List[int]
+    departments: List[DepartmentInfo]
     company_id: int
     is_active: bool
     created_at: datetime

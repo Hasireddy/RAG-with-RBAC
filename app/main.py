@@ -21,7 +21,7 @@ API_KEY=os.getenv("API_KEY")
 # Initialize the database
 @asynccontextmanager
 async def lifespan(app:FastAPI):
-    init_db()
+    #init_db()
     yield
 
 
