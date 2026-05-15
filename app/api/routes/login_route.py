@@ -59,13 +59,8 @@ def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db:
     print("DEPARTMENT ID:", data["dept_id"])
     print("DEPARTMENT:", data["dept_name"])
 
-
+    request.session["user"] = data
     return {"access_token": token, "token_type": "bearer", "data": data}
-    #return templates.TemplateResponse(
-        #name="user_details.html",
-        #context={"access_token": token, "token_type": "bearer", "data": data}
-    #)
-
 
 
 
@@ -81,7 +76,7 @@ def login_page(request: Request):
 @router.get("/logout", response_class=HTMLResponse)
 def logout(request: Request):
     """
-    Render logout page and instruct client to remove JWT from storage.
+    Render logout page
     """
     return templates.TemplateResponse(
         request=request, name="logout.html"

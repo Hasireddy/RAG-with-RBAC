@@ -91,6 +91,9 @@ def get_current_user(token=Depends(oauth2_scheme)):
     try:
         jwt_token = token.credentials
         payload = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
+        print("--------------")
+        print(payload)
+        print("--------------")
 
         return {
             "emp_id": payload.get("emp_id"),

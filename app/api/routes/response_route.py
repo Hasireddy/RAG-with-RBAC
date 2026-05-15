@@ -68,11 +68,12 @@ def create_response(db: Session = Depends(get_db)):
 
 # Get a response
 @router.post("/", response_model=ResponseSchema)
-def create_response(payload: QueryRequest, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
+def create_response(payload: QueryRequest, user: dict = Depends(get_current_user)):
     """Gets response from openai API"""
 
     try:
         query = payload.query.strip()
+        print(query)
 
         if not query:
             raise HTTPException(
@@ -157,9 +158,19 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user: 
 
 
 
-@router.get("/", name="chatbot")
+"""@router.get("/", name="chatbot")
 def render_chat(request:Request):
     return templates.TemplateResponse(
         request=request,
         name="chatbot.html",
+    )
+"""
+
+@router.get("/", name="user-details")
+def render_chat(request:Request):
+    return templates.TemplateResponse(
+        request,
+        "user_details.html",
+        {"user": request.session.get("user")}
+
     )
