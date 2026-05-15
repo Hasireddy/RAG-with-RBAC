@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Table, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
+from typing import List
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database.base import Base
@@ -21,7 +22,7 @@ class EmployeeDB(Base):
 
     # Foreign key: Each employee belongs to a department and each department belongs to a company
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
-    dept_id = Column(Integer, ForeignKey("departments.id", ondelete="CASCADE"), index=True, nullable=False)
+    dept_id = Column(List, ForeignKey("departments.id", ondelete="CASCADE"), index=True, nullable=False)
     role_id = Column(Integer, ForeignKey("roles.id"), index=True, nullable=True) # Change this to nullable=False later when creating roles
 
     # Relationship: Employee is in Department and in a Company
