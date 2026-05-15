@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field, field_validator, EmailStr
 from typing import Optional, List
 import re
-from department_schema import DepartmentInfo
+from app.schemas.department_schema import DepartmentInfo
 
 # pydantic model for API validation
 
