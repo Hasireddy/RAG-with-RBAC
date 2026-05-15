@@ -238,6 +238,7 @@
         </div>
       `);
       const token = localStorage.getItem("token");
+      console.log("token", token)
 
       const response = await fetch("/chatbot/", {
         method: "POST",
@@ -249,6 +250,7 @@
           query: message
         })
       });
+      console.log(response.status)
 
       const data = await response.json();
       console.log(data);

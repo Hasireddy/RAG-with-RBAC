@@ -11,7 +11,7 @@ import uvicorn
 
 #from app.database.init_db import init_db
 from app.api.api import api_router
-
+from starlette.middleware.sessions import SessionMiddleware
 
 # Load environment variables
 load_dotenv()
@@ -36,6 +36,7 @@ app = FastAPI(
 
 # Include all routes
 app.include_router(api_router)
+app.add_middleware(SessionMiddleware,secret_key=API_KEY)
 
 
 #Templates and static folders

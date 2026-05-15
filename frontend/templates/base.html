@@ -201,9 +201,11 @@
     {% include "footer.html" %}
 
     <!-- FLOATING BUBBLE -->
+    {% if  user %}
     <div id="chat-bubble">
         💬
     </div>
+    {% endif %}
 
     <!-- CHAT WINDOW -->
     <div id="chat-window">
