@@ -23,13 +23,12 @@ class EmployeeDB(Base):
     # Foreign key: Each employee belongs to a department and each department belongs to a company
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     dept_id = Column(List, ForeignKey("departments.id", ondelete="CASCADE"), index=True, nullable=False)
-    role_id = Column(Integer, ForeignKey("roles.id"), index=True, nullable=True) # Change this to nullable=False later when creating roles
+
 
     # Relationship: Employee is in Department and in a Company
-
     company = relationship("CompanyDB", back_populates="employees")
     department = relationship("DepartmentDB", back_populates="employees")
-    role = relationship("RoleDB", back_populates="employees")
+
 
     # Password Helpers
     def set_password(self, password: str):

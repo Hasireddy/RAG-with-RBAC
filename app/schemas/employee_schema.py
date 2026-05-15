@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator, EmailStr
-from typing import Optional
+from typing import Optional, List
 import re
 
 # pydantic model for API validation
@@ -24,8 +24,7 @@ class EmployeeCreate(BaseModel):
         description="Employee email (must be unique)"
     )
     company_id: int
-    dept_id: int
-    role_id: int | None = None
+    dept_id: List
 
     password: str = Field(
         min_length=8,
@@ -48,9 +47,8 @@ class EmployeeResponse(BaseModel):
     emp_name: str
     job_title: str
     email: EmailStr
-    dept_id: int
+    dept_id: List
     company_id: int
-    role_id: int | None
     is_active: bool
     created_at: datetime
 
@@ -66,7 +64,6 @@ class EmployeeUpdate(BaseModel):
     job_title: Optional[str] = None
     email:Optional[EmailStr] = None
     company_id: Optional[int] = None
-    dept_id: Optional[int] = None
-    role_id: Optional[int] = None
+    dept_id: Optional[List] = None
 
     model_config = {"extra": "forbid"}
