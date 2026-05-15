@@ -41,7 +41,12 @@
 
                         <li class="list-group-item d-flex justify-content-between">
                             <strong>Department Name:</strong>
-                            <span>{{ user.dept_name }}</span>
+                            <ul class="mb-0">
+                                {% for dept in user.dept_name %}
+                                    <li>{{ user.dept_name }}</li>
+                                {% endfor %}
+                            </ul>
+
                         </li>
 
                     </ul>
