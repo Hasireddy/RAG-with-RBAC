@@ -40,6 +40,8 @@ def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    dept_names = [d.dept_name for d in user.departments] if user.departments else []
+
     data={
             "emp_id": str(user.emp_id),
             "emp_name": user.emp_name,
@@ -47,7 +49,7 @@ def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db:
             #"role_id": user.role_id,
             "job_title": user.job_title,
             "dept_id": user.dept_id,
-            "dept_name": user.department.dept_name if user.department else None
+            "dept_name": ",".join(dept_names) if dept_names else None
         }
 
     token = create_access_token(data=data)
@@ -57,7 +59,7 @@ def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db:
     print("EMAIL:", data["email"])
     print("ROLE:", data["job_title"])
     print("DEPARTMENT ID:", data["dept_id"])
-    print("DEPARTMENT:", data["dept_name"])
+    print("DEPARTMENTS:", data["dept_name"])
 
     request.session["user"] = data
     return {"access_token": token, "token_type": "bearer", "data": data}
