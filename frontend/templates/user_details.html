@@ -40,11 +40,9 @@
                         </li>
 
                         <li class="list-group-item d-flex justify-content-between">
-                            <strong>Department Name:</strong>
+                            <strong>Departments:</strong>
                             <ul class="mb-0">
-                                {% for dept in user.departments or [] %}
-                                    <li>{{ dept.dept_name }}</li>
-                                {% endfor %}
+                                 <span>{{ user.dept_name if user.dept_name else "N/A" }}</span>
                             </ul>
 
                         </li>
