@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -11,16 +11,6 @@ from app.auth.hash_password import hash_password
 
 router = APIRouter(prefix="/employees", tags=["Employees"])
 
-# Get all employees
-@router.get("/", response_model=List[EmployeeResponse])
-def get_employees(db: Session = Depends(get_db)):
-    employees = db.query(EmployeeDB).all()
-    if not employees:
-        raise HTTPException(
-            status_code=404,
-            detail="Employees not found. Please create a new employee"
-        )
-    return employees
 
 
 # Create a new employee, link them to the company, link them to a department, link them to a role
@@ -51,216 +41,91 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
             detail="One or more departments not found"
         )
 
-
     # Create a new employee
-    new_employee = EmployeeDB(
-        emp_name=employee.emp_name,
-        email=employee.email,
-        hashed_password=hash_password(employee.password),
-        job_title=employee.job_title,
-        company_id=employee.company_id,
-        dept_id=employee.dept_id
-    )
+    new_employee = EmployeeDB(**employee.model_dump(exclude={"password"}))
+    new_employee.set_password(employee.password)
 
     db.add(new_employee)
     db.commit()
     db.refresh(new_employee)
 
-    # 5. Fetch department names for response
-    departments = db.query(DepartmentDB).filter(
-        DepartmentDB.id.in_(new_employee.dept_id)
-    ).all()
+    return new_employee
 
-    dept_list = [
-        {
-            "id": d.id,
-            "dept_name": d.dept_name
-        }
-        for d in departments
-    ]
 
-    # 6. Return structured response
-    return EmployeeResponse(
-        emp_id=new_employee.emp_id,
-        emp_name=new_employee.emp_name,
-        job_title=new_employee.job_title,
-        email=new_employee.email,
-        dept_id=new_employee.dept_id,
-        departments=dept_list,
-        company_id=new_employee.company_id,
-        is_active=new_employee.is_active,
-        created_at=new_employee.created_at
-    )
+
+
+# Get all employees (Fixed Validation Input should be a valid list)
+@router.get("/", response_model=List[EmployeeResponse])
+def get_employees(db: Session = Depends(get_db)):
+    employees = db.query(EmployeeDB).all()
+    return employees if employees else []
+
+
 
 
 
 # Update an employee
+
 @router.put("/{emp_id}", response_model=EmployeeResponse)
-def update_employee(emp_id: int, employee: EmployeeUpdate, db: Session = Depends(get_db)):
-
-    emp_to_update = db.query(EmployeeDB).filter(
-        EmployeeDB.emp_id == emp_id
-    ).first()
-
-    if not emp_to_update:
+def update_employee(emp_id: int, employee_update: EmployeeUpdate, db: Session = Depends(get_db)):
+    """Safely executes partial updates on basic details or the JSON department array"""
+    db_employee = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
+    if not db_employee:
         raise HTTPException(
-            status_code=404,
-            detail="Employee with given id not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Employee not found"
         )
 
-    data = employee.model_dump(exclude_unset=True)
+    # Convert schema payload to a dict, discarding unset optional elements
+    update_data = employee_update.model_dump(exclude_unset=True)
 
-    # 3. Validate company if provided
-    if "company_id" in data:
-        company = db.query(CompanyDB).filter(
-            CompanyDB.id == data["company_id"]
-        ).first()
-
-        if not company:
+    # Validate new department allocation if dept_id list is explicitly provided
+    if "dept_id" in update_data and update_data["dept_id"]:
+        valid_depts = db.query(DepartmentDB).filter(DepartmentDB.id.in_(update_data["dept_id"])).all()
+        if len(valid_depts) != len(update_data["dept_id"]):
             raise HTTPException(
-                status_code=404,
-                detail="Company not found"
-            )
-
-    # 4. Validate departments if provided
-    if "dept_id" in data and data["dept_id"] is not None:
-
-        departments = db.query(DepartmentDB).filter(
-            DepartmentDB.id.in_(data["dept_id"])
-        ).all()
-
-        if len(departments) != len(set(data["dept_id"])):
-            raise HTTPException(
-                status_code=404,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="One or more departments not found"
             )
 
-    # 5. Apply updates safely
-    for field, value in data.items():
-        setattr(emp_to_update, field, value)
+    # Set attributes dynamically on database model instance
+    for key, value in update_data.items():
+        setattr(db_employee, key, value)
 
     db.commit()
-    db.refresh(emp_to_update)
-
-    # 6. Build department response (IMPORTANT)
-    departments = db.query(DepartmentDB).filter(
-        DepartmentDB.id.in_(emp_to_update.dept_id)
-    ).all()
-
-    dept_list = [
-        {
-            "id": d.id,
-            "dept_name": d.dept_name
-        }
-        for d in departments
-    ]
-
-    # 7. Return structured response
-    return EmployeeResponse(
-        emp_id=emp_to_update.emp_id,
-        emp_name=emp_to_update.emp_name,
-        job_title=emp_to_update.job_title,
-        email=emp_to_update.email,
-        dept_id=emp_to_update.dept_id,
-        departments=dept_list,
-        company_id=emp_to_update.company_id,
-        is_active=emp_to_update.is_active,
-        created_at=emp_to_update.created_at
-    )
+    db.refresh(db_employee)
+    return db_employee
 
 
-
-
-# Delete an employee
-@router.delete("/{emp_id}")
-def delete_employee(emp_id: int, db: Session = Depends(get_db)):
-    emp_to_delete = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
-
-    if not emp_to_delete:
-        raise HTTPException(
-            status_code=400,
-            detail="Employee with given id not found"
-        )
-
-    db.delete(emp_to_delete)
-    db.commit()
-    return {"message": f"Employee with id {emp_id} deleted successfully"}
-
-
-# Get employee by id
-@router.get("/", response_model=List[EmployeeResponse])
-def get_employees(db: Session = Depends(get_db)):
-
-    employees = db.query(EmployeeDB).all()
-
-    result = []
-
-    for emp in employees:
-
-        departments = db.query(DepartmentDB).filter(
-            DepartmentDB.id.in_(emp.dept_id or [])
-        ).all()
-
-        dept_list = [
-            {
-                "id": d.id,
-                "dept_name": d.dept_name
-            }
-            for d in departments
-        ]
-
-        result.append(
-            EmployeeResponse(
-                emp_id=emp.emp_id,
-                emp_name=emp.emp_name,
-                job_title=emp.job_title,
-                email=emp.email,
-                dept_id=emp.dept_id,
-                departments=dept_list,
-                company_id=emp.company_id,
-                is_active=emp.is_active,
-                created_at=emp.created_at
-            )
-        )
-
-    return result
-
-
-
-@router.get("/employee/{emp_id}", response_model=EmployeeResponse)
+# Get an employee by ID (Clean & Lean)
+@router.get("/{emp_id}", response_model=EmployeeResponse)
 def get_employee_by_id(emp_id: int, db: Session = Depends(get_db)):
-
-    emp = db.query(EmployeeDB).filter(
-        EmployeeDB.emp_id == emp_id
-    ).first()
+    emp = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
 
     if not emp:
         raise HTTPException(
-            status_code=404,
-            detail="Employee with given id not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Employee with given ID not found"
         )
 
-    departments = db.query(DepartmentDB).filter(
-        DepartmentDB.id.in_(emp.dept_id or [])
-    ).all()
+    # No manual department queries or mapping needed!
+    # Pydantic reads the 'departments' property directly from your model.
+    return emp
 
-    dept_list = [
-        {
-            "id": d.id,
-            "dept_name": d.dept_name
-        }
-        for d in departments
-    ]
 
-    return EmployeeResponse(
-        emp_id=emp.emp_id,
-        emp_name=emp.emp_name,
-        job_title=emp.job_title,
-        email=emp.email,
-        dept_id=emp.dept_id,
-        departments=dept_list,
-        company_id=emp.company_id,
-        is_active=emp.is_active,
-        created_at=emp.created_at
-    )
+# Delete an employee
+@router.delete("/{emp_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_employee(emp_id: int, db: Session = Depends(get_db)):
+    emp = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
 
+    if not emp:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Employee with given ID not found"
+        )
+
+    db.delete(emp)
+    db.commit()
+
+    # 204 NO CONTENT means successfully deleted, returning no body
+    return None

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, object_session
 from sqlalchemy.sql import func
 from app.database.base import Base
 
@@ -26,6 +26,19 @@ class DepartmentDB(Base):
 
     # Relationship: Departments are in Company and department has employees
     company = relationship("CompanyDB", back_populates="departments",  passive_deletes=True)
-    employees = relationship("EmployeeDB", back_populates="department",  cascade="all, delete-orphan")
+    #employees = relationship("EmployeeDB", back_populates="department",  cascade="all, delete-orphan")
+    @property
+    def employees(self):
+        """Dynamically scans Employee JSON lists to find matching team members"""
+        session = object_session(self)
+        if not session:
+            return []
+
+        from app.models.employee_model import EmployeeDB
+
+        # Safe cross-platform filtering for standard SQL JSON arrays
+        # Note: If using PostgreSQL, you can use: .filter(EmployeeDB.dept_id.contains([self.id]))
+        all_employees = session.query(EmployeeDB).all()
+        return [emp for emp in all_employees if emp.dept_id and self.id in emp.dept_id]
 
 

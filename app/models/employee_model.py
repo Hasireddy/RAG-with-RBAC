@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, object_session
 from sqlalchemy.sql import func
 from app.database.base import Base
 from app.auth.hash_password import hash_password, verify_password
@@ -21,12 +21,25 @@ class EmployeeDB(Base):
 
     # Foreign key: Each employee belongs to a department and each department belongs to a company
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
-    dept_id = Column(JSON, ForeignKey("departments.id", ondelete="CASCADE"), index=True, nullable=False, default=list)
+    #dept_id = Column(JSON, ForeignKey("departments.id", ondelete="CASCADE"), index=True, nullable=False, default=list)
+    dept_id = Column(JSON, index=True, nullable=False, default=list)
 
 
     # Relationship: Employee is in Department and in a Company
     company = relationship("CompanyDB", back_populates="employees")
-    department = relationship("DepartmentDB", back_populates="employees")
+    #department = relationship("DepartmentDB", back_populates="employees")
+
+    # Dynamic lookup helper property
+    @property
+    def departments(self):
+        """Automatically resolves the JSON array into Department database metadata"""
+        session = object_session(self)
+        if not session or not self.dept_id:
+            return []
+
+        # Local import inside the property prevents circular dependencies
+        from app.models.department_model import DepartmentDB
+        return session.query(DepartmentDB).filter(DepartmentDB.id.in_(self.dept_id)).all()
 
 
     # Password Helpers

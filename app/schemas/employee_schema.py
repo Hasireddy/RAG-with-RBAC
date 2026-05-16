@@ -50,7 +50,7 @@ class EmployeeResponse(BaseModel):
     job_title: str
     email: EmailStr
     dept_id: List[int]
-    departments: List[DepartmentInfo]
+    departments: List[DepartmentInfo] = []
     company_id: int
     is_active: bool
     created_at: datetime
