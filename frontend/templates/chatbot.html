@@ -257,9 +257,8 @@
 
       // remove typing safely
       document.getElementById("typing-message")?.remove();
-
       appendBotMessage(
-        data.result ||
+        data.messages?.[0]?.message||
         data.response ||
         "No response from API"
       );

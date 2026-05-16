@@ -40,16 +40,16 @@ def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    dept_names = [d.dept_name for d in user.departments] if user.departments else []
+    dept_names = [d.dept_name.lower() for d in user.departments] if user.departments else []
+    print(dept_names)
 
     data={
             "emp_id": str(user.emp_id),
             "emp_name": user.emp_name,
             "email": user.email,
-            #"role_id": user.role_id,
             "job_title": user.job_title,
             "dept_id": user.dept_id,
-            "dept_name": ",".join(dept_names) if dept_names else None
+            "departments": dept_names
         }
 
     token = create_access_token(data=data)
@@ -59,7 +59,7 @@ def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db:
     print("EMAIL:", data["email"])
     print("ROLE:", data["job_title"])
     print("DEPARTMENT ID:", data["dept_id"])
-    print("DEPARTMENTS:", data["dept_name"])
+    print("DEPARTMENTS:", data["departments"])
 
     request.session["user"] = data
     return {"access_token": token, "token_type": "bearer", "data": data}
@@ -85,11 +85,7 @@ def logout(request: Request):
     )
 
 
-"""@router.get("/me", response_class=HTMLResponse)
-def login_page(request: Request):
-    Render the login page
-    return templates.TemplateResponse(
-        request=request, name="user_details.html")"""
+
 
 
 

@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+from typing import List
 
 from langchain_openai import ChatOpenAI
 from langchain_community.chat_message_histories import ChatMessageHistory
@@ -115,47 +116,15 @@ Context:
         }
     ]
 
-"""# Chain
-chain = prompt | client
-store = {}
 
-def get_session_history(session_id: str):
-    if session_id not in store:
-        store[session_id] = ChatMessageHistory()
-    return store[session_id]
-
-chain_with_memory = RunnableWithMessageHistory(
-    chain,
-    get_session_history,
-    input_messages_key="query",
-    history_messages_key="history"
-
-)"""
-
-def get_history(session_id: str):
-    return memory_store[session_id]
-
-
-def format_history(history: list):
-    """
-    Convert memory into readable string for LLM
-    """
-    return "\n".join(
-        [f"User: {m['user']}\nAssistant: {m['assistant']}" for m in history]
-    )
-
-def get_response(query:str, session_id: str, emp_name: str, email: str, dept_id: str):
+def get_response(query:str, session_id: str, emp_name: str, email: str, departments: List[str]):
     """Returns API response  based on semantic search context"""
     print(query)
-    #context = semantic_search(vector_store, query, department=dept_id)
-    context = semantic_search(vector_store, query)
-    history = get_history(session_id)
-    history_text = format_history(history)
+    context = semantic_search(vector_store, query, departments=departments)
+    #context = semantic_search(vector_store, query)
 
     step1_response  = client.invoke(build_prompt_step1(
         query=f"""
-        CHAT HISTORY:
-        {history_text}
         QUERY:
         {query}
         """,
@@ -174,52 +143,14 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, dept_id:
     )
     final_answer = step3_response.content
 
-    # Store memory
-    history.append({
-        "user": query,
-        "assistant": final_answer
-    })
-
-    # optional: limit memory size (prevents token explosion)
-    if len(history) > 20:
-        history.pop(0)
-
     data = {
             "answer": final_answer,
             "name": emp_name,
             "email": email,
-            "department_id": dept_id,
+            "departments": departments,
             "session_id": session_id,
         }
 
     return data
-    """response = chain_with_memory.invoke(
-        {
-            "query": query,
-            "context": context,
-            "emp_name": emp_name,
-            "email": email,
-            "dept_id": dept_id
-        },
-        config={
-            "configurable": {
-                "session_id": session_id
-            }
-        }
-    )
 
-    return response.content"""
 
-"""while True:
-    user_input = input("user: ")
-    if user_input.lower() == "exit":
-        print("Goodbye!")
-        break
-
-    response = chain_with_memory.invoke(
-        {"query": user_input},
-        config={"configurable": {"session_id": "user1"}}
-    )
-    print(response.content)
-
-#print(store)"""

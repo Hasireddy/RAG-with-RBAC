@@ -8,19 +8,18 @@ import uuid
 import traceback
 import json
 
-from app.schemas.response_schema import  ResponseSchema
+from app.schemas.response_schema import ResponseSchema
 from app.schemas.query_schema import QueryRequest
 from app.database.session import get_db
 from app.models.response_model import AIResponseDB
-#from app.rag.embed_documents import get_response
+# from app.rag.embed_documents import get_response
 from app.rag.get_api_response import get_response
 from app.auth.jwt import get_current_user
-from app.models.messages_model import  ChatMessage
-
+from app.models.messages_model import ChatMessage
 
 # Load environment variables
 load_dotenv()
-API_KEY=os.getenv("API_KEY")
+API_KEY = os.getenv("API_KEY")
 
 router = APIRouter(prefix="/chatbot", tags=["OpenAIAPIResponse"])
 
@@ -28,11 +27,10 @@ client = OpenAI(api_key=API_KEY)
 
 templates = Jinja2Templates(directory="frontend/templates")
 
-
 # Get a response
 """@router.get("/chatbot", response_model=ResponseSchema)
 def create_response(db: Session = Depends(get_db)):
-    
+
 
     try:
         response_text =  get_response(query)
@@ -65,10 +63,9 @@ def create_response(db: Session = Depends(get_db)):
         )"""
 
 
-
 # Get a response
 @router.post("/", response_model=ResponseSchema)
-def create_response(payload: QueryRequest, user: dict = Depends(get_current_user)):
+def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:dict = Depends(get_current_user)):
     """Gets response from openai API"""
 
     try:
@@ -81,14 +78,15 @@ def create_response(payload: QueryRequest, user: dict = Depends(get_current_user
                 detail="Query cannot be empty"
             )
 
-        #User details
-        emp_id =user.get("emp_id")
+        # User details
+        emp_id = user.get("emp_id")
         emp_name = user.get("emp_name")
         email = user.get("email")
         role_id = user.get("role_id")
 
         # Department details
         dept_id = user.get("dept_id")
+        departments = user.get("departments")
 
         print("USER:", emp_id)
         print("NAME:", emp_name)
@@ -102,14 +100,15 @@ def create_response(payload: QueryRequest, user: dict = Depends(get_current_user
         if not session_id:
             session_id = str(uuid.uuid4())
 
-        response_text = get_response(query=query, session_id=session_id, emp_name=emp_name, email=email, dept_id=dept_id)
+        response_text = get_response(query=query, session_id=session_id, emp_name=emp_name, email=email,
+                                     departments=departments)
 
-        if not  response_text:
+        if not response_text:
             response_text = "No response generated."
 
         # Save response in DB
         print("TYPE:", type(response_text))
-        #ai_response = AIResponseDB(session_id=session_id, emp_id=emp_id, query=query, result=response_text)
+        # ai_response = AIResponseDB(session_id=session_id, emp_id=emp_id, query=query, result=response_text)
         # Save user message
         user_message = ChatMessage(
             session_id=session_id,
@@ -125,25 +124,26 @@ def create_response(payload: QueryRequest, user: dict = Depends(get_current_user
             session_id=session_id,
             emp_id=emp_id,
             role="assistant",
-            #message=json.dumps(response_text)
-            message = response_text
+            message=json.dumps(response_text)
+            #message=response_text
         )
 
         db.add(assistant_message)
-        #db.add(ai_response)
+        # db.add(ai_response)
         db.commit()
         db.refresh(user_message)
         db.refresh(assistant_message)
-        print(assistant_message.message["answer"])
-        #print(ai_response)
-        #return ai_response
+        print(assistant_message)
+        print(assistant_message.message)
+        # print(ai_response)
+        # return ai_response
         # Return response + session_id
         return {
             "session_id": session_id,
             "messages": [
                 {
                     "role": assistant_message.role,
-                    "message": assistant_message.message["answer"],
+                    "message": json.loads(assistant_message.message),
                     "created_at": assistant_message.created_at
                 }
             ]
@@ -157,7 +157,6 @@ def create_response(payload: QueryRequest, user: dict = Depends(get_current_user
         )
 
 
-
 """@router.get("/", name="chatbot")
 def render_chat(request:Request):
     return templates.TemplateResponse(
@@ -166,8 +165,9 @@ def render_chat(request:Request):
     )
 """
 
+
 @router.get("/", name="user-details")
-def render_chat(request:Request):
+def render_chat(request: Request):
     return templates.TemplateResponse(
         request,
         "user_details.html",
