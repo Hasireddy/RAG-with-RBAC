@@ -434,21 +434,19 @@
                     `
                 );
 
-                const response = await fetch(
-                    "/chatbot/",
-                    {
-                        method: "POST",
+                const token = localStorage.getItem("token");
+                console.log("token", token)
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            query: message
-                        })
-                    }
-                );
+                 const response = await fetch("/chatbot/", {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                               "Authorization": `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                              query: message
+                            })
+                          });
 
                 const data =
                     await response.json();
@@ -457,8 +455,9 @@
                     .getElementById("typing-message")
                     ?.remove();
 
+                console.log(data)
                 appendBotMessage(
-                    data.result ||
+                    data.messages?.[0]?.message?.["answer"]||
                     data.response ||
                     "No response from API"
                 );

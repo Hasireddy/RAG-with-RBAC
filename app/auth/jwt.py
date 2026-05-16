@@ -102,7 +102,7 @@ def get_current_user(token=Depends(oauth2_scheme)):
             #"role_id": payload.get("role_id"),
             "job_title": payload.get("job_title"),
             "dept_id": payload.get("dept_id"),
-            "dept_name": payload.get("department.dept_name")
+            "departments": payload.get("departments")
         }
 
     except JWTError as e:

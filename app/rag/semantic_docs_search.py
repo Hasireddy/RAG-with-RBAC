@@ -5,11 +5,12 @@ from .create_vector_store import create_vector_store
 vector_store = create_vector_store()
 
 # Step4:Run a semantic search
-def semantic_search(vector_store, query):
+def semantic_search(vector_store, query, departments):
     """Runs a semantic search with department based RAG and retrieves top 3 formatted context(matching results)"""
 
-    #results = vector_store.similarity_search(query=query, k=3, filter={"department": department})
     results = vector_store.similarity_search(query=query, k=3)
+    #results = vector_store.similarity_search(query=query, k=3)
+    filtered_results = [result for result in results if result.metadata.get("department") in departments]
 
     # for i, doc in enumerate(results, start=1):
     # print(f"\n---Result{i}---")
@@ -25,7 +26,7 @@ def semantic_search(vector_store, query):
     {doc.page_content}
     """
         .strip()
-        for doc in results
+        for doc in filtered_results
     )
     return context
 
