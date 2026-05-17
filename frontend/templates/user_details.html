@@ -41,8 +41,12 @@
 
                         <li class="list-group-item d-flex justify-content-between">
                             <strong>Departments:</strong>
-                            <ul class="mb-0">
-                                 <span>{{ user.dept_name if user.dept_name else "N/A" }}</span>
+                            <ul class="list-unstyled mb-0 text-capitalize">
+                                 {%  if user.departments %}
+                                      [{{ user.departments | join(',')}}]
+                                    {% else %}
+                                        [N/A]
+                                 {% endif %}
                             </ul>
 
                         </li>
