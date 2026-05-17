@@ -437,6 +437,8 @@
                 const token = localStorage.getItem("token");
                 console.log("token", token)
 
+                let sessionId = localStorage.getItem("chat_session_id");
+
                  const response = await fetch("/chatbot/", {
                             method: "POST",
                             headers: {
@@ -444,12 +446,22 @@
                                "Authorization": `Bearer ${token}`
                             },
                             body: JSON.stringify({
-                              query: message
+                              query: message,
+                                session_id: sessionId
                             })
                           });
 
                 const data =
                     await response.json();
+
+                if (data.session_id) {
+                    localStorage.setItem(
+                        "chat_session_id",
+                        data.session_id,
+                    )
+                }
+
+                console.log("SESSION:", data.session_id)
 
                 document
                     .getElementById("typing-message")

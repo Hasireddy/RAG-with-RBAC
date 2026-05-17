@@ -7,7 +7,7 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
-from collections import defaultdict
+
 
 from passlib import context
 from .create_vector_store import create_vector_store
@@ -22,126 +22,61 @@ client = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=api_key)
 
 # Build vector store once
 vector_store = create_vector_store()
-memory_store = defaultdict(list)
-
-# Prompt
-
-def build_prompt_step1(query, context):
-    return [
-        {"role": "system",
-         "content": """You are a technical documentation expert and a helpful assistant for a company.
-                        Your task is to help answer a question given in a document. 
-                        If the question is about the user (e.g., name, greetings, personal context), always use chat history first. 
-                        If the user greets, greet them with their name. 
-                        Only use document context for factual/company-related queries.
-                        The first step is to extract the relevant quotes from the document. 
-                     """
-        },
-        {"role": "user",
-         "content": f"""Question:
-{query}
-
-Context:
-{context}
-"""
-        }
-    ]
+memory_store = {}
 
 
-def build_prompt_step2(query, answer1):
-    return [
-        {"role": "system",
-         "content": """You are a technical documentation expert.
-                      Given a set of relevant quotes extracted from the document.
-                      Please compare the question to the answer.
-                      Use only the information provided in the context to answer.
-                      Be concise and exact. Do not add external knowledge and hallucinate.
-                      If the information is not fully present or not relevant to the provided documents, say "Information not provided in the documents."
-                      Ensure the answer is accurate and has a friendly tone like you are explaining it to a colleague.
-                     """
-        },
-        {"role": "user",
-         "content": f"""Question:
-{query}
+def get_session_history(session_id):
+    if session_id not in memory_store:
+        memory_store[session_id] = ChatMessageHistory()
 
-Context:
-{answer1}
-"""
-        }
-    ]
+    return memory_store[session_id]
 
 
-def build_prompt_step3(query, answer2):
-    return [
-        {"role": "system",
-         "content": """You are a response formatting assistant. 
-                        Rewrite the answer clearly and naturally.
-                        Summarize the information into one or two sentences.
-                        Use Bullet points if multiple items exist.
-                        Return Json format if the user requested structured data.
-                        Special rules:
-                        - If answer contains:
-                        "Information not provided in the documents."
-                        then return it exactly as-is.
+prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are a technical documentation expert and an adaptive assistant. 
 
-                        Examples:
-                        input:"Hi my name is uma"
-                        output:"Hello Uma, How can I help you?"
+Analyze the USER QUESTION to determine its intent, then apply the correct logic:
 
-                        input: What are Client applications?
-                        output: Client applications are Mobile, Web and API applications.
+INTENT A: Questions about the chat history, session, or user metadata (e.g., "What queries did I ask?", "What is my name?")
+1. Look ONLY at the provided 'history' and USER INFO placeholders.
+2. Answer the question directly based on past interactions or metadata.
+3. Keep the tone friendly and conversational. Do NOT use the DOCUMENT CONTEXT or say "Information not provided in the documents" for these queries.
 
-                        input: What is the financial overview of 2024?
-                        output: The financial overview of 2024 is 28%.
+INTENT B: Questions about company data, technical details, or specific documents
+1. Greet the user by their name if appropriate.
+2. EXTRACT QUOTES: Identify and extract relevant quotes from the provided DOCUMENT CONTEXT.
+3. VERIFY & FILTER: Use ONLY the provided context. Do not add external knowledge. If the information is missing or irrelevant, strictly reply: "Information not provided in the documents."
+4. FORMAT: Summarize the validated answer clearly into one or two sentences using bullet points. Maintain a professional, colleague-to-colleague tone."""),
+    MessagesPlaceholder("history"),
+    ("human", """USER INFO: 
+Name: {emp_name} 
+Email: {email} 
+Departments: {departments} 
 
-                        input: What are Databases?
-                        output: Information about Databases is not provided in the documents.
+DOCUMENT CONTEXT: 
+{context} 
 
-                        input: List employees details?
-                        output: {
-                          "name": "Krishna Verma",
-                          "email": "vihaan.garg@fintechco.com",
-                          "location": "Jaipur",
-                          "leaves_taken": 21
-                        }
-                     """
-        },
-        {"role": "user",
-         "content": f"""Question:
-{query}
+USER QUESTION: 
+{query}""")
+])
 
-Context:
-{answer2}
-"""
-        }
-    ]
+chain = (prompt | client | StrOutputParser() )
+chain_with_memory = RunnableWithMessageHistory(chain, get_session_history, input_messages_key="query", history_messages_key="history")
 
 
 def get_response(query:str, session_id: str, emp_name: str, email: str, departments: List[str]):
     """Returns API response  based on semantic search context"""
+    print("******************")
     print(query)
+    print(memory_store)
+    print(session_id)
+
+    history = get_session_history(session_id)
+    print(history.messages)
     context = semantic_search(vector_store, query, departments=departments)
-    #context = semantic_search(vector_store, query)
 
-    step1_response  = client.invoke(build_prompt_step1(
-        query=f"""
-        QUERY:
-        {query}
-        """,
-        context=context
-    ))
-    answer1 = step1_response.content
-
-    step2_response = client.invoke(
-        build_prompt_step2(query, answer1)
-    )
-    answer2 = step2_response.content
-
-    # STEP 3: formatting
-    step3_response = client.invoke(
-        build_prompt_step3(query, answer2)
-    )
-    final_answer = step3_response.content
+    final_answer = chain_with_memory.invoke({"query": query, "context": context, "emp_name": emp_name, "email": email, "departments": ",".join(departments)},
+                                            {"configurable": {"session_id": session_id}})
 
     data = {
             "answer": final_answer,

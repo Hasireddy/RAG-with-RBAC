@@ -96,7 +96,8 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
         session_id = payload.session_id
 
         if not session_id:
-            session_id = str(uuid.uuid4())
+            session_id = f"user_{emp_id}"
+        print("SESSION ID:", session_id)
 
         response_text = get_response(query=query, session_id=session_id, emp_name=emp_name, email=email,
                                      departments=departments)
