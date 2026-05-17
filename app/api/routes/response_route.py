@@ -11,8 +11,6 @@ import json
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.query_schema import QueryRequest
 from app.database.session import get_db
-from app.models.response_model import AIResponseDB
-# from app.rag.embed_documents import get_response
 from app.rag.get_api_response import get_response
 from app.auth.jwt import get_current_user
 from app.models.messages_model import ChatMessage

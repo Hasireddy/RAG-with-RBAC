@@ -7,7 +7,7 @@ import os
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-client = OpenAI()
+client = OpenAI(api_key=API_KEY)
 
 
 
@@ -36,14 +36,17 @@ def detect_query_type_llm(query:str) -> str:
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
         temperature=0,
-        input = [
+        messages = [
             {
                 "role": "user",
                 "content": prompt
             }
-        ],
-        api_key=API_KEY
+        ]
+
     )
 
-    return response.output_text
+    #final_response = response.content.strip()
+    #return final_response
+    return response.choices[0].message.content.strip()
+
 
