@@ -10,6 +10,7 @@ def semantic_search(vector_store, query, departments):
 
     results = vector_store.similarity_search(query=query, k=3)
     #results = vector_store.similarity_search(query=query, k=3)
+    departments.append("general")
     filtered_results = [result for result in results if result.metadata.get("department") in departments]
 
     # for i, doc in enumerate(results, start=1):
