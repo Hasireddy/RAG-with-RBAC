@@ -42,11 +42,10 @@ def load_documents():
        else:
            continue
 
-       try:
-         loaded_docs = loader.load()
+       loaded_docs = loader.load()
 
-         for doc in loaded_docs:
-            docs.append(
+       for doc in loaded_docs:
+           docs.append(
                Document(
                    page_content=doc.page_content,
                    metadata={
@@ -55,20 +54,16 @@ def load_documents():
                        "path": str(file_path),
                        "type": file_path.suffix,
                    }
-                    )
                )
-
-       except Exception as e:
-            print(f"Error loading {file_path}: {e}")
+           )
 
        if not docs:
            raise FileNotFoundError(f"No Markdown files found in {base_path}")
 
-       return docs
+   return docs
 
 
-
-
+#print(load_documents())
 
 
 
