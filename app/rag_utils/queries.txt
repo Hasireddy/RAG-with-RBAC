@@ -1,33 +1,29 @@
 ***********Engineering*******************
 
-System Architecture Queries
+2. What security and compliance mechanisms are implemented in FinSolve’s platform to meet standards such as GDPR, PCI-DSS, and DPDP?
+    How does FinSolve apply encryption and data classification to protect sensitive financial and personal information?
+    What role do AWS WAF, Cloudflare, and RBAC/ABAC play in securing APIs and administrative access?
 
-What technologies are used to build the native mobile applications?
-Which frameworks and CSS libraries power the responsive web application?
-What accessibility standards does the Single Page Application comply with?
+3. How does FinSolve integrate CI/CD, DevOps, and Infrastructure as Code (IaC) practices to support reliable and automated software delivery?
+    How do they maintain security throughout the CI/CD and infrastructure management process?
+How do they ensure deployments remain reliable and consistent across different environments?
+How do they handle deployment failures and reduce downtime during releases?
+How do they manage infrastructure configuration changes while maintaining version control and governance?
+How do they validate that code and infrastructure meet quality and compliance standards before production deployment?
+How do they automate deployment and operational workflows to support faster software delivery?
+How do they secure Kubernetes and cloud infrastructure configurations against vulnerabilities?
+How do they maintain traceability and control over infrastructure and application changes?
 
-(How does the system handle third-party integrations and partner systems?
-What specific documentation standards or tools does the API Gateway use to expose endpoints to third-party developers?
-How does the Payment Processing Service handle recurring transactions and reconciliation with external payment gateways?)
+4. What testing and quality assurance strategies does FinSolve use to maintain performance, reliability, and security across its applications?
+    How does the testing pyramid structure unit, integration, and end-to-end testing across services and platforms?
+    What quality gates and automated checks must pass before code can be approved and deployed?
+
+5. What are the key future roadmap initiatives planned by FinSolve Technologies in areas such as AI/ML, blockchain, open banking, and global expansion?
+    What AI and machine learning capabilities are planned for personalized financial insights and fraud detection?
+    How does FinSolve plan to expand its open banking ecosystem and support global market growth between 2026 and 2027?
 
 
-Security & API Gateway Queries
 
-What are the main responsibilities of the centralized API Gateway?
-How does the system implement authentication, authorization, and rate limiting?
-What tools are used for API versioning and documentation?
-How does the AWS API Gateway handle sophisticated permission models?
-
-
-Data Layer Queries
-
-Why is PostgreSQL used as the primary relational database in this architecture?
-What kind of data is stored in the MongoDB NoSQL database?
-What are the three main use cases for Redis in this system?Which component is responsible for object storage?
-What specific target numbers are established for FinSolve's Recovery Time Objective (RTO) and Recovery Point Objective (RPO)?
-In what year was FinSolve Technologies founded, and where is its corporate headquarters located?
-Which specific language versions are specified for mobile development in the technology matrix?
-What tool or service is used to handle database connection pooling for PostgreSQL?
 
 
 ******************General***************************
@@ -37,7 +33,6 @@ Onboarding & Statutory Benefits Queries
 What specific documents must an employee submit before joining FinSolve Technologies?
 
 (What happens during an employee's first week of onboarding?
-"What specific topics are covered in the compliance training they take?
 Who exactly participates in that buddy program?
 What is the primary objective of the third component you listed?
 How long does this initial phase last for new hires?
@@ -109,3 +104,13 @@ What were the three core pillars of the Q4 marketing strategy?
 How many new customers were enrolled in the new loyalty program?
 What was the specific target set for the Cost Per Acquisition (CPA)?
 Which specific sectors were targeted for the account-based marketing (ABM) campaigns?
+
+
+
+What were the major expense categories that FinSolve Technologies Inc. faced pressure in during 2024?
+What must FinSolve Technologies invest in to ensure adherence to local laws and regulations as the company expands globally?
+What percentage of the Vendor Services expense was allocated to marketing-related activities?
+What is the cash flow from operations for FinSolve Technologies in Q2, April to June 2024?
+What was the revenue increase of FinSolve Technologies Inc. from Q1 to Q4 in 2024?
+What is the Return on Investment (ROI) for FinSolve Technologies? What happens if it increases?
+What is the email address of the QA Engineer, Aadhya patel?

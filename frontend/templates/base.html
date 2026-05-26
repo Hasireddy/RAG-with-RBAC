@@ -41,24 +41,28 @@
     <style>
 
         /* FLOATING CHAT BUBBLE */
-        #chat-bubble {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 65px;
-            height: 65px;
-            background: #0d6efd;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 9999;
-            transition: 0.3s;
-        }
+     #chat-bubble {
+    position: fixed;
+    bottom: 10px;
+    right: 20px;
+    width: 80px;
+    height: 75px;
+    background: #0d6efd;
+    color: white;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 32px;
+    cursor: pointer;
+
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    z-index: 9999;
+    transition: 0.3s;
+}
 
         #chat-bubble:hover {
             transform: scale(1.08);
@@ -69,7 +73,8 @@
             position: fixed;
             bottom: 100px;
             right: 20px;
-            width: 380px;
+            width: 600px;
+            max-width: 95vw;
             height: 650px;
 
             background: rgba(255,255,255,0.2);
@@ -118,25 +123,31 @@
         }
 
         /* MESSAGE STYLES */
-        .message {
-            padding: 10px 15px;
-            border-radius: 15px;
-            max-width: 75%;
-            word-wrap: break-word;
-            white-space: pre-line;
-        }
+         .message {
+    padding: 14px 20px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 100%;
+    font-size: 16px;
+    line-height: 1.5;
+    word-break: break-word;
+}
 
-        .message-user {
-            background-color: #0d6efd;
-            color: white;
-            border-top-right-radius: 0;
-        }
+.message-user {
+    background-color: #0d6efd;
+    color: white;
+    border-top-right-radius: 0;
+}
 
-        .message-bot {
-            background-color: #f1f3f5;
-            color: #000;
-            border-top-left-radius: 0;
-        }
+.message-bot {
+    background-color: #f1f3f5;
+    color: #000;
+    border-top-left-radius: 0;
+}
+
+.d-flex.mb-4 > div {
+    width: 100%;
+}
 
         /* AVATAR */
         .avatar {
