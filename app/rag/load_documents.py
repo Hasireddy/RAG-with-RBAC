@@ -22,8 +22,6 @@ client = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=api_key)
 # Instead of relative path, use absolute path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # Adjust levels to project root
 base_path = BASE_DIR / "resources" / "data"
-#print(base_path)
-
 
 
 # Step1: Traverse through all folders and load documents
@@ -33,11 +31,8 @@ def load_documents():
    docs = []
 
    # Traverse all folders
-
    for file_path in base_path.rglob("*"):
-       #print(file_path)
        department = file_path.parent.name  # engineering/finance/hr/marketing
-       #print(f"Department:{department}")
 
        if file_path.suffix == ".md":
            loader =  UnstructuredMarkdownLoader(file_path)
@@ -47,10 +42,11 @@ def load_documents():
        else:
            continue
 
-       loaded_docs = loader.load()
+       try:
+         loaded_docs = loader.load()
 
-       for doc in loaded_docs:
-           docs.append(
+         for doc in loaded_docs:
+            docs.append(
                Document(
                    page_content=doc.page_content,
                    metadata={
@@ -59,16 +55,20 @@ def load_documents():
                        "path": str(file_path),
                        "type": file_path.suffix,
                    }
+                    )
                )
-           )
+
+       except Exception as e:
+            print(f"Error loading {file_path}: {e}")
 
        if not docs:
            raise FileNotFoundError(f"No Markdown files found in {base_path}")
 
-   return docs
+       return docs
 
 
-#print(load_documents())
+
+
 
 
 

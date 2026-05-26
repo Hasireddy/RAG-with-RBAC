@@ -17,14 +17,8 @@ Queries for Role based access
 **************Marketing**************
 
 1. How did FinNova’s marketing strategy in Q1 2024 drive customer acquisition and revenue performance across existing and new European markets?
-2. How effective were the key marketing initiatives such as the InstantPay launch, European expansion campaigns, and social media engagement in achieving Q1 targets and ROI goals?
-
-
-
-
-
-
-
+   What was the goal of launching the InstantPay feature?
+   What challenges did FinNova face in France?
 
 
 
@@ -46,5 +40,47 @@ Queries for Role based access
     How to get the approval?
 
 
-3.
+3. How many sick leaves are allowed per year?
+    What is the process for applying for leave?
+    Is a medical certificate required for sick leave?
+    Are public holidays fixed or flexible?
+
+
+
+4. What benefits are covered under the health insurance policy?
+    Who is eligible for ESI benefits?
+
+
+
+5. What is the standard notice period?
+    How long does full and final settlement take?
+    What company assets must be returned during exit?
+    Are exit interviews mandatory?
+
+
+6. What specific documents must an employee submit before joining FinSolve Technologies?
+
+(What happens during an employee's first week of onboarding?
+How long does this initial phase last for new hires?
+Who exactly participates in that buddy program?
+What is the primary objective of the third component you listed?
+What happens after first week??
+Are there any exams or tests at the end of that orientation?)
+
+
+
+
+*************Engineering********************
+
+1. Why did FinSolve choose a microservices architecture?
+2. How does the API Gateway handle authentication and rate limiting?
+3. Why are both PostgreSQL and MongoDB used?
+4. How does FinSolve manage authentication and MFA?
+5. What CI/CD tools are used in the deployment pipeline?
+6. What testing methodologies are followed?
+7. What approvals are required for pull requests?
+8. How are bugs prioritized and resolved?
+    what happens if bugs are not addressed in 2 weeks?
+    what are the bug tracking tools?
+    Any other tools used?
 
