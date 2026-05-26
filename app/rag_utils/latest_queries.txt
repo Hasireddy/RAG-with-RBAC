@@ -27,7 +27,7 @@ Queries for Role based access
 
 ************General*******************
 
-1. How many days of sick leave are employees entitled to per year, and when is a medical certificate required?
+1. How many days of sick leave are employees entitled to per year?
    How to apply this leave?
    How is medical documentation verified and what happens if it is not submitted on time?
    How these leaves are tracked and integrated into payroll and attendance systems?
@@ -41,6 +41,7 @@ Queries for Role based access
 
 
 3. How many sick leaves are allowed per year?
+    How to apply this leave?
     What is the process for applying for leave?
     Is a medical certificate required for sick leave?
     Are public holidays fixed or flexible?

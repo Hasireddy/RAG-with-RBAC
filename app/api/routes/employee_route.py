@@ -33,7 +33,9 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Company not found")
 
     # Check if department exists
-    departments = db.query(DepartmentDB).filter(DepartmentDB.id.in_(employee.dept_id)).all()
+    departments_details = db.query(DepartmentDB).filter(DepartmentDB.id.in_(employee.dept_id)).all()
+
+    departments = [d.dept_name for d in departments_details]
 
     if len(departments) != len(employee.dept_id):
         raise HTTPException(
