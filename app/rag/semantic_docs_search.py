@@ -6,31 +6,32 @@ vector_store = create_vector_store()
 
 # Step4:Run a semantic search
 def semantic_search(vector_store, query, departments):
-    """Runs a semantic search with department based RAG and retrieves top 3 formatted context(matching results)"""
+    """
+    Semantic search with department-based RBAC filtering
+    """
 
-    results = vector_store.similarity_search(query=query, k=3)
-    #results = vector_store.similarity_search(query=query, k=3)
-    departments.append("general")
-    filtered_results = [result for result in results if result.metadata.get("department") in departments]
+    allowed_departments = list(set(departments + ["general"]))
 
-    # for i, doc in enumerate(results, start=1):
-    # print(f"\n---Result{i}---")
-    # print(doc.page_content)
-    # print(doc.metadata)
+    results = vector_store.similarity_search(
+        query=query,
+        k=3,
+        filter={
+            "department": {
+                "$in": allowed_departments
+            }
+        }
+    )
 
-    # Build a clean context from top-3 chunks
     context = "\n\n".join(
         f"""
-    Source: {doc.metadata['source']}
-    Section: {doc.metadata.get('Header 3', 'N/A')}
-    Content:
-    {doc.page_content}
-    """
-        .strip()
-        for doc in filtered_results
+        Source: {doc.metadata.get('source', 'Unknown')}
+        Section: {doc.metadata.get('Header 3', 'N/A')}
+        Department: {doc.metadata.get('department', 'N/A')}
+        
+        Content:
+        {doc.page_content}
+        """.strip()
+        for doc in results
     )
-    return context
 
-#query = "What is python?"
-#context = semantic_search(vector_store, query)
-#print(context)
+    return context
