@@ -1,0 +1,50 @@
+Queries for Role based access
+
+**********Finance*********************
+
+1. Why did employee benefits and HR costs increase by 10% during the fiscal year?
+ (A fiscal year is a 12-month accounting period used by companies and governments for financial reporting and budgeting.
+ It is used to prepare financial statements, budgets, and tax reporting.A company chooses its own fiscal year based on
+ business needs or regulatory rules.)
+
+
+2. Why did FinSolve Technologies’ net income increase only 12% despite 25% revenue growth in 2024?
+    Which specific vendor sub-categories (marketing, training, software subscriptions) contributed most to the margin pressure in 2024?
+    What factors drove the increase in software subscription costs to $25M, and how could consolidating providers help improve margins?
+    what specific training costs drove to 30%?
+
+
+**************Marketing**************
+
+1. How did FinNova’s marketing strategy in Q1 2024 drive customer acquisition and revenue performance across existing and new European markets?
+2. How effective were the key marketing initiatives such as the InstantPay launch, European expansion campaigns, and social media engagement in achieving Q1 targets and ROI goals?
+
+
+
+
+
+
+
+
+
+
+
+
+
+************General*******************
+
+1. How many days of sick leave are employees entitled to per year, and when is a medical certificate required?
+   How to apply this leave?
+   How is medical documentation verified and what happens if it is not submitted on time?
+   How these leaves are tracked and integrated into payroll and attendance systems?
+   Are unused sick leaves carried forward or forfeited at the end of the year?
+
+
+2. What constitutes standard daily work hours and weekly schedules according to the handbook?
+    What are the consequences if an employee arrives late to work three or more times in a month?
+    How is voluntary overtime compensated relative to the regular wage rate?
+    How to get the approval?
+
+
+3.
+

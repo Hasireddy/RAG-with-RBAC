@@ -79,6 +79,10 @@ What is the current Days Sales Outstanding (DSO) metric, and how does it compare
  What specific sub-categories make up the breakdown of the $30M vendor services budget?
  What percentage of the vendor services budget was consumed by dinner and corporate events?
  Why did employee benefits and HR costs increase by 10% during the fiscal year?
+ (A fiscal year is a 12-month accounting period used by companies and governments for financial reporting and budgeting.
+ It is used to prepare financial statements, budgets, and tax reporting.A company chooses its own fiscal year based on
+ business needs or regulatory rules.)
+
 
 
 🔄 Cash Flow & Liquidity
