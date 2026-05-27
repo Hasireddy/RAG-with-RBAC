@@ -1,6 +1,14 @@
 # Step 3: Define model node
-from langchain.messages import SystemMessage
 from langchain.chat_models import init_chat_model
+from langgraph.graph import MessagesState
+from langchain_core.messages import (
+    SystemMessage,
+    ToolMessage,
+    HumanMessage
+)
+from typing import Literal
+from langgraph.graph import StateGraph, START, END
+from langgraph.prebuilt import ToolNode, tools_condition
 from .tools import rag_tool, sql_tool
 
 
@@ -18,8 +26,10 @@ tools_by_name = {tool.name: tool for tool in tools}
 model_with_tools = model.bind_tools(tools)
 
 
+# Define model node
+# Each node takes a state and returns state object
 
-def llm_call(state: dict):
+def brain(state: dict):
     """LLM decides whether to call a tool or not"""
 
     return {
@@ -27,7 +37,28 @@ def llm_call(state: dict):
             model_with_tools.invoke(
                 [
                     SystemMessage(
-                        content="You are a helpful assistant tasked with performing arithmetic on a set of inputs."
+                        content="""
+                                    You are an intelligent enterprise AI assistant.
+                                
+                                    You have access to:
+                                
+                                    1. rag_tool
+                                    - Use for company policies
+                                    - documentation
+                                    - employee information
+                                    - unstructured knowledge
+                                
+                                    2. sql_tool
+                                    - Use for structured database queries
+                                    - analytics
+                                    - counts
+                                    - aggregations
+                                    - filtering
+                                    - tabular data
+                                
+                                    Choose the correct tool when needed.
+                                    Use tools before answering if information is required.
+                                """
                     )
                 ]
                 + state["messages"]
@@ -35,3 +66,27 @@ def llm_call(state: dict):
         ],
         "llm_calls": state.get('llm_calls', 0) + 1
     }
+
+
+# Define tool node - Tool executor
+# Tool executor after executing a tool returns state message with updated state
+#tool node performs state call. takes the existing state, performs tool calls and appends the updated state
+#and returns the state object
+
+tool_node = ToolNode(tools)
+
+
+# Build Graph
+agent_builder = StateGraph(MessagesState)
+
+# add nodes
+agent_builder.build("brain")
+agent_builder.build("tools", tool_node)
+
+# add edges
+agent_builder.add_edge(START, "brain")
+agent_builder.add_edge("tools", "brain")
+agent_builder.add_edge("brain",tools_condition)
+
+graph = agent_builder.compile()
+
