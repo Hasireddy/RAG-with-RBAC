@@ -1,10 +1,13 @@
 from .create_vector_store import create_vector_store
+from langfuse.langchain import CallbackHandler
 
+langfuse_handler = CallbackHandler()
 
 # Build vector store once on import/startup
 vector_store = create_vector_store()
 
 # Step4:Run a semantic search
+
 def semantic_search(vector_store, query, departments):
     """
     Semantic search with department-based RBAC filtering
@@ -17,21 +20,21 @@ def semantic_search(vector_store, query, departments):
         k=3,
         filter={
             "department": {
-                "$in": allowed_departments
+            "$in": allowed_departments
+                }
             }
-        }
-    )
+        )
 
     context = "\n\n".join(
-        f"""
-        Source: {doc.metadata.get('source', 'Unknown')}
-        Section: {doc.metadata.get('Header 3', 'N/A')}
-        Department: {doc.metadata.get('department', 'N/A')}
+            f"""
+            Source: {doc.metadata.get('source', 'Unknown')}
+            Section: {doc.metadata.get('Header 3', 'N/A')}
+            Department: {doc.metadata.get('department', 'N/A')}
         
-        Content:
-        {doc.page_content}
-        """.strip()
-        for doc in results
+            Content:
+            {doc.page_content}
+            """.strip()
+            for doc in results
     )
 
     return context

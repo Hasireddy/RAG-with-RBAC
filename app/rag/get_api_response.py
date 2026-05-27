@@ -7,16 +7,25 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
+from langfuse import get_client
+from langfuse.langchain import CallbackHandler
 
 from .create_vector_store import create_vector_store
 from .semantic_docs_search import semantic_search
+
 
 
 # Load environment variables
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
 api_key = os.getenv("API_KEY")
 
-client = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=api_key)
+client = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
+
+# Initialize Langfuse client
+langfuse = get_client()
+
+# Initialize Langfuse CallbackHandler for Langchain (tracing)
+langfuse_handler = CallbackHandler()
 
 # Build vector store once
 vector_store = create_vector_store()
@@ -65,7 +74,10 @@ def summarize_old_chat(session_id):
         NEW_CONVERSATION: {conversation}
         """
 
-        new_summary = summarizer_chain.invoke({"conversation": combined})
+        new_summary = summarizer_chain.invoke({"conversation": combined}, config={
+            "callbacks": [langfuse_handler],
+            "run_name": "conversation_summary"
+        })
         memory_store[session_id]["summary"]= new_summary
         memory_store[session_id]["recent_messages"].messages = recent_msgs[-MAX_RECENT_MSGS:]
 
@@ -117,8 +129,30 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     print(history.messages)
     context = semantic_search(vector_store, query, departments=departments)
 
-    final_answer = chain_with_memory.invoke({"summary": summary, "query": query, "context": context, "emp_name": emp_name, "email": email, "departments": ",".join(departments)},
-                                            {"configurable": {"session_id": session_id}})
+    final_answer = chain_with_memory.invoke(
+        {
+                 "summary": summary,
+                 "query": query,
+                 "context": context,
+                 "emp_name": emp_name,
+                 "email": email,
+                 "departments": ",".join(departments)
+              },
+
+      {
+              "configurable": {
+                  "session_id": session_id
+                },
+                "callbacks": [langfuse_handler],
+                "metadata": {
+                    "user_email": email,
+                    "session_id": session_id,
+                    "employee_name": emp_name,
+                    "departments": departments
+                },
+                "run_name": "rag-rbac",
+            }
+    )
 
     summarize_old_chat(session_id)
 
