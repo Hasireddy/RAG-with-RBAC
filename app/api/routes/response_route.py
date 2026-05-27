@@ -14,6 +14,7 @@ from app.database.session import get_db
 from app.rag.get_api_response import get_response
 from app.auth.jwt import get_current_user
 from app.models.messages_model import ChatMessage
+from app.agent.nodes import run_agent
 
 # Load environment variables
 load_dotenv()
@@ -99,8 +100,16 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
             session_id = f"user_{emp_id}"
         print("SESSION ID:", session_id)
 
-        response_text = get_response(query=query, session_id=session_id, emp_name=emp_name, email=email,
-                                     departments=departments)
+        #response_text = get_response(query=query, session_id=session_id, emp_name=emp_name, email=email,
+                                     #departments=departments)
+
+        response_text = run_agent(
+            query=query,
+            session_id=session_id,
+            emp_name=emp_name,
+            email=email,
+            departments=departments
+        )
 
         if not response_text:
             response_text = "No response generated."

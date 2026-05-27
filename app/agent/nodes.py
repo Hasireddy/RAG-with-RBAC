@@ -6,10 +6,9 @@ from langchain_core.messages import (
     ToolMessage,
     HumanMessage
 )
-from typing import Literal
+from .state import MessagesState
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
-from IPython.display import Image, display
 from langgraph.checkpoint.memory import InMemorySaver
 from .tools import rag_tool, sql_tool
 
@@ -27,11 +26,18 @@ tools = [rag_tool, sql_tool]
 tools_by_name = {tool.name: tool for tool in tools}
 model_with_tools = model.bind_tools(tools)
 
+# Define tool node - Tool executor
+# Tool executor after executing a tool returns state message with updated state
+#tool node performs state call. takes the existing state, performs tool calls and appends the updated state
+#and returns the state object
+
+tool_node = ToolNode(tools)
+
 
 # Define model node
 # Each node takes a state and returns state object
 
-def brain(state: dict):
+def brain(state: MessagesState):
     """LLM decides whether to call a tool or not"""
 
     return {
@@ -70,12 +76,7 @@ def brain(state: dict):
     }
 
 
-# Define tool node - Tool executor
-# Tool executor after executing a tool returns state message with updated state
-#tool node performs state call. takes the existing state, performs tool calls and appends the updated state
-#and returns the state object
 
-tool_node = ToolNode(tools)
 
 
 checkpointer = InMemorySaver()
@@ -95,23 +96,31 @@ agent_builder.add_conditional_edges("brain",tools_condition)
 graph = agent_builder.compile(checkpointer=checkpointer)
 
 
-# Show the agent
-display(Image(graph.get_graph(xray=True).draw_mermaid_png()))
-
-
 #invoke graph
-def run_agent(query: str, thread_id: str):
+def run_agent(query: str, session_id: str, emp_name: str, email: str, departments: list[str]):
     response = graph.invoke(
         {
             "messages": [
                 HumanMessage(content=query)
-            ]
+            ],
+            "messages": [HumanMessage(content=query)],
+            "session_id": session_id,
+            "emp_name": emp_name,
+            "email": email,
+            "departments": departments,
+            "llm_calls": 0
+
         },
         {
-            "configurable": {
-                "thread_id": thread_id
-            }
-        }
+                "configurable":
+                    {
+                        "thread_id": session_id,
+                        "session_id": session_id,
+                        "emp_name": emp_name,
+                        "email": email,
+                        "departments": departments,
+                    }
+                }
     )
 
     return response["messages"][-1].content
