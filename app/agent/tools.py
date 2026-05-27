@@ -1,10 +1,12 @@
+from dotenv import load_dotenv
 from langchain.tools import tool
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain.chat_models import init_chat_model
 from langchain_core.runnables import RunnableConfig
+import os
 
-from rag.get_api_response import get_response
+from app.rag.get_api_response import get_response
 
 # Define Tools/Abilities
 # Define state
@@ -14,16 +16,19 @@ from rag.get_api_response import get_response
 
 db = SQLDatabase.from_uri("sqlite:///Chinook.db")
 
-#llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+# Load environment variables
+load_dotenv()  # reads variables from a .env file and sets them in os.environ
+api_key = os.getenv("API_KEY")
 
 model = init_chat_model(
     "gpt-4o-mini",
-    temperature=0
+    temperature=0,
+    api_key=api_key
 )
 
 
 sql_agent = create_sql_agent(
-    model=model,
+    llm=model,
     db=db,
     verbose=True
 )

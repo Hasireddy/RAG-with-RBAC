@@ -1,23 +1,28 @@
 # Step 3: Define model node
+from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
-from langgraph.graph import MessagesState
 from langchain_core.messages import (
     SystemMessage,
     ToolMessage,
     HumanMessage
 )
-from .state import MessagesState
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import InMemorySaver
 from .tools import rag_tool, sql_tool
+from .state import MessagesState
+import os
 
 
+# Load environment variables
+load_dotenv()  # reads variables from a .env file and sets them in os.environ
+api_key = os.getenv("API_KEY")
 
 
 model = init_chat_model(
     "gpt-4o-mini",
-    temperature=0
+    temperature=0,
+    api_key=api_key
 )
 
 
@@ -85,13 +90,18 @@ checkpointer = InMemorySaver()
 agent_builder = StateGraph(MessagesState)
 
 # add nodes
-agent_builder.add_node("brain")
+agent_builder.add_node("brain", brain)
 agent_builder.add_node("tools", tool_node)
 
 # add edges
 agent_builder.add_edge(START, "brain")
+
+agent_builder.add_conditional_edges("brain",tools_condition, {
+        "tools": "tools",
+        "__end__": END
+    })
+
 agent_builder.add_edge("tools", "brain")
-agent_builder.add_conditional_edges("brain",tools_condition)
 
 graph = agent_builder.compile(checkpointer=checkpointer)
 
@@ -103,7 +113,6 @@ def run_agent(query: str, session_id: str, emp_name: str, email: str, department
             "messages": [
                 HumanMessage(content=query)
             ],
-            "messages": [HumanMessage(content=query)],
             "session_id": session_id,
             "emp_name": emp_name,
             "email": email,
