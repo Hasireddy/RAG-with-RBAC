@@ -1,19 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
-import uuid
 
-from app.schemas.response_schema import ResponseSchema
-from app.schemas.query_schema import QueryRequest
 from app.database.session import get_db
-from app.rag_utils.query_classifier import detect_query_type_llm
+#from agent.query_classifier import detect_query_type_llm
 from app.schemas.query_schema import QueryRequest
 from app.schemas.response_schema import ResponseSchema
-from app.auth.jwt import get_current_user
-
 
 # Load environment variables
 load_dotenv()
