@@ -29,6 +29,7 @@ Queries for Role based access
 
 1. How many days of sick leave are employees entitled to per year?
    How to apply this leave?
+   How to get the approval?
    How is medical documentation verified and what happens if it is not submitted on time?
    How these leaves are tracked and integrated into payroll and attendance systems?
    Are unused sick leaves carried forward or forfeited at the end of the year?
