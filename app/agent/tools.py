@@ -1,11 +1,12 @@
 from langchain.tools import tool
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
+from langchain.chat_models import init_chat_model
 from rag.get_api_response import get_response
 
 # Define Tools/Abilities
 # Define state
-# Define node
+# Define nodes
 # Define Graph/connections
 
 
