@@ -9,6 +9,8 @@ from langchain_core.messages import (
 from typing import Literal
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
+from IPython.display import Image, display
+from langgraph.checkpoint.memory import InMemorySaver
 from .tools import rag_tool, sql_tool
 
 
@@ -76,17 +78,42 @@ def brain(state: dict):
 tool_node = ToolNode(tools)
 
 
+checkpointer = InMemorySaver()
+
 # Build Graph
 agent_builder = StateGraph(MessagesState)
 
 # add nodes
-agent_builder.build("brain")
-agent_builder.build("tools", tool_node)
+agent_builder.add_node("brain")
+agent_builder.add_node("tools", tool_node)
 
 # add edges
 agent_builder.add_edge(START, "brain")
 agent_builder.add_edge("tools", "brain")
-agent_builder.add_edge("brain",tools_condition)
+agent_builder.add_conditional_edges("brain",tools_condition)
 
-graph = agent_builder.compile()
+graph = agent_builder.compile(checkpointer=checkpointer)
+
+
+# Show the agent
+display(Image(graph.get_graph(xray=True).draw_mermaid_png()))
+
+
+#invoke graph
+def run_agent(query: str, thread_id: str):
+    response = graph.invoke(
+        {
+            "messages": [
+                HumanMessage(content=query)
+            ]
+        },
+        {
+            "configurable": {
+                "thread_id": thread_id
+            }
+        }
+    )
+
+    return response["messages"][-1].content
+
 

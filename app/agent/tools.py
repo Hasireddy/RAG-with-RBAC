@@ -29,6 +29,12 @@ sql_agent = create_sql_agent(
 
 @tool
 def rag_tool(input: dict) -> str:
+    """
+       Search enterprise company documents and answer questions.
+       Use for policies, documentation, employee knowledge,
+       and unstructured text information.
+       """
+
     return get_response(
         query=input["query"],
         session_id=input["session_id"],
@@ -40,6 +46,12 @@ def rag_tool(input: dict) -> str:
 
 @tool
 def sql_tool(query: str) -> str:
+    """
+        Query structured SQLite database.
+        Use for counts, aggregations, analytics,
+        filtering, and tabular data.
+        """
+
     return sql_agent.invoke({"input": query})["output"]
 
 
