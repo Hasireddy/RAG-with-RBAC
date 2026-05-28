@@ -17,13 +17,18 @@ def semantic_search(vector_store, query, departments):
 
     results = vector_store.similarity_search(
         query=query,
-        k=3,
+        k=8,
         filter={
             "department": {
             "$in": allowed_departments
                 }
             }
         )
+
+    results = results[:5]
+
+    if not results:
+        return ""
 
     context = "\n\n".join(
             f"""

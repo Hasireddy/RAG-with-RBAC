@@ -85,63 +85,21 @@ def summarize_old_chat(session_id):
 
 
 
-prompt = ChatPromptTemplate.from_messages([
-    ("system", """
-        You are a technical documentation expert and AI assistant with access to company documents and tools. 
-        You must answer using ONLY the provided DOCUMENT CONTEXT and TOOL results.
-         
-        ---
-        RULES:
-        - DOCUMENT CONTEXT is the ONLY source of truth.
-        - Do NOT use external knowledge or prior training data.
-        - Do NOT infer, guess, or explain beyond what is explicitly written.
-        
-        - You are NOT allowed to define, explain, or expand concepts unless explicitly stated in the context.
-        
-        - Before answering, locate an exact sentence in the context that supports the answer.
-        - If no exact supporting sentence exists, respond exactly: "Information not provided."
-        
-        - Do NOT paraphrase beyond the meaning of the provided text.
-        - Do NOT add general knowledge, examples, or explanations
 
-        
-        TOOL USAGE:
-        - Use rag_tool for:
-          • company policies
-          • employee information
-          • internal documents
-          • unstructured knowledge
-        
-        - Use sql_tool for:
-          • structured queries
-          • analytics
-          • counts and aggregations
-          • database filtering
-        
-        ---
-        
-        RESPONSE STYLE:
-        - 1–3 sentences maximum unless user asks for detail
-        - Be factual and direct
-     """),
+OFF_TOPIC_PROMPT = ChatPromptTemplate.from_messages([
+    ("system", """You are a query classifier. Decide if the user's question is relevant to a company internal assistant.
+A question is RELEVANT if it could be about: company policies, employees, internal tools, products, databases, or operations.
+A question is IRRELEVANT if it is about: general knowledge, history, science, coding tutorials, entertainment, etc.
 
-    ("system", "Conversation summary: {summary}"),
-    MessagesPlaceholder("history"),
-    ("human", """USER INFO: 
-Name: {emp_name} 
-Email: {email} 
-Departments: {departments} 
-
-DOCUMENT CONTEXT: 
-{context} 
-
-USER QUESTION: 
-{query}
-.""")
+Respond with ONLY one word: RELEVANT or IRRELEVANT."""),
+    ("human", "{query}")
 ])
 
-chain = (prompt | client | StrOutputParser() )
-chain_with_memory = RunnableWithMessageHistory(chain, lambda session_id: memory_store[session_id]["recent_messages"], input_messages_key="query", history_messages_key="history")
+guard_chain = (OFF_TOPIC_PROMPT | client | StrOutputParser())
+
+def is_query_relevant(query: str) -> bool:
+    result = guard_chain.invoke({"query": query})
+    return result.strip().upper() == "RELEVANT"
 
 
 def get_response(query:str, session_id: str, emp_name: str, email: str, departments: List[str]):
@@ -150,6 +108,73 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     print(query)
     print(memory_store)
     print(session_id)
+    relevant = is_query_relevant(query)
+    print(f"[GUARD] Query: '{query}' → Relevant: {relevant}")
+
+    if not relevant:
+        return {"answer": "I can only assist with company-related questions."}
+    # 🔒 Guard: reject off-topic queries early
+
+    system_prompt = f"""You are a company internal assistant. You ONLY answer questions using the provided DOCUMENT CONTEXT and available tools.
+    If the question is about the user (e.g., name, greetings, personal context), always use chat history first. 
+                
+    GREETING RULE:
+    - On the user's FIRST message only, greet them by name: 'Hello, " + emp_name + " ! How can I help you today?"
+    - Do NOT greet on follow-up messages in the same session.
+
+    STRICT RULES (never violate these):
+    1. ONLY use information from the DOCUMENT CONTEXT or tool results below.
+    2. If the DOCUMENT CONTEXT does not contain a clear answer, respond EXACTLY with:
+       "I'm sorry, I can only answer questions related to company documents and tools."
+    3. NEVER use your general training knowledge, even if you know the answer.
+    4. NEVER answer questions about general topics (history, science, coding help unrelated to company, etc.).
+    5. Do NOT say "based on my knowledge" or "generally speaking".
+    6. Do NOT infer or extrapolate beyond what the documents say.
+
+    TOPIC GUARD:
+    - If the question is clearly unrelated to the company (e.g. "Who is Einstein?", "Write me a poem"), 
+      respond EXACTLY with: "I can only assist with company-related questions."
+
+    TOOL USAGE:
+    - Use rag_tool for: policies, employee info, internal documents, unstructured knowledge
+    - Use sql_tool for: structured queries, analytics, counts, database filtering
+
+    RESPONSE STYLE:
+    - 1–2 sentences unless the user explicitly asks for detail
+    - Be factual and direct
+
+    EXAMPLES:
+    Input: What are Client applications?
+    Output: Client applications are Mobile, Web and API applications.
+
+    Input: What are Unicorns?
+    Output: I'm sorry, information about Unicorns is not provided in the company documents.
+
+    Input: Who invented electricity?
+    Output: I can only assist with company-related questions.
+    """
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_prompt),
+        ("system", "Conversation summary: {summary}"),
+        MessagesPlaceholder("history"),
+        ("human", """USER INFO: 
+    Name: {emp_name} 
+    Email: {email} 
+    Departments: {departments} 
+
+    DOCUMENT CONTEXT: 
+    {context} 
+
+    USER QUESTION: 
+    {query}
+    .""")
+    ])
+
+    chain = (prompt | client | StrOutputParser())
+    chain_with_memory = RunnableWithMessageHistory(chain,
+                                                   lambda session_id: memory_store[session_id]["recent_messages"],
+                                                   input_messages_key="query", history_messages_key="history")
 
     session =  get_session_history(session_id)
     history = session["recent_messages"]
@@ -157,6 +182,11 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
 
     print(history.messages)
     context = semantic_search(vector_store, query, departments=departments)
+
+    if not context:
+        return {
+            "answer": "I could not find any relevant information in the documents for your query."
+        }
 
     final_answer = chain_with_memory.invoke(
         {

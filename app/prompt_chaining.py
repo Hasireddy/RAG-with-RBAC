@@ -393,3 +393,51 @@ USER QUESTION:
 {query}
 .""")
 ])
+
+
+
+
+SIMILARITY_THRESHOLD = 0.75
+TOP_K_FETCH = 8
+TOP_K_USE = 5
+
+def semantic_search(vector_store, query: str, departments: list[str]) -> str:
+    """
+    Semantic search with department-based RBAC filtering and score thresholding.
+    Returns empty string if no relevant documents found.
+    """
+    allowed_departments = list(set(departments + ["general"]))
+
+    raw_results = vector_store.similarity_search_with_score(
+        query=query,
+        k=TOP_K_FETCH,
+        filter={"department": {"$in": allowed_departments}}
+    )
+
+    # Filter by relevance threshold and take top N
+    filtered = [
+        (doc, score) for doc, score in raw_results
+        if score >= SIMILARITY_THRESHOLD
+    ][:TOP_K_USE]
+
+    if not filtered:
+        return ""
+
+    context = "\n\n".join(
+        f"""
+        Source: {doc.metadata.get('source', 'Unknown')}
+        Section: {
+            doc.metadata.get('Header 1') or
+            doc.metadata.get('Header 2') or
+            doc.metadata.get('Header 3') or 'N/A'
+        }
+        Department: {doc.metadata.get('department', 'N/A')}
+        Relevance: {score:.2f}
+
+        Content:
+        {doc.page_content}
+        """.strip()
+        for doc, score in filtered
+    )
+
+    return context
