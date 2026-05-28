@@ -315,3 +315,81 @@ USER QUESTION:
 2. If authorized, answer the question using only the provided context.
 3. If unauthorized, trigger the exact security response.""")
 ])
+
+
+
+
+summary_prompt = ChatPromptTemplate.from_messages([
+    ("system",  """You are an expert research assistant. Your task is to create a concise, high-density summary of the provided text.
+
+Strict Rules:
+1. Rely ONLY on the clear facts directly mentioned in the context.
+2. Do not assume, extrapolate, or bring in outside knowledge.
+3. Any facts or extrapolation not directly mentioned must be considered completely untruthful.
+4. Maintain a neutral, factual tone without repeating conversational filler.
+
+Format your output exactly as follows:
+- **One-Sentence Overview**: A single sentence capturing the main thesis or primary event.
+- **Key Takeaways**: A bulleted list of 3 to 5 distinct, high-impact facts or core points.
+"""),
+
+("human", "{conversation}")
+])
+
+
+
+
+
+
+summarizer_chain = (summary_prompt | client | StrOutputParser())
+
+def summarize_old_chat(session_id):
+    session = memory_store[session_id]
+    recent_msgs = session["recent_messages"].messages
+    previous_summary = session["summary"]
+
+
+    if len(recent_msgs) > MAX_RECENT_MSGS:
+        old_msgs = recent_msgs[:-MAX_RECENT_MSGS]
+        conversation = "\n".join([f"{message.type}: {message.content}" for message in old_msgs])
+        combined = f"""
+        PREVIOUS_SUMMARY: {previous_summary}
+        NEW_CONVERSATION: {conversation}
+        """
+
+        new_summary = summarizer_chain.invoke({"conversation": combined}, config={
+            "callbacks": [langfuse_handler],
+            "run_name": "conversation_summary"
+        })
+        memory_store[session_id]["summary"]= new_summary
+        memory_store[session_id]["recent_messages"].messages = recent_msgs[-MAX_RECENT_MSGS:]
+
+
+
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are a technical documentation expert and AI assistant with access to company documents. 
+     Your task is to help answer a question using only the provided DOCUMENT CONTEXT. Be concise and accurate. Do not add
+     external knowledge. If the information is not provided in the DOCUMENT CONTEXT, say "Information not provided in the documents".
+     Ensure you have a friendly tone like you are explaining it to a colleague.
+     Summarize the information into one or two sentences.
+     #Before answering, Check the user department  {departments} . If the information is related to the user department,
+     #provide the response. Otherwise say, "you do not have access to this information".
+     #If the information is present in the content and is related to the user department {departments} , provide the information.
+     #Else say "Information is not provided in the documents".
+     """),
+
+    ("system", "Conversation summary: {summary}"),
+    MessagesPlaceholder("history"),
+    ("human", """USER INFO: 
+Name: {emp_name} 
+Email: {email} 
+Departments: {departments} 
+
+DOCUMENT CONTEXT: 
+{context} 
+
+USER QUESTION: 
+{query}
+.""")
+])
