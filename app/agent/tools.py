@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from langchain.tools import tool
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
+from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_sql_query_chain
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
@@ -24,7 +25,7 @@ api_key = os.getenv("API_KEY")
 
 
 model = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="gpt-4.1-mini",
     temperature=0,
     api_key=api_key
 )
@@ -69,10 +70,28 @@ except Exception as init_err:
     print(f"❌ DATABASE INITIALIZATION CRASHED: {str(init_err)}")
     db = None
 
+
+# Force the LLM to use case-insensitive matching because names vary
+#Fix variable names to match LangChain requirements: 'input', 'table_info', 'top_k'
+
+strict_sql_prompt = ChatPromptTemplate.from_messages([
+    ("system", (
+        "You are a SQLite expert. Given an input question, create a syntactically correct SQLite query.\n"
+        "CRITICAL RULES:\n"
+        "1. Always use case-insensitive matching (e.g., LOWER(department) = 'sales' or department LIKE '%sales%') "
+        "to ensure spelling and capitalization mismatches do not cause empty returns.\n"
+        "2. Limit your query to the top {top_k} results unless specified otherwise.\n"
+        "3. ONLY output the executable SQL query string. Do not include markdown wraps or explanations.\n\n"
+        "Database Schema:\n{table_info}"
+    )),
+    ("human", "{input}")  # Changed from {question} to {input}
+])
+
 # ADD THESE 4 LINES HERE: Instantiate the query chain so it can be invoked inside the tool
 sql_chain = create_sql_query_chain(
     llm=model,
-    db=db
+    db=db,
+    prompt=strict_sql_prompt
 )
 
 
@@ -108,8 +127,8 @@ def sql_tool(query: str) -> str:
         execution_result = db.run(clean_query)
         print(f"👉 DATABASE ROW OUTPUT: {execution_result}")
 
-        if not execution_result:
-            return "No matching records found in the database."
+        if execution_result is None or str(execution_result).strip() in ["", "[]", "()"]:
+            return "Database verification: 0 records match this criteria. The department or list is empty."
 
         return str(execution_result)
 
