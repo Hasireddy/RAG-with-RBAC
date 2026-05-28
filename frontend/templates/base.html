@@ -480,6 +480,7 @@
 
                 console.log(data)
                 appendBotMessage(
+                    data.messages?.[0]?.message?.content || 
                     data.messages?.[0]?.message?.["answer"]||
                     data.response ||
                     "No response from API"

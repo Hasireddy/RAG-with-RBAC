@@ -68,6 +68,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
     """Gets response from openai API"""
 
     try:
+        # Generate session id if not provided in payload
         query = payload.query.strip()
         print(query)
 
@@ -111,7 +112,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
             departments=departments
         )
 
-        if not response_text:
+        if response_text is None:
             response_text = "No response generated."
 
         # Save response in DB
@@ -151,7 +152,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
             "messages": [
                 {
                     "role": assistant_message.role,
-                    "message": json.loads(assistant_message.message),
+                    "message": {"content": response_text["message"]["content"]},
                     "created_at": assistant_message.created_at
                 }
             ]

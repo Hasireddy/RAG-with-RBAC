@@ -1,6 +1,6 @@
 # Step 3: Define model node
 from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import (
     SystemMessage,
     ToolMessage,
@@ -19,8 +19,8 @@ load_dotenv()  # reads variables from a .env file and sets them in os.environ
 api_key = os.getenv("API_KEY")
 
 
-model = init_chat_model(
-    "gpt-4o-mini",
+model = ChatOpenAI(
+    model="gpt-4o-mini",
     temperature=0,
     api_key=api_key
 )
@@ -45,9 +45,9 @@ tool_node = ToolNode(tools)
 def brain(state: MessagesState):
     """LLM decides whether to call a tool or not"""
 
-    return {
-        "messages": [
-            model_with_tools.invoke(
+    messages = state.get("messages", [])
+
+    response = model_with_tools.invoke(
                 [
                     SystemMessage(
                         content="""
@@ -76,24 +76,24 @@ def brain(state: MessagesState):
                 ]
                 + state["messages"]
             )
-        ],
-        "llm_calls": state.get('llm_calls', 0) + 1
+
+    return {
+        "messages": [response],
+        "llm_calls": state.get("llm_calls", 0) + 1
     }
-
-
 
 
 
 checkpointer = InMemorySaver()
 
-# Build Graph
+# Build Graph workflow
 agent_builder = StateGraph(MessagesState)
 
 # add nodes
 agent_builder.add_node("brain", brain)
 agent_builder.add_node("tools", tool_node)
 
-# add edges
+# add edges to connect nodes
 agent_builder.add_edge(START, "brain")
 
 agent_builder.add_conditional_edges("brain",tools_condition, {
@@ -119,7 +119,7 @@ def run_agent(query: str, session_id: str, emp_name: str, email: str, department
             "departments": departments,
             "llm_calls": 0
 
-        },
+            },
         {
                 "configurable":
                     {
@@ -130,8 +130,17 @@ def run_agent(query: str, session_id: str, emp_name: str, email: str, department
                         "departments": departments,
                     }
                 }
-    )
+        )
 
-    return response["messages"][-1].content
+    last_msg = response["messages"][-1]
+
+    return {
+        "message": {
+            "content": last_msg.content,
+            "type": getattr(last_msg, "type", "ai")
+        },
+        "session_id": session_id,
+        "llm_calls": response.get("llm_calls", 0)
+    }
 
 
