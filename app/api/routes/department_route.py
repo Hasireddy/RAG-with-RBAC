@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 
@@ -10,20 +10,25 @@ from app.models.department_model import DepartmentDB
 router = APIRouter(prefix="/department", tags=["Departments"])
 
 # Create a Department
-"""@router.post("/department", response_model=DepartmentResponse)
+@router.post("/department", response_model=DepartmentResponse)
 def create_department(department: DepartmentCreate, db: Session = Depends(get_db)):
-   
+    """
+    Creates a new department
+    """
     company = db.query(CompanyDB).first()
 
     if not company:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Company not found"
+        )
 
     # Check duplicate dept_code
     existing_dept = db.query(DepartmentDB).filter(DepartmentDB.dept_code == department.dept_code).first()
 
     if existing_dept:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Department code '{department.dept_code}' already exists"
         )
 
@@ -36,7 +41,8 @@ def create_department(department: DepartmentCreate, db: Session = Depends(get_db
     db.commit()
     db.refresh(db_department)
 
-    return db_department"""
+    return db_department
+
 
 @router.post("/company/{company_id}/", response_model=DepartmentResponse)
 def create_department(company_id: int, department: DepartmentCreate, db: Session = Depends(get_db)):
@@ -48,7 +54,10 @@ def create_department(company_id: int, department: DepartmentCreate, db: Session
     ).first()
 
     if not company:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND ,
+            detail="Company not found"
+        )
 
     # Check duplicate ONLY within company
     existing_dept = db.query(DepartmentDB).filter(
@@ -58,7 +67,7 @@ def create_department(company_id: int, department: DepartmentCreate, db: Session
 
     if existing_dept:
         raise HTTPException(
-            status_code=400,
+            status_code=status_400_BAD_REQUEST,
             detail=f"Department code '{department.dept_code}' already exists in this company"
         )
 
@@ -84,7 +93,7 @@ def get_all_departments(skip: int = 0, limit: int = 10, db:Session=Depends(get_d
 
     if not departments:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Departments not found. Please create a department first."
         )
 
@@ -100,7 +109,9 @@ def update_department(dept_id: int, department: DepartmentUpdate, db: Session = 
     department_to_update = db.query(DepartmentDB).filter(DepartmentDB.id == dept_id).first()
 
     if not department_to_update:
-        raise HTTPException(status_code=404, detail="Department with given id not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Department with given id not found")
 
     if department.dept_name is not None:
         department_to_update.dept_name = department.dept_name
@@ -121,7 +132,10 @@ def delete_department(dept_id: int, db: Session = Depends(get_db)):
     department_to_delete = db.query(DepartmentDB).filter(DepartmentDB.id == dept_id).first()
 
     if not department_to_delete:
-        raise HTTPException(status_code=404, detail="Department with given id not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Department with given id not found"
+        )
 
     db.delete(department_to_delete)
     db.commit()
@@ -137,7 +151,10 @@ def get_single_department_by_id(dept_id: int, db: Session = Depends(get_db)):
     department = db.query(DepartmentDB).filter(DepartmentDB.id == dept_id).first()
 
     if not department:
-        raise HTTPException(status_code=404, detail = "Department with given id not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail = "Department with given id not found"
+        )
     return department
 
 
