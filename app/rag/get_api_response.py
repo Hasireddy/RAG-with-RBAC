@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import re
 from typing import List
 
 from langchain_openai import ChatOpenAI
@@ -11,7 +12,7 @@ from langchain.agents import create_react_agent, AgentExecutor
 from langfuse import get_client
 from langfuse.langchain import CallbackHandler
 
-from .create_vector_store import create_vector_store
+
 from .semantic_docs_search import semantic_search
 
 
@@ -29,7 +30,7 @@ langfuse = get_client()
 langfuse_handler = CallbackHandler()
 
 # Build vector store once
-vector_store = create_vector_store()
+#vector_store = create_vector_store()
 memory_store = {}
 MAX_RECENT_MSGS = 10
 
@@ -83,7 +84,51 @@ def summarize_old_chat(session_id):
         memory_store[session_id]["recent_messages"].messages = recent_msgs[-MAX_RECENT_MSGS:]
 
 
+system_prompt = f"""You are technical documentation expert and AI assistant for a company.
+        Your task is to help answer a user's question from the provided DOCUMENT CONTEXT and tools.
+        
+        You have access to the following tools:
+            - rag_tool: for company documents
+            - sql_tool: for structured database queries
 
+STRICT RULES (never violate these):
+1. ONLY use information explicitly stated in the DOCUMENT CONTEXT or the information from the tools.
+2. If the DOCUMENT CONTEXT does not contain an answer, respond EXACTLY with:
+   "I'm sorry, I can only answer questions related to company documents and tools."
+3. If the information is present, summarize it to 2 or 3 sentences.
+
+
+
+EXAMPLES:
+Input: What are Client applications?
+Output: Client applications are Mobile, Web and API applications.
+
+Input: What are Unicorns?
+Output: I'm sorry, information about Unicorns is not provided in the company documents.
+
+Input: Who invented electricity?
+Output: I can only assist with company-related questions.
+
+Input: Why did HR costs increase?
+Output: According to the documents, HR costs increased due to expanded employee benefits and wellness programs during the fiscal year.
+"""
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", system_prompt),
+    ("system", "Conversation summary: {summary}"),
+    MessagesPlaceholder("history"),
+    ("human", """USER INFO: 
+Name: {emp_name} 
+Email: {email} 
+Departments: {departments} 
+
+DOCUMENT CONTEXT: 
+{context} 
+
+USER QUESTION: 
+{query}
+.""")
+])
 
 
 OFF_TOPIC_PROMPT = ChatPromptTemplate.from_messages([
@@ -100,6 +145,8 @@ guard_chain = (OFF_TOPIC_PROMPT | client | StrOutputParser())
 def is_query_relevant(query: str) -> bool:
     result = guard_chain.invoke({"query": query})
     return result.strip().upper() == "RELEVANT"
+chain = (prompt | client | StrOutputParser() )
+chain_with_memory = RunnableWithMessageHistory(chain, lambda session_id: memory_store[session_id]["recent_messages"], input_messages_key="query", history_messages_key="history")
 
 
 def get_response(query:str, session_id: str, emp_name: str, email: str, departments: List[str]):
@@ -114,67 +161,6 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     if not relevant:
         return {"answer": "I can only assist with company-related questions."}
     # 🔒 Guard: reject off-topic queries early
-
-    system_prompt = f"""You are a company internal assistant. You ONLY answer questions using the provided DOCUMENT CONTEXT and available tools.
-    If the question is about the user (e.g., name, greetings, personal context), always use chat history first. 
-                
-    GREETING RULE:
-    - On the user's FIRST message only, greet them by name: 'Hello, " + emp_name + " ! How can I help you today?"
-    - Do NOT greet on follow-up messages in the same session.
-
-    STRICT RULES (never violate these):
-    1. ONLY use information from the DOCUMENT CONTEXT or tool results below.
-    2. If the DOCUMENT CONTEXT does not contain a clear answer, respond EXACTLY with:
-       "I'm sorry, I can only answer questions related to company documents and tools."
-    3. NEVER use your general training knowledge, even if you know the answer.
-    4. NEVER answer questions about general topics (history, science, coding help unrelated to company, etc.).
-    5. Do NOT say "based on my knowledge" or "generally speaking".
-    6. Do NOT infer or extrapolate beyond what the documents say.
-
-    TOPIC GUARD:
-    - If the question is clearly unrelated to the company (e.g. "Who is Einstein?", "Write me a poem"), 
-      respond EXACTLY with: "I can only assist with company-related questions."
-
-    TOOL USAGE:
-    - Use rag_tool for: policies, employee info, internal documents, unstructured knowledge
-    - Use sql_tool for: structured queries, analytics, counts, database filtering
-
-    RESPONSE STYLE:
-    - 1–2 sentences unless the user explicitly asks for detail
-    - Be factual and direct
-
-    EXAMPLES:
-    Input: What are Client applications?
-    Output: Client applications are Mobile, Web and API applications.
-
-    Input: What are Unicorns?
-    Output: I'm sorry, information about Unicorns is not provided in the company documents.
-
-    Input: Who invented electricity?
-    Output: I can only assist with company-related questions.
-    """
-
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),
-        ("system", "Conversation summary: {summary}"),
-        MessagesPlaceholder("history"),
-        ("human", """USER INFO: 
-    Name: {emp_name} 
-    Email: {email} 
-    Departments: {departments} 
-
-    DOCUMENT CONTEXT: 
-    {context} 
-
-    USER QUESTION: 
-    {query}
-    .""")
-    ])
-
-    chain = (prompt | client | StrOutputParser())
-    chain_with_memory = RunnableWithMessageHistory(chain,
-                                                   lambda session_id: memory_store[session_id]["recent_messages"],
-                                                   input_messages_key="query", history_messages_key="history")
 
     session =  get_session_history(session_id)
     history = session["recent_messages"]
