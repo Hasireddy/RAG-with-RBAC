@@ -77,7 +77,6 @@ Are there any exams or tests at the end of that orientation?)
 1. Why did FinSolve choose a microservices architecture?
 2. How does the API Gateway handle authentication and rate limiting?
 3. Why are both PostgreSQL and MongoDB used?
-4. How does FinSolve manage authentication and MFA?
 5. What CI/CD tools are used in the deployment pipeline?
 6. What testing methodologies are followed?
 7. What approvals are required for pull requests?
@@ -85,4 +84,10 @@ Are there any exams or tests at the end of that orientation?)
     what happens if bugs are not addressed in 2 weeks?
     what are the bug tracking tools?
     Any other tools used?
+
+
+
+**************Database*******************
+1. What is the email of Aadhya Patel?
+2.
 
