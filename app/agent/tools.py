@@ -5,6 +5,7 @@ from langchain.chains import create_sql_query_chain
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
+from app.database.init_db import init_db
 
 from app.rag.get_api_response import get_response
 from app.rag.semantic_docs_search import vector_store, semantic_search
@@ -104,13 +105,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 db_file_path = os.path.join(BASE_DIR, "company_database.db")
 
 logger.info(f"Database path: {db_file_path}")
-
 if not os.path.exists(db_file_path):
-    raise FileNotFoundError(
-        f"Database file not found at: {db_file_path}"
-    )
+    logger.warning(f"Database file missing at {db_file_path}. Creating an empty database file...")
+    # Touch the file path to create an empty document container on disk
+    with open(db_file_path, "w") as f:
+        pass
 
 try:
+    #init_db()
     db = SQLDatabase.from_uri(f"sqlite:///{db_file_path}")
 
     logger.info(
