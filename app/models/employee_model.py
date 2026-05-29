@@ -1,11 +1,11 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, JSON
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import relationship, object_session
 from sqlalchemy.sql import func
 from app.database.base import Base
 from app.auth.hash_password import hash_password, verify_password
 
-# Create database tables
 
+# Create database tables
 class EmployeeDB(Base):
     """Database model for Employee"""
 
@@ -16,6 +16,13 @@ class EmployeeDB(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     job_title = Column(String, index=True, nullable=False)
+    location = Column(String, nullable=False)
+    salary = Column(Float, nullable=False)
+    leaves_balance = Column(Integer, nullable=False)
+    leaves_taken = Column(Integer, nullable=False)
+    performance_rating = Column(Float, nullable=False)
+
+
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

@@ -28,10 +28,16 @@ class EmployeeCreate(BaseModel):
     dept_id: List[int]
 
     password: str = Field(
-        min_length=8,
+        min_length=6,
         max_length=128,
         description="Employee account password"
     )
+
+    location: str
+    salary: float
+    leaves_balance: int
+    leaves_taken: int
+    performance_rating: float
 
     @field_validator("emp_name", "job_title")
     @classmethod
@@ -49,6 +55,11 @@ class EmployeeResponse(BaseModel):
     emp_name: str
     job_title: str
     email: EmailStr
+    location: str
+    salary: float
+    leaves_balance: int
+    leaves_taken: int
+    performance_rating: float
     dept_id: List[int]
     departments: List[DepartmentInfo] = []
     company_id: int
@@ -67,6 +78,11 @@ class EmployeeUpdate(BaseModel):
     emp_name:Optional[str] = None
     job_title: Optional[str] = None
     email:Optional[EmailStr] = None
+    location: str = None
+    salary: float = None
+    leaves_balance: int = None
+    leaves_taken: int = None
+    performance_rating: float = None
     company_id: Optional[int] = None
     dept_id: Optional[List[int]] = None
 
