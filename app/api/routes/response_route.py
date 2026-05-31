@@ -107,6 +107,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
         response_text = run_agent(
             query=query,
             session_id=session_id,
+            emp_id=emp_id,
             emp_name=emp_name,
             email=email,
             departments=departments

@@ -52,19 +52,28 @@ model = ChatOpenAI(
 @tool
 def rag_tool(query: str, config: RunnableConfig) -> str:
     """
-    Search enterprise company documents and answer questions.
+    Search all company documents and answer questions.
+    Always use thi stool whenever a question may be answered from company documentation.
 
-    Use for:
-    - Policies
-    - Documentation
-    - Employee knowledge
-    - Unstructured company information
+    Examples:
+    - Why did FinSolve choose a microservices architecture?
+    - What authentication method does FinSolve use?
+    - What is the PTO policy?
+    - What are the future platform initiatives?
+    - How does the payment service work?
+    - What are the onboarding requirements?
+
+    This tool searches architecture documents,
+    technical design decisions,
+    engineering documentation,
+    HR policies,
+    internal manuals,
+    and company knowledge bases.
     """
 
     try:
         # Extract user context from runtime config
         configurable = config.get("configurable", {})
-
         session_id = configurable.get("session_id", "default")
         emp_name = configurable.get("emp_name", "")
         email = configurable.get("email", "")
@@ -72,25 +81,20 @@ def rag_tool(query: str, config: RunnableConfig) -> str:
 
         logger.info(f"RAG tool called | session={session_id}")
 
-        # Semantic retrieval with RBAC filtering
-        context = semantic_search(
-            vector_store=vector_store,
-            query=query,
-            departments=departments,
-            k=5
-        )
-
-        if not context:
-            return "No relevant information found in company documents."
-
         # Generate final answer from retrieved context
         response = get_response(
             query=query,
-            context=context,
-            emp_name=emp_name
+            session_id=session_id,
+            emp_name=emp_name,
+            email=email,
+            departments=departments
         )
 
-        return response
+        answer_text = response.get("answer", "") if isinstance(response, dict) else response
+
+        #if answer_text is None or answer_text.strip() == "":
+            #return "Tool status: The requested information was not found in the documents."
+        return answer_text
 
     except Exception as e:
         logger.error("RAG TOOL FAILED", exc_info=True)
@@ -152,6 +156,10 @@ strict_sql_prompt = ChatPromptTemplate.from_messages([
             "7. Do NOT use markdown formatting.\n"
 
             "8. Do NOT explain the query.\n\n"
+            "9. If the User Profile Context is provided in the input, use the actual values (like Name or Email) to filter queries targeting the current user.\n"
+            "10. NEVER use placeholder strings like 'current_user' or 'session_user'. Always substitute the literal values from the context into the WHERE clause.\n"
+            "11. ONLY use table names that are explicitly listed in the Database Schema section below. Never invent or assume table names like 'leave_policies' exist.\n"
+            "12. Employee specific financial records, net income metrics, or leave configurations are contained within the 'employees' or 'companies' tables.\n"
 
             "Database Schema:\n"
             "{table_info}"
@@ -175,7 +183,7 @@ sql_chain = create_sql_query_chain(
 # =========================================================
 
 @tool
-def sql_tool(query: str) -> str:
+def sql_tool(query: str, config: RunnableConfig) -> str:
     """
     Query structured SQLite database.
 
@@ -191,13 +199,22 @@ def sql_tool(query: str) -> str:
         return "Database system unavailable."
 
     try:
+        # Extract runtime user context
+        configurable = config.get("configurable", {})
+        emp_name = configurable.get("emp_name", "")
+        email = configurable.get("email", "")
+
+        enriched_query = (
+            f"User Profile Context - Name: {emp_name}, Email: {email}\n"
+            f"User Question: {query}"
+        )
 
         # =================================================
         # STEP 1: Generate SQL from LLM
         # =================================================
 
         sql_query = sql_chain.invoke({
-            "question": query
+            "question": enriched_query
         })
 
         logger.info(f"Generated SQL: {sql_query}")

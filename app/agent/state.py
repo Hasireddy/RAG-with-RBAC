@@ -7,6 +7,7 @@ class MessagesState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
     llm_calls: int
     session_id: str
+    emp_id: str
     emp_name: str
     email: str
     departments: list[str]

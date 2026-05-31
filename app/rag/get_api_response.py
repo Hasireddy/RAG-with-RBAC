@@ -8,12 +8,11 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
-from langchain.agents import create_react_agent, AgentExecutor
 from langfuse import get_client
 from langfuse.langchain import CallbackHandler
 
 
-from .semantic_docs_search import semantic_search
+from .semantic_docs_search import vector_store, semantic_search
 
 
 
@@ -30,7 +29,6 @@ langfuse = get_client()
 langfuse_handler = CallbackHandler()
 
 # Build vector store once
-#vector_store = create_vector_store()
 memory_store = {}
 MAX_RECENT_MSGS = 10
 
@@ -85,32 +83,31 @@ def summarize_old_chat(session_id):
 
 
 system_prompt = f"""You are technical documentation expert and AI assistant for a company.
-        Your task is to help answer a user's question from the provided DOCUMENT CONTEXT and tools.
+        Your task is to help answer a user's question using the provided USERINFO, DOCUMENT CONTEXT and tools.
         
-        You have access to the following tools:
-            - rag_tool: for company documents
-            - sql_tool: for structured database queries
-
-STRICT RULES (never violate these):
-1. ONLY use information explicitly stated in the DOCUMENT CONTEXT or the information from the tools.
-2. If the DOCUMENT CONTEXT does not contain an answer, respond EXACTLY with:
-   "I'm sorry, I can only answer questions related to company documents and tools."
-3. If the information is present, summarize it to 2 or 3 sentences.
-
-
-
+        STRICT RULES:
+        1. ONLY use information explicitily stated in the USER INFO or the provided DOCUMENT CONTEXT.
+        2. DO not assume, extrapolate, or bring in outside knowledge.
+        3. If the information is present, summarize it into 2 or 3 sentences.
+        4. The context may contain partial sentences or chunks — still use what is relevant.
+        5. Do NOT say "information not provided" if relevant content exists in the context,
+            even if it doesn't perfectly match the question phrasing.
+        
+        
 EXAMPLES:
 Input: What are Client applications?
 Output: Client applications are Mobile, Web and API applications.
 
-Input: What are Unicorns?
-Output: I'm sorry, information about Unicorns is not provided in the company documents.
-
 Input: Who invented electricity?
-Output: I can only assist with company-related questions.
+Output:ERROR: Information not provided in the documents.
 
 Input: Why did HR costs increase?
 Output: According to the documents, HR costs increased due to expanded employee benefits and wellness programs during the fiscal year.
+
+Input: What is the dress code?
+Output: Information not provided in the documents.
+
+
 """
 
 prompt = ChatPromptTemplate.from_messages([
@@ -155,12 +152,11 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     print(query)
     print(memory_store)
     print(session_id)
-    relevant = is_query_relevant(query)
-    print(f"[GUARD] Query: '{query}' → Relevant: {relevant}")
+    #relevant = is_query_relevant(query)
+    #print(f"[GUARD] Query: '{query}' → Relevant: {relevant}")
 
-    if not relevant:
-        return {"answer": "I can only assist with company-related questions."}
-    # 🔒 Guard: reject off-topic queries early
+    #if not relevant:
+        #return {"answer": "I can only assist with company-related questions."}
 
     session =  get_session_history(session_id)
     history = session["recent_messages"]
@@ -169,10 +165,19 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     print(history.messages)
     context = semantic_search(vector_store, query, departments=departments)
 
+    print(f"[get_response] Context length: {len(context)} chars")
+    print(f"[get_response] Context passed to LLM:\n{context[:500]}")
+    print("*****************")
+    print(context[:2000] if context else "EMPTY")
+    print("*****************")
+
     if not context:
-        return {
-            "answer": "I could not find any relevant information in the documents for your query."
-        }
+        return {"answer": "Information not provided in the documents."}
+
+    #if context is None or context.strip():
+        #return {
+            #"answer": "ERROR: CONTEXT_MISSING"
+        #}
 
     final_answer = chain_with_memory.invoke(
         {
@@ -200,6 +205,11 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     )
 
     summarize_old_chat(session_id)
+
+    print("========== FINAL ANSWER ==========")
+    print(final_answer)
+    print(type(final_answer))
+    print("==================================")
 
     data = {
             "answer": final_answer,
