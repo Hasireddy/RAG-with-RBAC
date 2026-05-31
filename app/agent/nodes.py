@@ -44,34 +44,72 @@ tool_node = ToolNode(tools)
 
 def brain(state: MessagesState):
     """LLM decides whether to call a tool or not"""
+    # Extract user metadata from the active user state
 
-    messages = state.get("messages", [])
+    print("======== STATE MESSAGES ========")
+
+    for msg in state["messages"]:
+        print(type(msg))
+        print(msg)
+
+    print("===============================")
+
+    emp_name = state.get("emp_name", "Unknown")
+    email = state.get("email", "Unknown")
+    departments = state.get("departments", [])
+
+    system_prompt = f"""
+         You are technical documentation expert and AI assistant for a company.
+         Your task is to help answer a user's question using the provided USERINFO, DOCUMENT CONTEXT and tools.
+        
+     
+                                ACTIVE USER INFO:
+                                - Name: {emp_name}
+                                - Email: {email}
+                                - Departments: {departments}
+                                
+         TOOL SELECTION RULES (follow strictly):
+        
+        1. Use sql_tool for ANY question involving:
+           - Employee details (name, email, phone, department, role, salary)
+           - Leave balances, attendance, performance ratings
+           - Company financials, headcount, analytics
+           - Anything that sounds like a database lookup
+           Examples:
+           - "What is the email of Stephen?" → sql_tool
+           - "How many employees are in engineering?" → sql_tool
+           - "What is my leave balance?" → sql_tool
+        
+        2. Use rag_tool for ANY question involving:
+           - Company policies, HR guidelines
+           - Architecture and technical documentation
+           - Onboarding, processes, internal manuals
+           Examples:
+           - "What is the PTO policy?" → rag_tool
+           - "Why did FinSolve choose microservices?" → rag_tool
+        
+        3. ALWAYS call a tool before answering if the question requires
+           looking up data. Never answer employee or database questions
+           from memory.
+        
+        4. If the answer is not found by any tool, respond exactly:
+           "I'm sorry, I can only answer questions related to company documents and tools."
+        
+        CRITICAL IDENTITY RULE:
+        For questions about the current user (e.g., leave balance, rating),
+        use the ACTIVE USER INFO above and pass it to sql_tool.
+        
+        CRITICAL TEXT GENERATION RULES:
+        1. Never confuse leaves_taken (already used) with leaves_balance (remaining).
+        2. If leaves_balance is 0, explicitly state the user has 0 days remaining.
+                                            
+    """
+
 
     response = model_with_tools.invoke(
                 [
                     SystemMessage(
-                        content="""
-                                    You are an intelligent enterprise AI assistant.
-                                
-                                    You have access to:
-                                
-                                    1. rag_tool
-                                    - Use for company policies
-                                    - documentation
-                                    - employee information
-                                    - unstructured knowledge
-                                
-                                    2. sql_tool
-                                    - Use for structured database queries
-                                    - analytics
-                                    - counts
-                                    - aggregations
-                                    - filtering
-                                    - tabular data
-                                
-                                    Choose the correct tool when needed.
-                                    Use tools before answering if information is required.
-                                """
+                        content=system_prompt
                     )
                 ]
                 + state["messages"]
@@ -107,13 +145,14 @@ graph = agent_builder.compile(checkpointer=checkpointer)
 
 
 #invoke graph
-def run_agent(query: str, session_id: str, emp_name: str, email: str, departments: list[str]):
+def run_agent(query: str, session_id: str, emp_id: str, emp_name: str, email: str, departments: list[str]):
     response = graph.invoke(
         {
             "messages": [
                 HumanMessage(content=query)
             ],
             "session_id": session_id,
+            "emp_id": emp_id,
             "emp_name": emp_name,
             "email": email,
             "departments": departments,
@@ -125,6 +164,7 @@ def run_agent(query: str, session_id: str, emp_name: str, email: str, department
                     {
                         "thread_id": session_id,
                         "session_id": session_id,
+                        "emp_id": emp_id,
                         "emp_name": emp_name,
                         "email": email,
                         "departments": departments,

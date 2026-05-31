@@ -22,9 +22,6 @@ Queries for Role based access
 
 
 
-
-
-
 ************General*******************
 
 1. How many days of sick leave are employees entitled to per year?
@@ -44,14 +41,12 @@ Queries for Role based access
 3. How many sick leaves are allowed per year?
     How to apply this leave?
     What is the process for applying for leave?
-    Is a medical certificate required for sick leave?
+    Is a medical certificate required for this leave?
     Are public holidays fixed or flexible?
 
 
 
 4. What benefits are covered under the health insurance policy?
-    Who is eligible for ESI benefits?
-
 
 
 5. What is the standard notice period?
@@ -86,8 +81,4 @@ Are there any exams or tests at the end of that orientation?)
     Any other tools used?
 
 
-
-**************Database*******************
-1. What is the email of Aadhya Patel?
-2.
 

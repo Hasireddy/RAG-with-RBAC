@@ -9,12 +9,16 @@ vector_store = create_vector_store()
 # Step4:Run a semantic search
 
 def semantic_search(vector_store, query, departments, k=5):
-
+    """Runs a semantic search with department based RAG and retrieves top 5 formatted context(matching results)"""
+    #results = vector_store.similarity_search(query=query, k=5)
+    # results = vector_store.similarity_search(query=query, k=3)
+    #departments.append("general")
+    #filtered_results = [result for result in results if result.metadata.get("department") in departments]
     allowed_departments = list(set(departments + ["general"]))
 
-    results = vector_store.similarity_search_with_score(
+    results = vector_store.similarity_search(
         query=query,
-        k=k,
+        k=10,
         filter={
             "department": {
                 "$in": allowed_departments
@@ -23,36 +27,25 @@ def semantic_search(vector_store, query, departments, k=5):
     )
 
     if not results:
+        print("[semantic_search] No results found for departments:", allowed_departments)
         return ""
 
-    filtered_docs = []
-
-    for doc, score in results:
-        # lower score = better match (depends on DB)
-        if score < 0.75:
-            filtered_docs.append(doc)
-
-    if not filtered_docs:
-        return ""
-
-    # Deduplicate
-    seen = set()
-    unique_docs = []
-
-    for doc in filtered_docs:
-        content_hash = hash(doc.page_content)
-
-        if content_hash not in seen:
-            seen.add(content_hash)
-            unique_docs.append(doc)
-
+    # Build a clean context from top-3 chunks
     context = "\n\n".join(
-        f"[{i+1}] "
-        f"Source={doc.metadata.get('source','Unknown')} | "
-        f"Section={doc.metadata.get('section','N/A')} | "
-        f"Dept={doc.metadata.get('department','N/A')}\n"
-        f"{doc.page_content}"
-        for i, doc in enumerate(unique_docs)
+        f"""Source: {doc.metadata.get('source', 'Unknown')}
+    Section: {doc.metadata.get('Header 3', 'N/A')}
+    Department: {doc.metadata.get('department', 'N/A')}
+
+    Content:
+    {doc.page_content}""".strip()
+        for doc in results[:k]  # Ensures top 3 formatted context matches
     )
 
+    print("***************************************************")
+    print("Context compiled successfully:\n", context[:1000])
     return context
+
+
+
+
+

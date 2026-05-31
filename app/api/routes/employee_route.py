@@ -27,9 +27,8 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
     :param db: The active database session injected via dependency.
     :return: The newly created database employee record object.
     """
-    email_clean = employee.email.strip().lower()
-
     try:
+        email_clean = employee.email.strip().lower()
         # Check if employee already exists
         existing_employee = db.query(EmployeeDB).filter(EmployeeDB.email == email_clean).first()
 
@@ -43,7 +42,10 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
         company = db.query(CompanyDB).filter(CompanyDB.id == employee.company_id).first()
 
         if not company:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Company not found"
+            )
 
         # Check if department exists
         departments_details = db.query(DepartmentDB).filter(DepartmentDB.id.in_(employee.dept_id)).all()
@@ -57,7 +59,12 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
             )
 
         # Create a new employee
-        new_employee = EmployeeDB(**employee.model_dump(exclude={"password"}))
+        employee_data = employee.model_dump(exclude={"password"})
+        employee_data["email"] = email_clean
+
+        new_employee = EmployeeDB(**employee_data)
+
+        # hash password
         new_employee.set_password(employee.password)
 
         db.add(new_employee)
@@ -65,6 +72,9 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
         db.refresh(new_employee)
 
         return new_employee
+
+    except HTTPException:
+        raise
 
     except IntegrityError as e:
         db.rollback()
