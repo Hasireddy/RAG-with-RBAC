@@ -8,4 +8,3 @@ from app.models.company_model import CompanyDB
 def init_db():
     Base.metadata.create_all(bind=engine)
     inspector = inspect(engine)
-    print("Tables in DB:", inspector.get_table_names())

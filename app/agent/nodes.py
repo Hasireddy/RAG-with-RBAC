@@ -46,14 +46,6 @@ def brain(state: MessagesState):
     """LLM decides whether to call a tool or not"""
     # Extract user metadata from the active user state
 
-    print("======== STATE MESSAGES ========")
-
-    for msg in state["messages"]:
-        print(type(msg))
-        print(msg)
-
-    print("===============================")
-
     emp_name = state.get("emp_name", "Unknown")
     email = state.get("email", "Unknown")
     departments = state.get("departments", [])

@@ -54,7 +54,6 @@ def create_company(company: CompanyCreate, db: Session = Depends(get_db)):
 
     except IntegrityError as e:
         db.rollback()
-        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Could not create a company due to a database constraint violation."
@@ -63,7 +62,6 @@ def create_company(company: CompanyCreate, db: Session = Depends(get_db)):
     # catch DB connection crashes
     except Exception as e:
         db.rollback()
-        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected internal server error occurred."

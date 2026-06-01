@@ -70,7 +70,6 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
     try:
         # Generate session id if not provided in payload
         query = payload.query.strip()
-        print(query)
 
         if not query:
             raise HTTPException(
@@ -88,18 +87,11 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
         dept_id = user.get("dept_id")
         departments = user.get("departments")
 
-        print("USER:", emp_id)
-        print("NAME:", emp_name)
-        print("EMAIL:", email)
-        print("ROLE:", role_id)
-        print("DEPARTMENT:", dept_id)
-
         # Session handling
         session_id = payload.session_id
 
         if not session_id:
             session_id = f"user_{emp_id}"
-        print("SESSION ID:", session_id)
 
         #response_text = get_response(query=query, session_id=session_id, emp_name=emp_name, email=email,
                                      #departments=departments)
@@ -117,7 +109,6 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
             response_text = "No response generated."
 
         # Save response in DB
-        print("TYPE:", type(response_text))
         # ai_response = AIResponseDB(session_id=session_id, emp_id=emp_id, query=query, result=response_text)
         # Save user message
         user_message = ChatMessage(
@@ -143,11 +134,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
         db.commit()
         db.refresh(user_message)
         db.refresh(assistant_message)
-        print(assistant_message)
-        print(assistant_message.message)
-        # print(ai_response)
-        # return ai_response
-        # Return response + session_id
+
         return {
             "session_id": session_id,
             "messages": [
