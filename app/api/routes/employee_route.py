@@ -78,7 +78,6 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
 
     except IntegrityError as e:
         db.rollback()
-        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Could not create employee due to a database constraint violation."
@@ -86,7 +85,6 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
 
     except Exception as e:
         db.rollback()
-        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected internal server error occurred."
@@ -153,7 +151,6 @@ def update_employee(emp_id: int, employee_update: EmployeeUpdate, db: Session = 
 
     except IntegrityError as e:
         db.rollback()
-        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Could not update employee details due to a database constraint violation."
@@ -161,7 +158,6 @@ def update_employee(emp_id: int, employee_update: EmployeeUpdate, db: Session = 
 
     except Exception as e:
         db.rollback()
-        print(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected internal server error occurred."

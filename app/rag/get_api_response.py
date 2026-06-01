@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import re
 from typing import List
+import logging
 
 from langchain_openai import ChatOpenAI
 from langchain_community.chat_message_histories import ChatMessageHistory
@@ -11,10 +12,9 @@ from langchain_core.output_parsers import StrOutputParser
 from langfuse import get_client
 from langfuse.langchain import CallbackHandler
 
-
 from .semantic_docs_search import vector_store, semantic_search
 
-
+logging.basicConfig(level=logging.INFO)
 
 # Load environment variables
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
@@ -32,6 +32,8 @@ langfuse_handler = CallbackHandler()
 memory_store = {}
 MAX_RECENT_MSGS = 10
 
+def clear_session_history(session_id):
+    memory_store.pop(session_id, None)
 
 def get_session_history(session_id):
     if session_id not in memory_store:
@@ -114,10 +116,8 @@ prompt = ChatPromptTemplate.from_messages([
     ("system", system_prompt),
     ("system", "Conversation summary: {summary}"),
     MessagesPlaceholder("history"),
-    ("human", """USER INFO: 
-Name: {emp_name} 
-Email: {email} 
-Departments: {departments} 
+    ("human", """
+
 
 DOCUMENT CONTEXT: 
 {context} 
@@ -148,28 +148,13 @@ chain_with_memory = RunnableWithMessageHistory(chain, lambda session_id: memory_
 
 def get_response(query:str, session_id: str, emp_name: str, email: str, departments: List[str]):
     """Returns API response  based on semantic search context"""
-    print("******************")
-    print(query)
-    print(memory_store)
-    print(session_id)
-    #relevant = is_query_relevant(query)
-    #print(f"[GUARD] Query: '{query}' → Relevant: {relevant}")
-
-    #if not relevant:
-        #return {"answer": "I can only assist with company-related questions."}
 
     session =  get_session_history(session_id)
+    logging.info(f"The user is {emp_name} and the session_id is: {session_id} and session_history: {session}")
     history = session["recent_messages"]
     summary = session["summary"]
 
-    print(history.messages)
     context = semantic_search(vector_store, query, departments=departments)
-
-    print(f"[get_response] Context length: {len(context)} chars")
-    print(f"[get_response] Context passed to LLM:\n{context[:500]}")
-    print("*****************")
-    print(context[:2000] if context else "EMPTY")
-    print("*****************")
 
     if not context:
         return {"answer": "Information not provided in the documents."}
@@ -205,11 +190,6 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     )
 
     summarize_old_chat(session_id)
-
-    print("========== FINAL ANSWER ==========")
-    print(final_answer)
-    print(type(final_answer))
-    print("==================================")
 
     data = {
             "answer": final_answer,

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request,status
+from app.rag.get_api_response import clear_session_history
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
@@ -41,7 +42,6 @@ def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db:
         )
 
     dept_names = [d.dept_name.lower() for d in user.departments] if user.departments else []
-    print(dept_names)
 
     data={
             "emp_id": str(user.emp_id),
@@ -53,13 +53,6 @@ def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db:
         }
 
     token = create_access_token(data=data)
-
-    print("USER:", data["emp_id"])
-    print("NAME:", data["emp_name"])
-    print("EMAIL:", data["email"])
-    print("ROLE:", data["job_title"])
-    print("DEPARTMENT ID:", data["dept_id"])
-    print("DEPARTMENTS:", data["departments"])
 
     request.session["user"] = data
     return {"access_token": token, "token_type": "bearer", "data": data}
@@ -80,6 +73,7 @@ def logout(request: Request):
     """
     Render logout page
     """
+    clear_session_history("user_1")
     return templates.TemplateResponse(
         request=request, name="logout.html"
     )

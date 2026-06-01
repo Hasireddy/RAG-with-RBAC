@@ -68,18 +68,12 @@ def authenticate_user(db: Session, email: str, password: str) -> EmployeeDB | No
     password = password.strip()
     user = get_user_by_email(db, email)
 
-    print("USER:", user)
-
     if not user:
         print("NO USER FOUND")
         return None
 
-    print("DB HASH:", user.hashed_password)
-    print("INPUT PASSWORD:", password)
 
     valid = verify_password(password, user.hashed_password)
-
-    print("PASSWORD MATCH:", valid)
 
     if not valid:
         return None
@@ -91,9 +85,6 @@ def get_current_user(token=Depends(oauth2_scheme)):
     try:
         jwt_token = token.credentials
         payload = jwt.decode(jwt_token, SECRET_KEY, algorithms=[ALGORITHM])
-        print("--------------")
-        print(payload)
-        print("--------------")
 
         return {
             "emp_id": payload.get("emp_id"),

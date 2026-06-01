@@ -3,6 +3,7 @@ Queries for Role based access
 **********Finance*********************
 
 1. Why did employee benefits and HR costs increase by 10% during the fiscal year?
+2. Provide me more details?
  (A fiscal year is a 12-month accounting period used by companies and governments for financial reporting and budgeting.
  It is used to prepare financial statements, budgets, and tax reporting.A company chooses its own fiscal year based on
  business needs or regulatory rules.)
@@ -14,8 +15,10 @@ Queries for Role based access
     what specific training costs drove to 30%?
 
 
-**************Marketing**************
 
+
+**************Marketing**************
+ What are the strategic objectives for 2024
 1. How did FinNova’s marketing strategy in Q1 2024 drive customer acquisition and revenue performance across existing and new European markets?
    What was the goal of launching the InstantPay feature?
    What challenges did FinNova face in France?
@@ -56,6 +59,7 @@ Queries for Role based access
 
 
 6. What specific documents must an employee submit before joining FinSolve Technologies?
+Yes please - Followup question
 
 (What happens during an employee's first week of onboarding?
 How long does this initial phase last for new hires?
@@ -79,6 +83,13 @@ Are there any exams or tests at the end of that orientation?)
     what happens if bugs are not addressed in 2 weeks?
     what are the bug tracking tools?
     Any other tools used?
+
+
+*******************Database**************
+1. How many employees are there in the company?
+2. Provide me the details
+
+
 
 
 

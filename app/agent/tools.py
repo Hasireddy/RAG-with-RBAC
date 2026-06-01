@@ -205,7 +205,6 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
         email = configurable.get("email", "")
 
         enriched_query = (
-            f"User Profile Context - Name: {emp_name}, Email: {email}\n"
             f"User Question: {query}"
         )
 
