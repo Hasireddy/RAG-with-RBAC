@@ -55,6 +55,7 @@ def login(request: Request,form_data: OAuth2PasswordRequestForm = Depends(), db:
     token = create_access_token(data=data)
 
     request.session["user"] = data
+    clear_session_history(f"user_{data['emp_id']}")
     return {"access_token": token, "token_type": "bearer", "data": data}
 
 
@@ -73,7 +74,10 @@ def logout(request: Request):
     """
     Render logout page
     """
-    clear_session_history("user_1")
+    user = request.session.pop("user", None)
+    if user and user.get("emp_id"):
+        clear_session_history(f"user_{user['emp_id']}")
+
     return templates.TemplateResponse(
         request=request, name="logout.html"
     )

@@ -445,7 +445,6 @@
                 const token = localStorage.getItem("token");
                 console.log("token", token)
 
-                let sessionId = localStorage.getItem("chat_session_id");
 
                  const response = await fetch("/chatbot/", {
                             method: "POST",
@@ -455,7 +454,6 @@
                             },
                             body: JSON.stringify({
                               query: message,
-                                session_id: sessionId,
                             })
                           });
 
