@@ -89,7 +89,57 @@ Are there any exams or tests at the end of that orientation?)
 1. How many employees are there in the company?
 2. Provide me the details
 
+(List the details of all employees in the company
+I can provide employee details only for your department, which is marketing. Would you like me to list the details of all employees in the marketing department?
+how many employees in the company
+I can provide the number of employees only for your department, marketing. Would you like me to get the count of employees in the marketing department?
+yes
 
+There are 2 employees in the marketing department. If you need any more information, feel free to ask!
+Provide their details
+I apologize, but I am currently unable to retrieve detailed information about employees in your department beyond the count. If you have any other questions or need assistance with something else, please let me know!
+What is my performance rating
+Your performance rating is 4.7. If you need more information or assistance, feel free to ask!
+)
+
+1. Why did employee benefits and HR costs increase by 10% during the fiscal year?- FINANCE
+In what specific workforce programs is the company investing?
+
+2. Why did FinSolve Technologies’ net income increase only 12% despite 25% revenue growth in 2024?- FINANCE
+
+3. How many days of sick leave are employees entitled to per year? -GENERAL
+   How to apply this leave?
+   How to get the approval?
+
+4. What is the standard notice period?- GENERAL
+    How long does full and final settlement take?
+    What company assets must be returned during exit?
+    Are exit interviews mandatory?
+
+
+5. What happens during an employee's first week of onboarding?-GENERAL
+   Explain more about this program
+    How long does this initial phase last for new hires?
+    Who exactly participates in that buddy program?
+    What is the primary objective of the third component you listed?
+    What happens after first week??
+    Are there any exams or tests at the end of that orientation?)
+
+6. What is current weather in Berlin?- OUT OF SCOPE
+
+7. How are bugs prioritized and resolved? - ENGINEERING
+    what happens if bugs are not addressed in 2 weeks?
+    what are the bug tracking tools?
+    Any other tools used?
+
+8. Why did FinSolve choose a microservices architecture? - ENGINEERING
+9. How does the API Gateway handle authentication and rate limiting?- ENGINEERING
+
+10.  What are the strategic objectives for 2024?- MARKETING
+
+11. How did FinNova’s marketing strategy in Q1 2024 drive customer acquisition and revenue performance across existing and new European markets?-MARKETING
+   What was the goal of launching the InstantPay feature?
+   What challenges did FinNova face in France?
 
 
 

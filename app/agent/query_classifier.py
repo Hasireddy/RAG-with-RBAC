@@ -1,6 +1,7 @@
+import os
+import re
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
 
 
 # Load environment variables
@@ -9,21 +10,41 @@ API_KEY = os.getenv("API_KEY")
 
 client = OpenAI(api_key=API_KEY)
 
+SQL_TRIGGERS = [
+    "average", "sum", "total", "count", "how many", "top", "trend", "kpi", "revenue",
+    "profit", "expense", "salary", "employee", "id", "quarter", "year", "report", "record", "details",
+    "list", "filter", "group by", "order by", "where", "select", "show", "what is the", "how many"
+]
 
+RAG_TRIGGERS = [
+    "policy", "procedure", "guideline", "documentation", "faq", "explain", "what is", "why", "how to",
+    "process", "manual", "onboarding", "architecture", "design", "overview", "best practice"
+]
 
 def detect_query_type_llm(query:str) -> str:
-    query = query.lower()
+    normalized = query.strip().lower()
+
+    if not normalized:
+        return "RAG"
+
+    for term in SQL_TRIGGERS:
+        if re.search(rf"\b{re.escape(term)}\b", normalized):
+            return "SQL"
+
+    for term in RAG_TRIGGERS:
+        if re.search(rf"\b{re.escape(term)}\b", normalized):
+            return "RAG"
+
 
     prompt = f"""
-    You are a classifier that decides if a user's query should be handled by Structured SQL query logic or
+    You are a classifier that decides whether  a user's query should be handled by Structured SQL query using SQL (database access) logic or
     unstructured document search(RAG).
     
-    If the query contains terms related to ***structured analysis(e.g., "average", "sum", "total", "count", "how many",
-    "filter", "greater than", "less than", "top-5", "grou by", "details of employee", "list employees" etc),
-    classify it as -> "SQL".
-    
-    If the query is more about summarization, definitions, general understanding, or cannot be answered by structured tabular
-    data, classify it as -> "RAG".
+   If the query requests specific records, metrics, counts, trends, KPIs, employee data, department data,
+    financial figures, or other structured attributes, answer: SQL.
+
+    If the query is conceptual, procedural, policy-oriented, documentation-focused, explanatory, or knowledge-base related,
+    answer: RAG.
     
     Respond with only one word: Either ***SQL*** or ***RAG***.
     
@@ -47,6 +68,10 @@ def detect_query_type_llm(query:str) -> str:
 
     #final_response = response.content.strip()
     #return final_response
-    return response.choices[0].message.content.strip()
+    result = response.choices[0].message.content.strip().upper()
+
+    if result not in {"SQL", "RAG"}:
+        return "RAG"
+    return result
 
 
