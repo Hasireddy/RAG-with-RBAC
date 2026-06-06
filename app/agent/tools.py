@@ -6,6 +6,9 @@ from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 from app.database.init_db import init_db
+from sqlalchemy import create_engine, inspect
+from sqlalchemy.exc import OperationalError
+from typing import Any
 
 from app.rag.get_api_response import get_response
 from app.rag.semantic_docs_search import vector_store, semantic_search
@@ -15,17 +18,14 @@ import re
 import logging
 import traceback
 
-# =========================================================
-# LOGGING
-# =========================================================
+
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# =========================================================
-# LOAD ENV VARIABLES
-# =========================================================
 
+# LOAD ENV VARIABLES
 load_dotenv()
 
 api_key = os.getenv("API_KEY")
@@ -33,9 +33,6 @@ api_key = os.getenv("API_KEY")
 if not api_key:
     raise ValueError("API_KEY missing from environment variables")
 
-# =========================================================
-# LLM MODEL
-# =========================================================
 
 model = ChatOpenAI(
     model="gpt-4.1-mini",
@@ -45,10 +42,8 @@ model = ChatOpenAI(
     max_retries=2
 )
 
-# =========================================================
-# RAG TOOL
-# =========================================================
 
+# RAG tool
 @tool
 def rag_tool(query: str, config: RunnableConfig) -> str:
     """
@@ -81,6 +76,12 @@ def rag_tool(query: str, config: RunnableConfig) -> str:
 
         logger.info(f"RAG tool called | session={session_id}")
 
+        context, search_status = semantic_search(vector_store, query, departments=departments)
+
+        # 2. FORCE UNAUTHORIZED RETURN BREAKPOINT
+        if search_status == "UNAUTHORIZED":
+            return "You do not have access to this information."
+
         # Generate final answer from retrieved context
         response = get_response(
             query=query,
@@ -91,24 +92,21 @@ def rag_tool(query: str, config: RunnableConfig) -> str:
         )
 
         answer_text = response.get("answer", "") if isinstance(response, dict) else response
-
-        #if answer_text is None or answer_text.strip() == "":
-            #return "Tool status: The requested information was not found in the documents."
         return answer_text
 
     except Exception as e:
         logger.error("RAG TOOL FAILED", exc_info=True)
         return f"RAG system error: {str(e)}"
 
-# =========================================================
-# DATABASE SETUP
-# =========================================================
 
+
+# DATABASE SETUP
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 db_file_path = os.path.join(BASE_DIR, "company_database.db")
 
 logger.info(f"Database path: {db_file_path}")
+
 if not os.path.exists(db_file_path):
     logger.warning(f"Database file missing at {db_file_path}. Creating an empty database file...")
     # Touch the file path to create an empty document container on disk
@@ -123,14 +121,111 @@ try:
         f"Loaded DB tables: {db.get_usable_table_names()}"
     )
 
+    engine = create_engine(f"sqlite:///{db_file_path}", future=True)
+    inspector = inspect(engine)
+    db_schema = {}
+
+    try:
+        for table_name in inspector.get_table_names():
+            columns = [col["name"].lower() for col in inspector.get_columns(table_name)]
+            db_schema[table_name.lower()] = columns
+
+    except Exception as schema_error:
+        logger.warning("Unable to load database schema metadata", exc_info=True)
+        db_schema = {}
+
+    table_info = "\n".join(
+        [f"{table}: {', '.join(cols)}" for table, cols in db_schema.items()]
+    )
+
 except Exception as init_err:
     logger.error("DATABASE INITIALIZATION FAILED", exc_info=True)
     db = None
+    db_schema = {}
+    table_info = ""
 
-# =========================================================
+
+EXECUTIVE_ROLES = {
+    "ceo", "chief executive officer", "cfo", "chief financial officer",
+    "super admin", "superadmin", "super user", "superuser", "admin", "owner"
+}
+
+SENSITIVE_TABLES = {
+    "employees", "companies", "departments", "financial_reviews",
+    "payroll", "salaries", "payments", "budgets"
+}
+
+def normalize_text(text: str) -> str:
+    return re.sub(r"[^a-z0-9_ ]", " ", (text or "").lower())
+
+
+def has_elevated_access(job_title: str) -> bool:
+    if not job_title:
+        return False
+    normalized = normalize_text(job_title)
+
+    return any(role in normalized for role in EXECUTIVE_ROLES)
+
+def extract_table_name(sql: str) -> list[str]:
+    detected = set()
+    patterns = [
+        r"\bFROM\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+        r"\bJOIN\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+        r"\bUPDATE\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+        r"\bINTO\s+([a-zA-Z_][a-zA-Z0-9_]*)"
+    ]
+    for pattern in patterns:
+        for match in re.finditer(pattern, sql, re.IGNORECASE):
+            detected.add(match.group(1).lower())
+    return list(detected)
+
+
+def validate_schema(clean_query: str) -> tuple[bool, str]:
+    if not db_schema:
+        return True, ""
+
+    referenced_tables = extract_table_name(clean_query)
+
+    for table in referenced_tables:
+        if table not in db_schema:
+            return False,(
+                f"I cannot retrieve that data because the database does not contain a table named '{table}'. "
+                "Please ask a different question or use company documents."
+            )
+        return True, "" # For ceos all access is true
+
+
+def enforce_rbac(clean_query: str, departments: list[str], job_title: str, email: str) -> tuple[bool, str]:
+    if has_elevated_access(job_title):
+        return True, ""
+
+    if not departments:
+        return False,(
+            "You do not have permission to access structured data because your department scope is missing. "
+            "Please sign in with an authorized account."
+        )
+
+    query_text = normalize_text(clean_query)
+    sensitive_tables = extract_table_name(clean_query)
+
+    if any(table in SENSITIVE_TABLES for table in sensitive_tables):
+        allowed_values = [normalize_text(dept) for dept in departments if dept]
+
+        if email:
+            allowed_values.append(normalize_text(email))
+
+        if not any(value and value in query_text for value in allowed_values):
+            return False,(
+                "This request appears to need data outside your permitted department scope. "
+                "Please ask for information related to your own department or provide a more specific scoped request."
+            )
+
+        return True, ""
+
+
+
+
 # SQL PROMPT
-# =========================================================
-
 strict_sql_prompt = ChatPromptTemplate.from_messages([
     (
         "system",
@@ -168,20 +263,16 @@ strict_sql_prompt = ChatPromptTemplate.from_messages([
     ("human", "{input}")
 ])
 
-# =========================================================
-# SQL QUERY CHAIN
-# =========================================================
 
+# SQL QUERY CHAIN
 sql_chain = create_sql_query_chain(
     llm=model,
     db=db,
     prompt=strict_sql_prompt
 )
 
-# =========================================================
-# SQL TOOL
-# =========================================================
 
+# SQL TOOL
 @tool
 def sql_tool(query: str, config: RunnableConfig) -> str:
     """
@@ -203,25 +294,25 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
         configurable = config.get("configurable", {})
         emp_name = configurable.get("emp_name", "")
         email = configurable.get("email", "")
+        job_title = configurable.get("job_title", "")
+        departments = configurable.get("departments", [])
 
         enriched_query = (
             f"User Question: {query}"
         )
 
-        # =================================================
-        # STEP 1: Generate SQL from LLM
-        # =================================================
 
+        # STEP 1: Generate SQL from LLM
         sql_query = sql_chain.invoke({
-            "question": enriched_query
+            "question": enriched_query,
+            "table_info": table_info,
+            "top_k": 5
         })
 
         logger.info(f"Generated SQL: {sql_query}")
 
-        # =================================================
-        # STEP 2: Clean SQL
-        # =================================================
 
+        # STEP 2: Clean SQL
         clean_query = (
             sql_query
             .replace("```sql", "")
@@ -229,10 +320,8 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
             .strip()
         )
 
-        # =================================================
-        # STEP 3: Validate Query Type
-        # =================================================
 
+        # STEP 3: Validate Query Type
         match = re.search(
             r'\b(SELECT|WITH)\b',
             clean_query,
@@ -244,10 +333,8 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
 
         clean_query = clean_query[match.start():]
 
-        # =================================================
-        # STEP 4: Block Dangerous SQL
-        # =================================================
 
+        # STEP 4: Block Dangerous SQL
         forbidden = [
             "INSERT",
             "UPDATE",
@@ -265,10 +352,8 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
         if any(word in upper_query for word in forbidden):
             return "Unsafe SQL operation detected."
 
-        # =================================================
-        # STEP 5: Prevent Multiple Statements
-        # =================================================
 
+        # STEP 5: Prevent Multiple Statement
         clean_query = clean_query.strip().rstrip(";")
 
         if ";" in clean_query:
@@ -276,18 +361,25 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
 
         logger.info(f"Executing SQL: {clean_query}")
 
-        # =================================================
-        # STEP 6: Execute Query
-        # =================================================
+        # Validate schema and RBAC before execution
+        schema_ok, schema_message = validate_schema(clean_query)
+        if not schema_ok:
+            logger.warning(f"Schema validation failed: {schema_message}")
+            return schema_message
 
+        rbac_ok, rbac_message = enforce_rbac(clean_query, departments, job_title, email)
+        if not rbac_ok:
+            logger.warning(f"RBAC denied SQL execution: {rbac_message}")
+            return rbac_message
+
+        logger.info(f"Executing SQL: {clean_query}")
+
+        # Execute Query
         execution_result = db.run(clean_query)
 
         logger.info("SQL execution successful")
 
-        # =================================================
         # STEP 7: Handle Empty Results
-        # =================================================
-
         if (
             execution_result is None
             or str(execution_result).strip() in ["", "[]", "()"]
@@ -297,16 +389,19 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
                 "0 matching records found."
             )
 
-        # =================================================
-        # STEP 8: Return Result
-        # =================================================
-
         return str(execution_result)
+
+    except OperationalError as e:
+        logger.error("SQL TOOL OPERATIONAL ERROR", exc_info=True)
+        return (
+            "The requested data could not be retrieved because the database schema or table is unavailable. "
+            "Please ask for a different query or use company documents instead."
+        )
 
     except Exception as e:
         logger.error("SQL TOOL FAILED", exc_info=True)
 
         return (
-            "Database query failed. "
-            f"Technical details: {str(e)}"
+            "The database query could not be executed. "
+            "Please refine your request or ask the assistant to answer from company documents."
         )

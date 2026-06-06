@@ -81,7 +81,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
         emp_id = user.get("emp_id")
         emp_name = user.get("emp_name")
         email = user.get("email")
-        role_id = user.get("role_id")
+        job_title = user.get("job_title")
 
         # Department details
         dept_id = user.get("dept_id")
@@ -96,6 +96,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
             emp_id=emp_id,
             emp_name=emp_name,
             email=email,
+            job_title=job_title,
             departments=departments
         )
 

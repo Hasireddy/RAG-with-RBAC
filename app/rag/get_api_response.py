@@ -154,15 +154,18 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     history = session["recent_messages"]
     summary = session["summary"]
 
-    context = semantic_search(vector_store, query, departments=departments)
+    context, search_status = semantic_search(vector_store, query, departments=departments)
 
-    if not context:
-        return {"answer": "Information not provided in the documents."}
+    if search_status == "UNAUTHORIZED":
+        return{
+            "answer": "You do not have access to this information.",
+            "name": emp_name, "email": email, "departments": departments, "session_id": session_id
+        }
 
-    #if context is None or context.strip():
-        #return {
-            #"answer": "ERROR: CONTEXT_MISSING"
-        #}
+    if search_status == "NOT_FOUND" or not context:
+        return {
+            "answer": "Information not provided in the documents."
+        }
 
     final_answer = chain_with_memory.invoke(
         {

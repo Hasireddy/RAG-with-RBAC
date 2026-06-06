@@ -1,4 +1,5 @@
 # Step 3: Define model node
+import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import (
@@ -11,7 +12,9 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import InMemorySaver
 from .tools import rag_tool, sql_tool
 from .state import MessagesState
-import os
+
+from .query_classifier import detect_query_type_llm
+
 
 
 # Load environment variables
@@ -48,10 +51,15 @@ def brain(state: MessagesState):
 
     emp_name = state.get("emp_name", "Unknown")
     email = state.get("email", "Unknown")
+    job_title = state.get("job_title", "Unknown")
     departments = state.get("departments", [])
+    query_type = state.get("query_type", "UNSPECIFIED")
+
 
     system_prompt = f"""
-         You are technical documentation expert and AI assistant for a company.
+         You are a role-aware AI assistant for a company.
+         This query has been classified as : {query_type}.
+         Active user job title: {job_title}
          Your task is to help answer a user's question using the provided USERINFO, DOCUMENT CONTEXT and tools.
         
      
@@ -61,12 +69,20 @@ def brain(state: MessagesState):
                                 - Departments: {departments}
                                 
          TOOL SELECTION RULES (follow strictly):
+         
+          - If the query is about specific records, metrics, counts, trends, KPIs, employee data, department data,
+          or financial figures, prefer sql_tool.
+        - If the query is conceptual, explanatory, policy, procedural, documentation, FAQ, or knowledge-base related,
+          prefer rag_tool.
+        - If query_type is SQL, choose sql_tool unless the requested data is unavailable or unauthorized.
+        - If query_type is RAG, choose rag_tool and avoid SQL.
         
         1. Use sql_tool for ANY question involving:
            - Employee details (name, email, phone, department, role, salary)
            - Leave balances, attendance, performance ratings
            - Company financials, headcount, analytics
            - Anything that sounds like a database lookup
+           
            Examples:
            - "What is the email of Stephen?" → sql_tool
            - "How many employees are in engineering?" → sql_tool
@@ -87,6 +103,9 @@ def brain(state: MessagesState):
         4. If the answer is not found by any tool, respond exactly:
            "I'm sorry, I can only answer questions related to company documents and tools."
         
+         5. If a SQL query would require unauthorized or missing schema data, do not expose raw SQL or raw errors.
+           Return a safe explanation or fallback to a RAG-style answer.
+           
         CRITICAL IDENTITY RULE:
         For questions about the current user (e.g., leave balance, rating),
         use the ACTIVE USER INFO above and pass it to sql_tool.
@@ -137,7 +156,9 @@ graph = agent_builder.compile(checkpointer=checkpointer)
 
 
 #invoke graph
-def run_agent(query: str, session_id: str, emp_id: str, emp_name: str, email: str, departments: list[str]):
+def run_agent(query: str, session_id: str, emp_id: str, emp_name: str, email: str, job_title: str, departments: list[str]):
+    query_type = detect_query_type_llm(query)
+
     response = graph.invoke(
         {
             "messages": [
@@ -147,22 +168,25 @@ def run_agent(query: str, session_id: str, emp_id: str, emp_name: str, email: st
             "emp_id": emp_id,
             "emp_name": emp_name,
             "email": email,
+            "job_title": job_title  ,
             "departments": departments,
+            "query_type": query_type,
             "llm_calls": 0
-
-            },
+           },
         {
-                "configurable":
-                    {
-                        "thread_id": session_id,
-                        "session_id": session_id,
-                        "emp_id": emp_id,
-                        "emp_name": emp_name,
-                        "email": email,
-                        "departments": departments,
-                    }
+            "configurable":
+                {
+                    "thread_id": session_id,
+                    "session_id": session_id,
+                    "emp_id": emp_id,
+                    "emp_name": emp_name,
+                    "email": email,
+                    "job_title": job_title,
+                    "departments": departments,
                 }
-        )
+        }
+
+    )
 
     last_msg = response["messages"][-1]
 

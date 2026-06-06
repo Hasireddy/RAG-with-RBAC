@@ -11,11 +11,17 @@ vector_store = create_vector_store()
 def semantic_search(vector_store, query, departments):
     """Runs a semantic search with department based RAG and retrieves top 3 formatted context(matching results)"""
     results = vector_store.similarity_search(query=query, k=3)
-    #results = vector_store.similarity_search(query=query, k=3)
+
+    if not results:
+        return "", "NOT_FOUND"
+
     departments.append("general")
     filtered_results = [result for result in results if result.metadata.get("department") in departments]
 
-    # Build a clean context from top-3 chunks
+    if results and not filtered_results:
+        return "", "UNAUTHORIZED"
+
+    # Build a clean context from top-3 chunks authorized chunks
     context = "\n\n".join(
         f"""
     Source: {doc.metadata['source']}
@@ -27,7 +33,7 @@ def semantic_search(vector_store, query, departments):
         for doc in filtered_results
 
     )
-    return context
+    return context, "SUCCESS"
 
 
 
