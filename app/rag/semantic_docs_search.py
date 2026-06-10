@@ -33,7 +33,16 @@ def semantic_search(vector_store, query, departments):
         for doc in filtered_results
 
     )
-    return context, "SUCCESS"
+    #return context, "SUCCESS"
+    return {
+        "context": context,
+        "contexts": [
+            doc.page_content
+            for doc in filtered_results
+        ],
+        "documents": filtered_results,
+        "status": "SUCCESS"
+    }
 
 
 

@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 import os
-import re
+import asyncio
 from typing import List
 import logging
 
@@ -9,10 +9,13 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
-from langfuse import get_client
+from langfuse import get_client, Langfuse
 from langfuse.langchain import CallbackHandler
+from concurrent.futures import ThreadPoolExecutor
 
 from .semantic_docs_search import vector_store, semantic_search
+from app.rag_evals.ragas_evaluator import evaluate_rag_response
+from app.rag_evals.ragas_evaluation_results import log_metrics_to_csv
 
 logging.basicConfig(level=logging.INFO)
 
@@ -20,7 +23,7 @@ logging.basicConfig(level=logging.INFO)
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
 api_key = os.getenv("API_KEY")
 
-client = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
+client = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, max_tokens = 200, api_key=api_key)
 
 # Initialize Langfuse client
 langfuse = get_client()
@@ -28,9 +31,13 @@ langfuse = get_client()
 # Initialize Langfuse CallbackHandler for Langchain (tracing)
 langfuse_handler = CallbackHandler()
 
+executor = ThreadPoolExecutor(max_workers=1)
+
 # Build vector store once
 memory_store = {}
 MAX_RECENT_MSGS = 10
+
+RAGAS_METRIC_NAMES = {"faithfulness", "answer_relevancy", "nv_context_relevance", "nv_response_groundedness"}
 
 def clear_session_history(session_id):
     memory_store.pop(session_id, None)
@@ -145,6 +152,28 @@ def is_query_relevant(query: str) -> bool:
 chain = (prompt | client | StrOutputParser() )
 chain_with_memory = RunnableWithMessageHistory(chain, lambda session_id: memory_store[session_id]["recent_messages"], input_messages_key="query", history_messages_key="history")
 
+def _run_evals(question: str, answer: str, contexts: list[str], trace_id: str, session_id: str, emp_name: str):
+    scores = evaluate_rag_response(question=question, answer=answer, contexts=contexts)
+    print(scores)
+    if scores:
+        try:
+            df = scores.to_pandas()
+            log_metrics_to_csv(trace_id, session_id, emp_name, question, df)
+            for metric in RAGAS_METRIC_NAMES:
+                if metric not in df.columns:
+                    continue
+                value = df[metric][0]
+                if value is not None and value == value:
+                    langfuse.create_score(
+                        trace_id=trace_id,
+                        name=metric,
+                        value=float(value),
+                        data_type="NUMERIC"
+                    )
+        except Exception as e:
+            logging.error(f"Langfuse scoring failed: {e}")
+
+
 
 def get_response(query:str, session_id: str, emp_name: str, email: str, departments: List[str]):
     """Returns API response  based on semantic search context"""
@@ -154,7 +183,15 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     history = session["recent_messages"]
     summary = session["summary"]
 
-    context, search_status = semantic_search(vector_store, query, departments=departments)
+    #generate trace_id so we can reference it for scoring later
+    trace_id = Langfuse.create_trace_id()
+    langfuse_handler = CallbackHandler()
+
+    retrieval = semantic_search(vector_store, query, departments=departments)
+
+    search_status = retrieval["status"]
+    context = retrieval["context"]
+    contexts = retrieval["contexts"]
 
     if search_status == "UNAUTHORIZED":
         return{
@@ -194,6 +231,8 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
 
     summarize_old_chat(session_id)
 
+    executor.submit(_run_evals, query, final_answer, contexts, trace_id, session_id, emp_name)
+
     data = {
             "answer": final_answer,
             "name": emp_name,
@@ -201,7 +240,6 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
             "departments": departments,
             "session_id": session_id,
         }
-
     return data
 
 
