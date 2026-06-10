@@ -76,11 +76,8 @@ def rag_tool(query: str, config: RunnableConfig) -> str:
 
         logger.info(f"RAG tool called | session={session_id}")
 
-        context, search_status = semantic_search(vector_store, query, departments=departments)
+        context = semantic_search(vector_store, query, departments=departments)
 
-        # 2. FORCE UNAUTHORIZED RETURN BREAKPOINT
-        if search_status == "UNAUTHORIZED":
-            return "You do not have access to this information."
 
         # Generate final answer from retrieved context
         response = get_response(

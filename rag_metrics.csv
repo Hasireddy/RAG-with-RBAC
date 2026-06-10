@@ -1,0 +1,12 @@
+timestamp,trace_id,session_id,employee,question,faithfulness,answer_relevancy,nv_context_relevance,nv_response_groundedness
+2026-06-09T16:46:27.572773,88de0fa078f7a53239e2fc5d568caa27,user_2,Peter Blake,What is the standard notice period in the company?,1.0,1.0,0.75,
+2026-06-09T16:58:16.018711,2aeec7afd91be603615162db6e990690,user_2,Peter Blake,sick leave policy and allowed number of sick leaves per year,1.0,0.7815,1.0,1.0
+2026-06-09T17:01:14.522640,3cae12d4b5f67443463c04d8256fbbd8,user_2,Peter Blake,How are bugs prioritized and resolved?,1.0,0.8667,0.75,1.0
+2026-06-10T14:41:20.711370,77cb0fbd02dcbc36defe5501e5b91ae6,user_1,Stephen Robertson,Reason for FinSolve Technologies' net income increasing only 12% despite 25% revenue growth in 2024,,,,
+2026-06-10T14:43:31.889033,e04432638e4a38a7d806abc57f2d1265,user_1,Stephen Robertson,API Gateway authentication and rate limiting,,,,
+2026-06-10T14:47:33.596109,2061e6986792d27253495f40e8f80ef8,user_1,Stephen Robertson,API Gateway authentication and rate limiting,,,,
+2026-06-10T14:48:44.678282,7fd0984ba324a35043acf04006caa553,user_1,Stephen Robertson,FinNova marketing strategy Q1 2024 customer acquisition revenue performance European markets,,,,
+2026-06-10T14:49:25.667711,744bfb8965143b6b16a5cf0ea893c234,user_1,Stephen Robertson,How are bugs prioritized and resolved in the company?,,,,
+2026-06-10T14:51:11.946904,1075f169c728a65350cb33d75a9c2e2a,user_1,Stephen Robertson,What happens during an employee's first week of onboarding?,0.625,0.8004,1.0,1.0
+2026-06-10T17:37:25.161102,e6ff903cc662581e6c46785ef0cdc283,user_2,Peter Blake,role of PostgreSQL in FinSolve's architecture,1.0,0.9628,,1.0
+2026-06-10T17:42:16.718536,6c66c32b31997368ebc9fd545697240b,user_2,Peter Blake,role of PostgreSQL in FinSolve's architecture,1.0,0.9628,1.0,1.0
