@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.templating import Jinja2Templates
+from spacy.cli.benchmark_speed import count_tokens
 from sqlalchemy.orm import Session
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -7,6 +8,8 @@ import os
 import uuid
 import traceback
 import json
+from langchain_openai import ChatOpenAI
+
 
 from app.schemas.response_schema import ResponseSchema
 from app.schemas.query_schema import QueryRequest
@@ -25,7 +28,7 @@ router = APIRouter(prefix="/chatbot", tags=["OpenAIAPIResponse"])
 client = OpenAI(api_key=API_KEY)
 
 templates = Jinja2Templates(directory="frontend/templates")
-
+llm = ChatOpenAI(model="gpt-4o",api_key=API_KEY)
 # Get a response
 """@router.get("/chatbot", response_model=ResponseSchema)
 def create_response(db: Session = Depends(get_db)):
@@ -63,19 +66,13 @@ def create_response(db: Session = Depends(get_db)):
 
 
 # Get a response
-@router.post("/", response_model=ResponseSchema)
+@router.post("/")
 def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:dict = Depends(get_current_user)):
     """Gets response from openai API"""
 
     try:
         # Generate session id if not provided in payload
         query = payload.query.strip()
-
-        if not query:
-            raise HTTPException(
-                status_code=400,
-                detail="Query cannot be empty"
-            )
 
         # User details
         emp_id = user.get("emp_id")
@@ -89,6 +86,24 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
 
         # Session handling
         session_id = f"user_{emp_id}"
+
+        #Control User query's length
+        num_tokens = llm.get_num_tokens(query)
+        print("NUM_TOKENS", num_tokens)
+        if num_tokens > 300:
+            raise HTTPException(
+                status_code=400,
+                detail="Query length exceeded more than 300 tokens"
+            )
+
+
+        if not query:
+            raise HTTPException(
+                status_code=400,
+                detail="Query cannot be empty"
+            )
+
+
 
         response_text = run_agent(
             query=query,
@@ -143,10 +158,14 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
 
     except Exception as e:
         traceback.print_exc()
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+        print(str(e))
+        return {
+            "session_id": session_id,
+            "messages":[{
+            "error": str(e)
+            }]
+        }
+
 
 
 """@router.get("/", name="chatbot")

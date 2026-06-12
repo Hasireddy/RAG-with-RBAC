@@ -16,6 +16,7 @@ api_key = os.getenv("API_KEY")
 client = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=api_key)
 
 
+
 # Folder(eng/finance)->Load files->MarkdownHeaderTextSplitter(per file)-> Attach Metadata(domain+file+headers)->Embeddings->VectorDB(with filters)
 # Load Markdown files
 
