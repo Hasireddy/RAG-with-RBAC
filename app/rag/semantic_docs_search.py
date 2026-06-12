@@ -1,6 +1,7 @@
 import re
 from .create_vector_store import create_vector_store
 from langfuse.langchain import CallbackHandler
+import time
 
 langfuse_handler = CallbackHandler()
 
@@ -39,7 +40,7 @@ def semantic_search(vector_store, query, departments):
     """Runs a semantic search with department based RAG and retrieves top 3 formatted context(matching results)"""
 
     allowed_departments = departments + ["general"]
-    results = vector_store.similarity_search(query=query, k=10)
+    results = vector_store.similarity_search(query=query, k=20)
     filtered_results = [result for result in results if result.metadata.get("department") in allowed_departments]
     filtered_results.sort(
         key=lambda d: query.lower() in d.page_content.lower(),
@@ -69,6 +70,7 @@ def semantic_search(vector_store, query, departments):
         )
 
     context = "\n\n".join(compressed_chunks)
+
 
     #return context, "SUCCESS"
     return {

@@ -46,4 +46,14 @@ def split_docs_chunks():
 #chunks = split_docs_chunks()
 #print(chunks[:2])
 
+"""Document(
+    page_content="The specific body text located underneath a secondary heading...",
+    metadata={
+        'source': 'E:\\masterschool\\...\\resources\\data\\finance\\policies.md',
+        'department': 'finance',
+        'Header 1': 'Company Overview',
+        'Header 2': 'Financial Policies'
+    }
+)"""
+
 
