@@ -30,89 +30,33 @@ The architecture includes:
 
 # 🚀System Architecture Diagram
 
-<svg width="700" height="600" viewBox="0 0 700 600" xmlns="http://www.w3.org/2000/svg" role="img">
-  <title>Query Routing Flowchart — SQL Agent and RAG Agent</title>
-  <desc>User queries via Interactive Chatbot and FastAPI Backend are classified and routed to SQL Agent (SQLite) or RAG Agent, with fallback from SQL to RAG on failure.</desc>
+That's a very common issue! Here's why and how to fix it:
 
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-  </defs>
+Why it shows in PyCharm but not GitHub
+PyCharm renders HTML/raw SVG in its preview, but GitHub's README renderer only supports Mermaid (via fenced code blocks) — it does not render raw SVG, HTML tags, or <title> elements as diagrams.
 
-  <rect width="700" height="600" fill="#ffffff"/>
 
-  <!-- === NODE A: User Query === -->
-  <rect x="215" y="24" width="270" height="66" rx="10" fill="#fce4fc" stroke="#b060b0" stroke-width="1.5"/>
-  <text x="350" y="46" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#6a1a6a">User Query</text>
-  <text x="350" y="63" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#8a3a8a">Interactive Chatbot</text>
-  <text x="350" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#8a3a8a">FastAPI Backend</text>
+## 🚀 System Architecture — Query Routing Flowchart
 
-  <!-- A → B -->
-  <line x1="350" y1="90" x2="350" y2="132" stroke="#777" stroke-width="1.5" marker-end="url(#arrow)"/>
+```mermaid
+flowchart TD
+    A([👤 User Query]) --> B[Interactive Chatbot\nFastAPI Backend]
+    B --> C[Query Classifier Agent]
 
-  <!-- === NODE B: Classifier Diamond === -->
-  <polygon points="350,136 490,202 350,268 210,202" fill="#dde0ff" stroke="#4455bb" stroke-width="1.5"/>
-  <text x="350" y="197" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1a2288">Query Classifier Agent</text>
-  <text x="350" y="215" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#2233aa">SQL or RAG?</text>
+    C -->|SQL| D[SQL Agent\nNLP → SQL → SQLite]
+    C -->|RAG| E[RAG Agent\nVector Search + LLM]
 
-  <!-- B → C (left, SQL) -->
-  <line x1="210" y1="202" x2="110" y2="202" stroke="#777" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <text x="160" y="195" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#444">SQL</text>
+    D -->|Success| F([✅ SQL Response\nStructured result])
+    D -->|Fail / Incomplete| G[/Fallback Triggered\nSQL failed → use RAG/]
 
-  <!-- B → E (right, RAG) -->
-  <line x1="490" y1="202" x2="590" y2="202" stroke="#777" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <text x="540" y="195" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#444">RAG</text>
+    G -.->|Fallback| E
+    E --> H([✅ RAG Response\nContextual answer])
 
-  <!-- === NODE C: SQL Agent === -->
-  <rect x="10" y="172" width="200" height="60" rx="10" fill="#ccf0cc" stroke="#2a8a2a" stroke-width="1.5"/>
-  <text x="110" y="197" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#1a4a1a">SQL Agent</text>
-  <text x="110" y="216" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#2a622a">NLP → SQL LLM → SQLite</text>
-
-  <!-- === NODE E: RAG Agent === -->
-  <rect x="490" y="172" width="200" height="60" rx="10" fill="#b8e2f8" stroke="#1a6899" stroke-width="1.5"/>
-  <text x="590" y="197" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#0a2e5a">RAG Agent</text>
-  <text x="590" y="216" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#1a4a7a">Vector Search + LLM</text>
-
-  <!-- C → F (Success) -->
-  <line x1="110" y1="232" x2="110" y2="322" stroke="#777" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <text x="122" y="282" font-family="Arial,sans-serif" font-size="11" fill="#444">Success</text>
-
-  <!-- === NODE F: SQL Response === -->
-  <rect x="10" y="322" width="200" height="54" rx="10" fill="#d0f6f6" stroke="#1a8899" stroke-width="1.5"/>
-  <text x="110" y="346" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#0a4455">SQL Response to User</text>
-  <text x="110" y="363" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#0e5a66">Structured result returned</text>
-
-  <!-- C → D (Fail — route left then down) -->
-  <path d="M 10 202 L -8 202 L -8 456 L 200 456" fill="none" stroke="#cc3333" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow)"/>
-  <text x="6" y="336" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#cc3333" transform="rotate(-90,6,336)">Fail or Incomplete</text>
-
-  <!-- === NODE D: Fallback === -->
-  <rect x="200" y="429" width="200" height="54" rx="10" fill="#ffe0e0" stroke="#cc3333" stroke-width="1.5"/>
-  <text x="300" y="453" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#880000">Fallback Triggered</text>
-  <text x="300" y="471" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#aa1111">SQL failed or incomplete</text>
-
-  <!-- D → E (up-right to RAG Agent) -->
-  <path d="M 400 456 L 590 456 L 590 232" fill="none" stroke="#cc3333" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow)"/>
-  <text x="500" y="449" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#cc3333">Fallback to RAG</text>
-
-  <!-- E → G -->
-  <line x1="590" y1="232" x2="590" y2="322" stroke="#777" stroke-width="1.5" marker-end="url(#arrow)"/>
-
-  <!-- === NODE G: RAG Response === -->
-  <rect x="490" y="322" width="200" height="54" rx="10" fill="#d0f6f6" stroke="#1a8899" stroke-width="1.5"/>
-  <text x="590" y="343" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#0a4455">RAG Response to User</text>
-  <text x="590" y="360" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#0e5a66">Meaningful contextual answer</text>
-
-  <!-- Legend -->
-  <rect x="210" y="528" width="280" height="58" rx="8" fill="#f5f5f5" stroke="#cccccc" stroke-width="1"/>
-  <text x="350" y="547" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#333">Legend</text>
-  <line x1="225" y1="561" x2="263" y2="561" stroke="#777" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <text x="268" y="565" font-family="Arial,sans-serif" font-size="10" fill="#444">Normal flow</text>
-  <line x1="225" y1="577" x2="263" y2="577" stroke="#cc3333" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrow)"/>
-  <text x="268" y="581" font-family="Arial,sans-serif" font-size="10" fill="#444">Fallback path (SQL fail → RAG)</text>
-
-</svg>
+    style G fill:#ff6b6b,color:#fff,stroke:#cc0000
+    style F fill:#51cf66,color:#fff,stroke:#2f9e44
+    style H fill:#51cf66,color:#fff,stroke:#2f9e44
+    style C fill:#339af0,color:#fff,stroke:#1864ab
+```
 
 
 # Architecture Overview
