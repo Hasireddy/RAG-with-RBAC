@@ -1,4 +1,4 @@
-# 🤖 FinSolve Role-Based Chatbot - AI document assistant - A Role Based Access Control System
+# 🤖 FinSight - AI document assistant - A Role Based Access Control System
 
 FinSolve is a secure, intelligent chatbot powered by LLMs + RAG with Role Based Access Control(RBAC) that answers questions from enterprise documents
 and ensures employees access only the information aligned with their corporate privileges.
