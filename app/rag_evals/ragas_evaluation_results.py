@@ -3,7 +3,8 @@ import os
 from datetime import datetime
 
 METRICS_CSV_PATH = "rag_metrics.csv"
-RAGAS_METRIC_NAMES = ["faithfulness", "answer_relevancy", "nv_context_relevance", "nv_response_groundedness"]
+#RAGAS_METRIC_NAMES = ["faithfulness", "answer_relevancy", "nv_context_relevance", "nv_response_groundedness"]
+RAGAS_METRIC_NAMES = ["faithfulness", "answer_relevancy"]
 
 
 def log_metrics_to_csv(trace_id: str, session_id: str, emp_name: str, question: str, scores_df):

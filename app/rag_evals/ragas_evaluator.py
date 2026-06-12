@@ -23,7 +23,8 @@ if not api_key:
 
 llm = LangchainLLMWrapper(
     ChatOpenAI(
-        model="gpt-4.1-mini",
+        #model="gpt-4.1-mini",
+        model="gpt-5-mini",
         api_key=api_key
     )
 )
@@ -61,8 +62,8 @@ def evaluate_rag_response(question: str, answer: str, contexts: list[str], refer
         metrics = [
             faithfulness,
             answer_relevancy,
-            context_relevance,
-            response_groundedness,
+            #context_relevance,
+            #response_groundedness,
         ]
 
         # Add reference + context_recall ONLY if available

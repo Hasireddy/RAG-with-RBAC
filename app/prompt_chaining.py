@@ -441,3 +441,76 @@ def semantic_search(vector_store, query: str, departments: list[str]) -> str:
     )
 
     return context
+
+# Build a clean context from top-3 chunks authorized chunks
+    context = "\n\n".join(
+        f"""
+    Source: {doc.metadata['source']}
+    Section: {doc.metadata.get('Header 3', 'N/A')}
+    Content:
+    {doc.page_content}
+    """
+        .strip()
+        for doc in filtered_results
+
+    )
+
+    🧠 Why
+    performance
+    improved
+
+    From
+    your
+    previous
+    changes, the
+    improvements
+    came
+    from:
+
+    1.
+    Query - aware
+    compression
+    reduced
+    tokens
+    sent
+    to
+    LLM
+    faster
+    decoding
+    2.
+    k = 10
+    retrieval + filtering
+    better
+    context
+    quality → fewer
+    reasoning
+    steps
+    3.
+    evaluation
+    moved async
+    no
+    blocking
+    overhead
+    anymore
+    4.
+    summarization
+    effectively not in hot
+    path
+    no
+    latency
+    impact
+
+    Over
+    time:
+
+    history
+    increases
+    token
+    count
+    increases
+    latency
+    will
+    slowly
+    drift
+    upward
+    again

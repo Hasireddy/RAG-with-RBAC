@@ -78,7 +78,6 @@ def rag_tool(query: str, config: RunnableConfig) -> str:
 
         context = semantic_search(vector_store, query, departments=departments)
 
-
         # Generate final answer from retrieved context
         response = get_response(
             query=query,

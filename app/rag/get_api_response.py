@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
-import asyncio
+import random
+import time
 from typing import List
 import logging
 
@@ -23,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
 api_key = os.getenv("API_KEY")
 
-client = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, max_tokens = 200, api_key=api_key)
+client = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
 
 # Initialize Langfuse client
 langfuse = get_client()
@@ -36,8 +37,10 @@ executor = ThreadPoolExecutor(max_workers=1)
 # Build vector store once
 memory_store = {}
 MAX_RECENT_MSGS = 10
+EVAL_SAMPLE_RATE = 0.05
 
-RAGAS_METRIC_NAMES = {"faithfulness", "answer_relevancy", "nv_context_relevance", "nv_response_groundedness"}
+#RAGAS_METRIC_NAMES = {"faithfulness", "answer_relevancy", "nv_context_relevance", "nv_response_groundedness"}
+RAGAS_METRIC_NAMES = {"faithfulness", "answer_relevancy"}
 
 def clear_session_history(session_id):
     memory_store.pop(session_id, None)
@@ -67,7 +70,7 @@ Format your output exactly as follows:
 ])
 
 
-summarizer_chain = (summary_prompt | client | StrOutputParser())
+summarizer_chain = (summary_prompt | client.bind(max_tokens=500) | StrOutputParser())
 
 def summarize_old_chat(session_id):
     session = memory_store[session_id]
@@ -149,45 +152,56 @@ guard_chain = (OFF_TOPIC_PROMPT | client | StrOutputParser())
 def is_query_relevant(query: str) -> bool:
     result = guard_chain.invoke({"query": query})
     return result.strip().upper() == "RELEVANT"
-chain = (prompt | client | StrOutputParser() )
+
+chain = (prompt | client.bind(max_tokens=300) | StrOutputParser() )
 chain_with_memory = RunnableWithMessageHistory(chain, lambda session_id: memory_store[session_id]["recent_messages"], input_messages_key="query", history_messages_key="history")
 
 def _run_evals(question: str, answer: str, contexts: list[str], trace_id: str, session_id: str, emp_name: str):
-    scores = evaluate_rag_response(question=question, answer=answer, contexts=contexts)
-    print(scores)
-    if scores:
-        try:
-            df = scores.to_pandas()
-            log_metrics_to_csv(trace_id, session_id, emp_name, question, df)
-            for metric in RAGAS_METRIC_NAMES:
-                if metric not in df.columns:
-                    continue
-                value = df[metric][0]
-                if value is not None and value == value:
-                    langfuse.create_score(
-                        trace_id=trace_id,
-                        name=metric,
-                        value=float(value),
-                        data_type="NUMERIC"
-                    )
-        except Exception as e:
-            logging.error(f"Langfuse scoring failed: {e}")
-
+    try:
+        scores = evaluate_rag_response(
+            question=question,
+            answer=answer,
+            contexts=contexts
+        )
+        print(scores)
+        if scores:
+                df = scores.to_pandas()
+                log_metrics_to_csv(trace_id, session_id, emp_name, question, df)
+                for metric in RAGAS_METRIC_NAMES:
+                    if metric not in df.columns:
+                        continue
+                    value = df[metric][0]
+                    if value is not None and value == value:
+                        langfuse.create_score(
+                            trace_id=trace_id,
+                            name=metric,
+                            value=float(value),
+                            data_type="NUMERIC"
+                        )
+    except Exception as e:
+        logging.error(f"Langfuse scoring failed: {e}")
 
 
 def get_response(query:str, session_id: str, emp_name: str, email: str, departments: List[str]):
     """Returns API response  based on semantic search context"""
-
+    start_time = time.perf_counter()
     session =  get_session_history(session_id)
     logging.info(f"The user is {emp_name} and the session_id is: {session_id} and session_history: {session}")
     history = session["recent_messages"]
+
+    #if len(history.messages) > MAX_RECENT_MSGS:
+        #history.messages = history.messages[-MAX_RECENT_MSGS:]
+
     summary = session["summary"]
 
     #generate trace_id so we can reference it for scoring later
     trace_id = Langfuse.create_trace_id()
     langfuse_handler = CallbackHandler()
 
+    t0 = time.perf_counter()
     retrieval = semantic_search(vector_store, query, departments=departments)
+    t1 = time.perf_counter()
+    logging.info(f"Retrieval: {t1 - t0:.3f}s")
 
     search_status = retrieval["status"]
     context = retrieval["context"]
@@ -203,6 +217,10 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
         return {
             "answer": "Information not provided in the documents."
         }
+
+    logging.info(
+        f"History messages: {len(history.messages)}"
+    )
 
     final_answer = chain_with_memory.invoke(
         {
@@ -229,9 +247,34 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
             }
     )
 
+    t2 = time.perf_counter()
+    logging.info(f"LLM Generation: {t2 - t1:.3f}s")
+
     summarize_old_chat(session_id)
 
-    executor.submit(_run_evals, query, final_answer, contexts, trace_id, session_id, emp_name)
+    t3 = time.perf_counter()
+    logging.info(f"Summarization: {t3 - t2:.3f}s")
+
+    try:
+        if random.random() < EVAL_SAMPLE_RATE:
+            logging.info(
+                f"Running RAG evaluation for session={session_id}"
+            )
+            executor.submit(_run_evals, query, final_answer, contexts, trace_id, session_id, emp_name)
+
+        else:
+            logging.info(
+                f"Skipping RAG evaluation for session={session_id}"
+            )
+
+    except Exception as eval_err:
+        logging.error(f"Failed to submit background evaluation: {eval_err}")
+
+    end_time = time.perf_counter()
+    latency_seconds = end_time - start_time
+    print("*********************")
+    print(f"Latency: {latency_seconds:.4f} seconds")
+    print("*********************")
 
     data = {
             "answer": final_answer,
@@ -240,6 +283,7 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
             "departments": departments,
             "session_id": session_id,
         }
+
     return data
 
 
