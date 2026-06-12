@@ -477,8 +477,8 @@
                 appendBotMessage(
                     data.messages?.[0]?.message?.content ||
                     data.messages?.[0]?.message?.["answer"]||
-                    data.response ||
-                    "No response from API"
+                    data.response || data.messages?.[0]?.error
+
                 );
 
             } catch (error) {

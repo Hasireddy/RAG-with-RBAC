@@ -264,8 +264,8 @@
       document.getElementById("typing-message")?.remove();
       appendBotMessage(
         data.messages?.[0]?.message||
-        data.response ||
-        "No response from API"
+        data.response
+
       );
 
     } catch (error) {
