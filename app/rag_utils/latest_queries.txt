@@ -94,6 +94,8 @@ List the employees whose balance leaves are zero?
 3. How many employees are there in the company?- EMPLOYEE ROLE
 (There are currently 2 employees in the finance department. If you need information about any other department or have more questions, feel free to ask!)
 
+4. Give me the details of employees in Engineering  department whose performance rating is greater than 4
+
 
 (List the details of all employees in the company
 I can provide employee details only for your department, which is marketing. Would you like me to list the details of all employees in the marketing department?
@@ -110,6 +112,9 @@ Your performance rating is 4.7. If you need more information or assistance, feel
 
 #1. Why did employee benefits and HR costs increase by 10% during the fiscal year?- FINANCE
 #In what specific workforce programs is the company investing?
+1. What percentage of the Vendor Services expense was allocated to marketing-related activities?-FINANCE
+2. What is the Return on Investment (ROI) for FinSolve Technologies? -- finance
+3. What was the percentage increase in FinSolve Technologies's net income in 2024?-FINANCE
 
 2. Why did FinSolve Technologies’ net income increase only 12% despite 25% revenue growth in 2024?- FINANCE
 

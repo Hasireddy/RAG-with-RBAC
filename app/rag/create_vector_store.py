@@ -20,7 +20,10 @@ def create_vector_store():
 
     chunks = split_docs_chunks()
 
-    # create embeddings model
+    if not chunks:
+        raise ValueError("No chunks were generated from the documents.")
+
+    # convert markdown files into vector embeddings
     embeddings_model = OpenAIEmbeddings(
         model="text-embedding-3-small",
         api_key=api_key
@@ -34,4 +37,3 @@ def create_vector_store():
     return vector_store
 
 
-#print(create_vector_store)
