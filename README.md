@@ -30,14 +30,6 @@ The architecture includes:
 
 # 🚀System Architecture Diagram
 
-That's a very common issue! Here's why and how to fix it:
-
-Why it shows in PyCharm but not GitHub
-PyCharm renders HTML/raw SVG in its preview, but GitHub's README renderer only supports Mermaid (via fenced code blocks) — it does not render raw SVG, HTML tags, or <title> elements as diagrams.
-
-
-## 🚀 System Architecture — Query Routing Flowchart
-
 ```mermaid
 flowchart TD
     A([👤 User Query]) --> B[Interactive Chatbot\nFastAPI Backend]
