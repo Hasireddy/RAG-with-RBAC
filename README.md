@@ -21,7 +21,7 @@ and ensures employees access only the information aligned with their corporate p
 The architecture includes:
 
 * **FastAPI backend**: for business logic, user management, and RAG handling.
-* **HTML & CSS **: for interactive Chat Interface
+* **HTML & CSS**: for interactive Chat Interface
 * **SQL Agent**: processes structured data queries using an LLM for translation and SQLiteDB for execution.
 * **RAG Agent**: retrieves and synthesizes responses from unstructured documents using embeddings and LLMs.
 * **RAGAS EVALUATOR**: to ensure better user trust in responses
