@@ -332,6 +332,27 @@
                 minute: "2-digit"
             });
         }
+         /* HTML-escape untrusted text before injecting it into the DOM (XSS-safe) */
+        function escapeHtml(value) {
+            const div = document.createElement("div");
+            div.textContent = value == null ? "" : String(value);
+            return div.innerHTML;
+        }
+        /* Extract a human-readable error message from a FastAPI error body */
+        function extractErrorMessage(data) {
+            if (!data) {
+                return "Something went wrong. Please try again.";
+            }
+            // HTTPException -> { "detail": "..." }
+            if (typeof data.detail === "string") {
+                return data.detail;
+            }
+            // Request validation errors -> { "detail": [{ "msg": "..." }] }
+            if (Array.isArray(data.detail) && data.detail[0]?.msg) {
+                return data.detail[0].msg;
+            }
+            return "Something went wrong. Please try again.";
+        }
 
         /* USER MESSAGE */
         function appendUserMessage(message) {
@@ -442,9 +463,8 @@
                     `
                 );
 
-                const token = localStorage.getItem("token");
+               const token = localStorage.getItem("token");
                 console.log("token", token)
-
 
                  const response = await fetch("/chatbot/", {
                             method: "POST",
@@ -456,29 +476,30 @@
                               query: message,
                             })
                           });
-
                 const data =
                     await response.json();
-
+                document
+                    .getElementById("typing-message")
+                    ?.remove();
+                // Surface backend errors (4xx/5xx) to the user in the chat.
+                if (!response.ok) {
+                    appendBotMessage(
+                        escapeHtml(extractErrorMessage(data))
+                    );
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    return;
+                }
                 if (data.session_id) {
                     localStorage.setItem(
                         "chat_session_id",
                         data.session_id,
                     )
                 }
-
-                console.log("SESSION:", data.session_id)
-
-                document
-                    .getElementById("typing-message")
-                    ?.remove();
-
-                console.log(data)
                 appendBotMessage(
                     data.messages?.[0]?.message?.content ||
-                    data.messages?.[0]?.message?.["answer"]||
-                    data.response || data.messages?.[0]?.error
-
+                    data.messages?.[0]?.message?.["answer"] ||
+                    data.response ||
+                    "No response generated."
                 );
 
             } catch (error) {

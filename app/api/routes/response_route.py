@@ -66,7 +66,7 @@ def create_response(db: Session = Depends(get_db)):
 
 
 # Get a response
-@router.post("/")
+@router.post("/", response_model=ResponseSchema)
 def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:dict = Depends(get_current_user)):
     """Gets response from openai API"""
 
@@ -156,15 +156,15 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
             ]
         }
 
+    except HTTPException:
+        raise
+
     except Exception as e:
         traceback.print_exc()
-        print(str(e))
-        return {
-            "session_id": session_id,
-            "messages":[{
-            "error": str(e)
-            }]
-        }
+        raise HTTPException(
+            status_code=500,
+            detail="Something went wrong while generating response"
+        )
 
 
 

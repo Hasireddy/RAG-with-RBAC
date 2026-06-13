@@ -100,10 +100,16 @@ def brain(state: MessagesState):
            looking up data. Never answer employee or database questions
            from memory.
         
-        4. If the answer is not found by any tool, respond exactly:
+        4. If a tool result indicates an authorization or access failure
+           (e.g. it contains "not authorized", "do not have access")
+           return that message to the user VERBATIM.
+           Do NOT replace it with generic not found message below.
+           
+        5. If the answer is genuinely not found by any tool ( and it is not
+           an authorization failure) respond explicitly:
            "I'm sorry, I can only answer questions related to company documents and tools."
         
-         5. If a SQL query would require unauthorized or missing schema data, do not expose raw SQL or raw errors.
+        6. If a SQL query would require unauthorized or missing schema data, do not expose raw SQL or raw errors.
            Return a safe explanation or fallback to a RAG-style answer.
            
         CRITICAL IDENTITY RULE:

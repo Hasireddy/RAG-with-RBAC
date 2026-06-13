@@ -2,7 +2,9 @@ import re
 from .create_vector_store import create_vector_store
 from langfuse.langchain import CallbackHandler
 import time
+import logging
 
+logger = logging.getLogger(__name__)
 langfuse_handler = CallbackHandler()
 
 # Build vector store once on import/startup
@@ -40,21 +42,40 @@ def semantic_search(vector_store, query, departments):
     """Runs a semantic search with department based RAG and retrieves top 3 formatted context(matching results)"""
 
     allowed_departments = departments + ["general"]
-    results = vector_store.similarity_search(query=query, k=20)
-    filtered_results = [result for result in results if result.metadata.get("department") in allowed_departments]
+    scored_results = vector_store.similarity_search_with_score(query=query, k=10)
+
+    filtered_results = []
+    relevant_but_unauthorized = False
+
+    logger.info(f"RBAC retrieval | allowed = {allowed_departments} | threshold = 1")
+    for doc, distance in scored_results:
+        logger.info(
+            f"    candidate dept = {doc.metadata.get('department')} | distance = {distance} | source = {doc.metadata.get('source')}"
+        )
+        # ignoring all weak matches entirely regardless of the department
+        if distance > 1.5:
+            continue
+
+        if doc.metadata.get("department") in allowed_departments:
+            filtered_results.append(doc)
+        else:
+            relevant_but_unauthorized = True
+
     filtered_results.sort(
         key=lambda d: query.lower() in d.page_content.lower(),
         reverse=True
     )
 
     if not filtered_results:
-       return{
+        status = "UNAUTHORIZED" if relevant_but_unauthorized else "NOT_FOUND"
+        logger.info(f"RBAC decision | status = {status}")
+        return{
            "context": "",
            "contexts": [],
            "documents": [],
-           "status": "NOT_FOUND"
-       }
-
+           "status": status
+        }
+    logger.info(f"RBAC decision | filtered results = {len(filtered_results)}")
     compressed_chunks = []
 
     for doc in filtered_results:

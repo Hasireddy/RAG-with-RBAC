@@ -11,13 +11,9 @@ from sqlalchemy.exc import OperationalError
 from typing import Any
 
 from app.rag.get_api_response import get_response
-from app.rag.semantic_docs_search import vector_store, semantic_search
-
 import os
 import re
 import logging
-import traceback
-
 
 
 
@@ -76,7 +72,6 @@ def rag_tool(query: str, config: RunnableConfig) -> str:
 
         logger.info(f"RAG tool called | session={session_id}")
 
-        context = semantic_search(vector_store, query, departments=departments)
 
         # Generate final answer from retrieved context
         response = get_response(
