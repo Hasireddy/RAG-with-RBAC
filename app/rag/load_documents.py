@@ -35,19 +35,9 @@ def load_documents():
        department = file_path.parent.name  # engineering/finance/hr/marketing
 
        if file_path.suffix == ".md":
-           loader =  UnstructuredMarkdownLoader(file_path)
-
-       elif file_path.suffix == ".csv":
-           loader = CSVLoader(file_path)
-       else:
-           continue
-
-       loaded_docs = loader.load()
-
-       for doc in loaded_docs:
            docs.append(
                Document(
-                   page_content=doc.page_content,
+                   page_content=file_path.read_text(encoding="utf-8"),
                    metadata={
                        "department": department,
                        "source": file_path.name,
@@ -56,9 +46,25 @@ def load_documents():
                    }
                )
            )
+           continue
 
-       if not docs:
-           raise FileNotFoundError(f"No Markdown files found in {base_path}")
+       if file_path.suffix == ".csv":
+           loaded_docs = CSVLoader(str(file_path)).load()
+           for doc in loaded_docs:
+               docs.append(
+                   Document(
+                       page_content=doc.page_content,
+                       metadata={
+                           "department": department,
+                           "source": file_path.name,
+                           "path": str(file_path),
+                           "type": file_path.suffix,
+                       }
+                   )
+               )
+
+   if not docs:
+       raise FileNotFoundError(f"No documents found in {base_path}")
 
    return docs
 
