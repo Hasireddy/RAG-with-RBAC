@@ -5,7 +5,6 @@ timestamp,trace_id,session_id,employee,question,faithfulness,answer_relevancy,nv
 2026-06-10T14:51:11.946904,1075f169c728a65350cb33d75a9c2e2a,user_1,Stephen Robertson,What happens during an employee's first week of onboarding?,0.625,0.8004,1.0,1.0
 2026-06-10T17:37:25.161102,e6ff903cc662581e6c46785ef0cdc283,user_2,Peter Blake,role of PostgreSQL in FinSolve's architecture,1.0,0.9628,,1.0
 2026-06-10T17:42:16.718536,6c66c32b31997368ebc9fd545697240b,user_2,Peter Blake,role of PostgreSQL in FinSolve's architecture,1.0,0.9628,1.0,1.0
-2026-06-11T09:51:54.215354,a73abb1b8a81044a03c87ebdc205c76c,user_4,Martin Wilson,How are bugs prioritized and resolved in the company?,1.0,0.0,0.0,0.0
 2026-06-11T09:54:24.414334,285c4821e985c6f673f0837062bef963,user_4,Martin Wilson,FinNova marketing strategy in Q1 2024 and its impact on customer acquisition and revenue performance in existing and new European markets,1.0,0.7852,1.0,1.0
 2026-06-11T09:58:19.879460,869e7a23ccdc2d3bd245aa857284dcfb,user_4,Martin Wilson,FinNova marketing strategy Q1 2024 customer acquisition and revenue performance in existing and new European markets,1.0,0.0,1.0,
 2026-06-11T09:59:02.896740,d50663482f4eb446e031a689515bf1c4,user_4,Martin Wilson,standard notice period,1.0,0.5689,,
@@ -13,10 +12,7 @@ timestamp,trace_id,session_id,employee,question,faithfulness,answer_relevancy,nv
 2026-06-11T10:07:01.789693,7a63c1e28391373a5b592015b83e4f14,user_2,Peter Blake,What is the standard notice period in the company?,1.0,1.0,,
 2026-06-11T16:27:58.829977,423f9f647288707d0ba2b47d1f408df5,user_2,Peter Blake,role of PostgreSQL in FinSolve's system architecture,0.6667,0.9627,,1.0
 2026-06-11T16:28:40.137340,39940f3add08d2fec8f5e29ea2dbd9e0,user_2,Peter Blake,sick leave policy,0.8,0.6819,,
-2026-06-11T16:44:37.798690,3d965d839f37ff8f22ee95bdcf91c2aa,user_1,Stephen Robertson,FinNova marketing strategy Q1 2024 customer acquisition and revenue performance in existing and new European markets,1.0,0.0
 2026-06-11T16:45:12.757054,cef8837aaf9a672c49d27817dbafa5f0,user_1,Stephen Robertson,Why did FinSolve choose a microservices architecture?,0.75,1.0
 2026-06-11T16:50:24.029225,7757f09961a0caeda6140dc2e3633825,user_1,Stephen Robertson,Reason for FinSolve Technologies' net income increase of only 12% despite 25% revenue growth in 2024,0.8571,0.8625
 2026-06-11T16:51:24.471246,615aa9d74203f2a8ff2edf38d1179b06,user_1,Stephen Robertson,standard notice period,1.0,0.5689
 2026-06-11T16:59:17.743441,319ff4fbbf0377fc7f526dde5daffb51,user_1,Stephen Robertson,What is the standard notice period at FinSolve Technologies?,1.0,1.0
-2026-06-12T16:03:09.062422,2408225cbb1bf4780f7177e91da87a7a,user_2,Peter Blake,health insurance policy benefits coverage,,
-2026-06-13T15:50:07.429708,7c9b093829b9cc21218678286dd9e1c2,user_2,Peter Blake,What bug tracking tools does the company use?,,

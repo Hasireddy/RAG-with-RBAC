@@ -333,208 +333,117 @@
             });
         }
          /* HTML-escape untrusted text before injecting it into the DOM (XSS-safe) */
-        function escapeHtml(value) {
-            const div = document.createElement("div");
-            div.textContent = value == null ? "" : String(value);
-            return div.innerHTML;
-        }
-        /* Extract a human-readable error message from a FastAPI error body */
-        function extractErrorMessage(data) {
-            if (!data) {
-                return "Something went wrong. Please try again.";
-            }
-            // HTTPException -> { "detail": "..." }
-            if (typeof data.detail === "string") {
-                return data.detail;
-            }
-            // Request validation errors -> { "detail": [{ "msg": "..." }] }
-            if (Array.isArray(data.detail) && data.detail[0]?.msg) {
-                return data.detail[0].msg;
-            }
-            return "Something went wrong. Please try again.";
-        }
-
-        /* USER MESSAGE */
         function appendUserMessage(message) {
-
-            const html = `
-                <div class="d-flex justify-content-end mb-4">
-
-                    <div class="text-end">
-
-                        <div class="message message-user ms-auto">
-                            ${message}
-                        </div>
-
-                        <div class="chat-time me-2">
-                            ${getCurrentTime()}
-                        </div>
-
-                    </div>
-
-                    <img
-                        src="/static/images/user.png"
-                        class="avatar ms-2"
-                    >
-
+            const wrapper = document.createElement("div");
+            wrapper.className = "d-flex mb-4 justify-content-end";
+            wrapper.innerHTML = `
+                <div style="max-width: 80%;">
+                    <div class="message message-user"></div>
+                    <div class="chat-time text-end me-2">${getCurrentTime()}</div>
                 </div>
             `;
-
-            chatBody.insertAdjacentHTML(
-                "beforeend",
-                html
-            );
+            wrapper.querySelector(".message-user").textContent = message;
+            chatBody.appendChild(wrapper);
+            chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        /* BOT MESSAGE */
-        function appendBotMessage(message) {
-
-            const html = `
-                <div class="d-flex mb-4">
-
-                    <img
-                        src="/static/images/chatbot1.png"
-                        class="avatar me-2"
-                    >
-
-                    <div>
-
-                        <div class="message message-bot">
-                            ${message}
-                        </div>
-
-                        <div class="chat-time ms-2">
-                            ${getCurrentTime()}
-                        </div>
-
-                    </div>
-
+        /* BOT PLACEHOLDER CONTAINER CREATION */
+        function createBotPlaceholder() {
+            const wrapper = document.createElement("div");
+            wrapper.className = "d-flex mb-4";
+            wrapper.innerHTML = `
+                <img src="/static/images/chatbot1.png" class="avatar me-2">
+                <div style="max-width: 80%;">
+                    <div class="message message-bot streaming-target"></div>
+                    <div class="chat-time ms-2">${getCurrentTime()}</div>
                 </div>
             `;
-
-            chatBody.insertAdjacentHTML(
-                "beforeend",
-                html
-            );
+            chatBody.appendChild(wrapper);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            return wrapper.querySelector(".streaming-target");
         }
 
-        /* SEND MESSAGE */
-        async function sendMessage() {
+        /* ACTIONS */
+        async function handleSendMessage() {
+            const queryText = messageInput.value.trim();
+            if (!queryText) return;
 
-            const message =
-                messageInput.value.trim();
-
-            if (!message) return;
-
-            appendUserMessage(message);
-
+            appendUserMessage(queryText);
             messageInput.value = "";
 
-            chatBody.scrollTop =
-                chatBody.scrollHeight;
-
+            const targetBubble = createBotPlaceholder();
+            targetBubble.textContent = "● ● ●"; // Temporary loading visual anchor
+            const token = localStorage.getItem("token")
             try {
+                const response = await fetch("/chatbot/stream", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" , "Authorization":`Bearer ${token}`},
+                    body: JSON.stringify({ query: queryText })
+                });
 
-                const typingId =
-                    "typing-message";
-
-                chatBody.insertAdjacentHTML(
-                    "beforeend",
-                    `
-                    <div
-                        class="d-flex mb-4"
-                        id="${typingId}"
-                    >
-
-                        <img
-                            src="/static/images/chatbot1.png"
-                            class="avatar me-2"
-                        >
-
-                        <div>
-
-                            <div class="message message-bot typing">
-                                Typing...
-                            </div>
-
-                        </div>
-
-                    </div>
-                    `
-                );
-
-               const token = localStorage.getItem("token");
-                console.log("token", token)
-
-                 const response = await fetch("/chatbot/", {
-                            method: "POST",
-                            headers: {
-                              "Content-Type": "application/json",
-                               "Authorization": `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                              query: message,
-                            })
-                          });
-                const data =
-                    await response.json();
-                document
-                    .getElementById("typing-message")
-                    ?.remove();
-                // Surface backend errors (4xx/5xx) to the user in the chat.
                 if (!response.ok) {
-                    appendBotMessage(
-                        escapeHtml(extractErrorMessage(data))
-                    );
-                    chatBody.scrollTop = chatBody.scrollHeight;
-                    return;
+                    const errorBody = await response.json();
+                    throw new Error(errorBody.detail || "Server error experienced during processing.");
                 }
-                if (data.session_id) {
-                    localStorage.setItem(
-                        "chat_session_id",
-                        data.session_id,
-                    )
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let streamBuffer = "";
+                let contentStarted = false;
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    streamBuffer += decoder.decode(value, { stream: true });
+                    const discreteLines = streamBuffer.split("\n");
+
+                    // Retain unparsed residual segment inside buffer
+                    streamBuffer = discreteLines.pop();
+
+                    for (const row of discreteLines) {
+                        const directRowData = row.trim();
+                        if (!directRowData || !directRowData.startsWith("data: ")) continue;
+
+                        if (!contentStarted) {
+                            targetBubble.textContent = "";
+                            contentStarted = true;
+                        }
+
+                        const cleanJsonString = directRowData.replace(/^data:\s*/, "");
+                        try {
+                            const parsedData = JSON.parse(cleanJsonString);
+
+                            if (parsedData.token) {
+                                targetBubble.textContent += parsedData.token;
+                            } else if (parsedData.error_type) {
+                                targetBubble.textContent = parsedData.answer;
+                                if (parsedData.error_type === "UNAUTHORIZED") {
+                                    targetBubble.classList.add("text-danger");
+                                }
+                            }
+                            chatBody.scrollTop = chatBody.scrollHeight;
+                        } catch (jsonErr) {
+                            console.warn("Skipped dynamic packet parsing anomalies:", cleanJsonString);
+                        }
+                    }
                 }
-                appendBotMessage(
-                    data.messages?.[0]?.message?.content ||
-                    data.messages?.[0]?.message?.["answer"] ||
-                    data.response ||
-                    "No response generated."
-                );
-
-            } catch (error) {
-
-                console.error(error);
-
-                document
-                    .getElementById("typing-message")
-                    ?.remove();
-
-                appendBotMessage(
-                    "Server error occurred."
-                );
+            } catch (err) {
+                console.error(err);
+                targetBubble.classList.add("text-danger");
+                targetBubble.textContent = err.message || "A network transaction disconnect occurred.";
+            } finally {
+                chatBody.scrollTop = chatBody.scrollHeight;
             }
-
-            chatBody.scrollTop =
-                chatBody.scrollHeight;
         }
 
-        /* SEND BUTTON */
-        sendBtn.addEventListener(
-            "click",
-            sendMessage
-        );
-
-        /* ENTER KEY */
-        messageInput.addEventListener(
-            "keypress",
-            function (e) {
-
-                if (e.key === "Enter") {
-                    sendMessage();
-                }
+        sendBtn.addEventListener("click", handleSendMessage);
+        messageInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                handleSendMessage();
             }
-        );
+        });
 
     </script>
 

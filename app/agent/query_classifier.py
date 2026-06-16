@@ -37,16 +37,20 @@ def detect_query_type_llm(query:str) -> str:
 
 
     prompt = f"""
-    You are a classifier that decides whether  a user's query should be handled by Structured SQL query using SQL (database access) logic or
-    unstructured document search(RAG).
+    You are a classifier that decides whether  a user's query should be handled by:
+    - Structured SQL query using SQL (database access) logic or
+    - unstructured document search(RAG).
     
-   If the query requests specific records, metrics, counts, trends, KPIs, employee data, department data,
+   RULES:
+   - If the query requests specific records, metrics, counts, trends, KPIs, employee data, department data,
     financial figures, or other structured attributes, answer: SQL.
 
-    If the query is conceptual, procedural, policy-oriented, documentation-focused, explanatory, or knowledge-base related,
+    - If the query is conceptual, procedural, policy-oriented, documentation-focused, explanatory, or knowledge-base related,
     answer: RAG.
     
-    Respond with only one word: Either ***SQL*** or ***RAG***.
+    Response format:
+    - Respond with only one word: Either SQL or RAG.
+    - Do not include any explanation or additional text.
     
     Here is the query:
     "{query}"

@@ -36,8 +36,9 @@ def query_aware_compress(text, query):
     return " ".join(top[:5])
 
 
-# Step4:Run a semantic search
 
+
+# Step4:Run a semantic search
 def semantic_search(vector_store, query, departments):
     """Runs a semantic search with department based RAG and retrieves top 3 formatted context(matching results)"""
 

@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
 import os
+import json
 import random
 import time
-from typing import List
+from typing import List, Generator
 import logging
 
 from langchain_openai import ChatOpenAI
@@ -24,7 +25,7 @@ logging.basicConfig(level=logging.INFO)
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
 api_key = os.getenv("API_KEY")
 
-client = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
+client = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=api_key)
 
 # Initialize Langfuse client
 langfuse = get_client()
@@ -100,7 +101,7 @@ system_prompt = f"""You are technical documentation expert and AI assistant for 
         STRICT RULES:
         1. ONLY use information explicitily stated in the USER INFO or the provided DOCUMENT CONTEXT.
         2. DO not assume, extrapolate, or bring in outside knowledge.
-        3. If the information is present, summarize it into 2 or 3 sentences.
+        3. If the relevant information is present, summarize it into 1-3 sentences.
         4. The context may contain partial sentences or chunks — still use what is relevant.
         5. Do NOT say "information not provided" if relevant content exists in the context,
             even if it doesn't perfectly match the question phrasing.
@@ -287,3 +288,111 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
     return data
 
 
+def stream_response(query: str, session_id: str, emp_name: str, email: str, departments: List[str]) -> Generator[
+    str, None, None]:
+    """Streams API response chunks based on semantic search context."""
+    start_time = time.perf_counter()
+    session = get_session_history(session_id)
+    logging.info(f"The user is {emp_name}, session_id: {session_id}")
+
+    history = session["recent_messages"]
+    summary = session["summary"]
+
+    # Generate trace_id for monitoring
+    trace_id = Langfuse.create_trace_id()
+    langfuse_handler = CallbackHandler()
+
+    t0 = time.perf_counter()
+    retrieval = semantic_search(vector_store, query, departments=departments)
+    t1 = time.perf_counter()
+    logging.info(f"Retrieval: {t1 - t0:.3f}s")
+
+    search_status = retrieval["status"]
+    context = retrieval["context"]
+    contexts = retrieval["contexts"]
+
+    # Guard Rails: Return immediate structural responses if blocked or missing
+    if search_status == "UNAUTHORIZED":
+        yield json.dumps({
+            "answer": "You do not have access to this information.",
+            "name": emp_name, "email": email, "departments": departments, "session_id": session_id
+        })
+        return
+
+    if search_status == "NOT_FOUND" or not context:
+        yield json.dumps({
+            "answer": "Information not provided in the documents."
+        })
+        return
+
+    logging.info(f"History messages: {len(history.messages)}")
+
+    # Initialize a list to accumulate text chunks as they stream
+    full_answer_list = []
+
+    # Stream from LangChain
+    stream_iterable = chain_with_memory.stream(
+        {
+            "summary": summary,
+            "query": query,
+            "context": context,
+            "emp_name": emp_name,
+            "email": email,
+            "departments": ",".join(departments)
+        },
+        {
+            "configurable": {"session_id": session_id},
+            "callbacks": [langfuse_handler],
+            "metadata": {
+                "user_email": email,
+                "session_id": session_id,
+                "employee_name": emp_name,
+                "departments": departments
+            },
+            "run_name": "rag-rbac",
+        }
+    )
+
+    # Yield tokens sequentially to the client
+    for chunk in stream_iterable:
+        # Check if chunk is a string or LangChain ChatGeneration/AIMessageChunk object
+        chunk_text = chunk if isinstance(chunk, str) else getattr(chunk, "content", str(chunk))
+        full_answer_list.append(chunk_text)
+
+        # Yield metadata or raw token structure depending on client requirements
+        yield json.dumps({"token": chunk_text})
+
+    # Reconstruct final complete answer for backend tracking pipelines
+    final_answer = "".join(full_answer_list)
+
+    t2 = time.perf_counter()
+    logging.info(f"LLM Generation: {t2 - t1:.3f}s")
+
+    # Post-streaming hooks (runs smoothly after user receives all tokens)
+    summarize_old_chat(session_id)
+    t3 = time.perf_counter()
+    logging.info(f"Summarization: {t3 - t2:.3f}s")
+
+    try:
+        if random.random() < EVAL_SAMPLE_RATE:
+            logging.info(f"Running RAG evaluation for session={session_id}")
+            executor.submit(_run_evals, query, final_answer, contexts, trace_id, session_id, emp_name)
+        else:
+            logging.info(f"Skipping RAG evaluation for session={session_id}")
+    except Exception as eval_err:
+        logging.error(f"Failed to submit background evaluation: {eval_err}")
+
+    end_time = time.perf_counter()
+    latency_seconds = end_time - start_time
+    print("*********************")
+    print(f"Total stream latency: {latency_seconds:.4f} seconds")
+    print("*********************")
+
+    # Yield a final closing payload with complete metadata if needed
+    yield json.dumps({
+        "status": "completed",
+        "name": emp_name,
+        "email": email,
+        "departments": departments,
+        "session_id": session_id,
+    })
