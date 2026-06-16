@@ -9,6 +9,10 @@ import uuid
 import traceback
 import json
 from langchain_openai import ChatOpenAI
+import json
+import traceback
+from fastapi import Depends, HTTPException, BackgroundTasks
+from fastapi.responses import StreamingResponse
 
 
 from app.schemas.response_schema import ResponseSchema
@@ -18,6 +22,7 @@ from app.rag.get_api_response import get_response
 from app.auth.jwt import get_current_user
 from app.models.messages_model import ChatMessage
 from app.agent.nodes import run_agent
+from app.rag.get_api_response import stream_response
 
 # Load environment variables
 load_dotenv()
@@ -185,3 +190,113 @@ def render_chat(request: Request):
         {"user": request.session.get("user")}
 
     )
+
+
+# Helper function to save the chat logs into the DB in the background
+def save_chat_to_db(session_id: str, emp_id: str, query: str, final_answer: str):
+    """Executes DB writes asynchronously after the stream finishes to keep endpoint low-latency."""
+    db = next(get_db())  # Get a fresh session instance for background context
+    try:
+        user_message = ChatMessage(
+            session_id=session_id,
+            emp_id=emp_id,
+            role="user",
+            message=query
+        )
+        db.add(user_message)
+
+        # Mirroring your original payload wrapper logic for database consistency
+        structured_response = {"message": {"content": final_answer}}
+        assistant_message = ChatMessage(
+            session_id=session_id,
+            emp_id=emp_id,
+            role="assistant",
+            message=json.dumps(structured_response)
+        )
+        db.add(assistant_message)
+        db.commit()
+    except Exception as db_err:
+        logging.error(f"Failed background DB save: {db_err}")
+    finally:
+        db.close()
+
+
+
+@router.post("/stream")
+def generate_stream(payload: QueryRequest, db: Session = Depends(get_db), user:dict = Depends(get_current_user)):
+            """Gets response from openai API"""
+            # Generate session id if not provided in payload
+            query = payload.query.strip()
+
+            # User details
+            emp_id = user.get("emp_id")
+            emp_name = user.get("emp_name")
+            email = user.get("email")
+            job_title = user.get("job_title")
+
+            # Department details
+            dept_id = user.get("dept_id")
+            departments = user.get("departments")
+
+            # Session handling
+            session_id = f"user_{emp_id}"
+
+            # Control User query's length
+            num_tokens = llm.get_num_tokens(query)
+            print("NUM_TOKENS", num_tokens)
+
+            if num_tokens > 300:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Query length exceeded more than 300 tokens"
+                )
+
+            if not query:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Query cannot be empty"
+                )
+
+            def stream_wrapper():
+                full_answer_list = []
+
+                # Call your refactored streaming backend function
+                generator = stream_response(
+                    query=query,
+                    session_id=session_id,
+                    emp_name=emp_name,
+                    email=email,
+                    departments=departments
+                )
+
+                for chunk_str in generator:
+                    try:
+                        chunk_data = json.loads(chunk_str)
+                        print("CHUNKS",chunk_data)
+
+                        # Accumulate raw text for eventual database commit
+                        if "token" in chunk_data:
+                            full_answer_list.append(chunk_data["token"])
+
+                        # Yield chunks using standard Server-Sent Events (SSE) format
+                        yield f"data: {chunk_str}\n\n"
+
+                    except Exception:
+                        # Guard rails for fallback string elements
+                        yield f"data: {chunk_str}\n\n"
+
+                    finally:
+                        # 2. Schedule background database save execution once stream finishes
+                        final_answer = "".join(full_answer_list) if full_answer_list else "No response generated."
+                        print(f"FINAL ANSWER { final_answer}")
+                        #background_tasks.add_task(save_chat_to_db, session_id, emp_id, query, final_answer)
+                        save_chat_to_db(session_id, emp_id, query, final_answer)
+                        yield "Success"
+
+
+                # 3. Return immediate Streaming Response to client
+                return StreamingResponse(stream_wrapper(), media_type="text/event-stream")
+
+
+
+
