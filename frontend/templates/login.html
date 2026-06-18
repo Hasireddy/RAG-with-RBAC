@@ -1,85 +1,227 @@
-{% extends "base.html" %}
+html{% extends "base.html" %}
 {% block content %}
 
 <style>
-    .mt-9 {
-        margin-top: 9rem;
+    /* Premium background filling space between white navbar and brown footer */
+    .login-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        width: 100%;
     }
 
-    .mb-9 {
-        margin-bottom: 9rem;
+    /* Floating glassmorphic card design */
+    .custom-login-card {
+        border: none;
+        border-radius: 16px;
+        background: #8e98f5;
+        box-shadow: 0 10px 30px rgba(62, 58, 55, 0.08) !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .custom-login-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px rgba(62, 58, 55, 0.12) !important;
+    }
+
+    /* Deep charcoal text color for premium readability */
+    .text-dark-custom {
+        color: #2c2927;
+    }
+
+    /* Bright light-grey labels for high contrast on the teal card background */
+    .text-muted-custom {
+        color: #e9ecef;
+        font-weight: 500;
+        font-size: 1rem; /* Increased from 0.85rem */
+    }
+
+    /* Smaller subtitle text under main heading */
+    .text-subtitle-custom {
+        color: #e9ecef;
+        font-weight: 400;
+        font-size: 1.1rem; /* Increased for better scale */
+    }
+
+    /* Polished modern inputs with larger text size */
+    .form-control-custom {
+        border: 1px solid #dcd8d3;
+        border-radius: 10px;
+        padding: 0.95rem 1.35rem; /* Increased padding */
+        background-color: #fdfdfc;
+        font-size: 1.1rem; /* Increased input text size */
+        transition: all 0.2s ease-in-out;
+    }
+
+    .form-control-custom::placeholder {
+        font-size: 1.1rem; /* Matched placeholder text size */
+    }
+
+    .form-control-custom:focus {
+        background-color: #ffffff;
+        border-color: #8c7e74;
+        box-shadow: 0 0 0 4px rgba(140, 126, 116, 0.15);
+        outline: 0;
+    }
+
+    /* MODIFIED: Left-rounded corners for password field to fit with the append button */
+    .input-group .form-control-custom {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    /* NEW: Custom styling for the integrated eye toggle button */
+    .btn-toggle-custom {
+        border: 1px solid #dcd8d3;
+        border-left: none;
+        border-top-right-radius: 10px !important;
+        border-bottom-right-radius: 10px !important;
+        background-color: #fdfdfc;
+        padding: 0 1.2rem;
+        font-size: 1.2rem;
+        color: #5c4e46;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-toggle-custom:focus {
+        box-shadow: none;
+        background-color: #ffffff;
+    }
+
+    /* Dynamic Button styling tying into the brown scheme */
+    .btn-brand-custom {
+        background-color:#4e69c3;
+        border: none;
+        color: #ffffff;
+        padding: 0.7rem; /* Increased vertical padding */
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.15rem; /* Increased button text size */
+        letter-spacing: 0.3px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-brand-custom:hover {
+        background-color: #bdb2ff;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(92, 78, 70, 0.2);
+    }
+
+    /* Interactive text links styled brightly for visibility */
+    .link-brand-custom {
+        color: #ffffff;
+        text-decoration: underline;
+        font-weight: 600;
+        font-size: 1.05rem; /* Slightly larger link text */
+        transition: opacity 0.2s ease;
+    }
+
+    .link-brand-custom:hover {
+        color: #ffffff;
+        opacity: 0.8;
+    }
+
+    /* Footer/secondary prompt text scaling */
+    .footer-prompt-custom {
+        font-size: 1.05rem;
     }
 </style>
 
-<div class="container mt-9 mb-9">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
+<div class="login-wrapper">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-11 col-sm-10 col-md-8 col-lg-6">
 
-            <div class="card shadow">
-                <div class="card-body p-4">
+                <div class="card custom-login-card">
+                    <div class="card-body p-4 p-sm-5">
 
-                    <h3 class="text-center mb-4">
-                        Login
-                    </h3>
+                        <!-- Main Heading (increased to fs-1) -->
+                        <h2 class="text-center mb-2 fw-bold text-white fs-1">
+                            Welcome Back
+                        </h2>
+                        <p class="text-center text-subtitle-custom mb-4">
+                            Please enter your details to sign in
+                        </p>
 
-                    <form id="loginForm">
+                        <form id="loginForm">
 
-                        <!-- Email -->
-                        <div class="form-group mb-3">
-                            <label for="email">
-                                Email
-                            </label>
+                            <!-- Email Input -->
+                            <div class="form-group mb-4">
+                                <label for="email" class="form-label text-muted-custom mb-2">
+                                    Email Address
+                                </label>
+                                <input
+                                    type="email"
+                                    class="form-control form-control-custom"
+                                    id="email"
+                                    placeholder="name@company.com"
+                                    autocomplete="off"
+                                    required
+                                />
+                            </div>
 
-                            <input
-                                type="email"
-                                class="form-control"
-                                id="email"
-                                placeholder="Enter email"
-                                autocomplete="off"
-                                required
-                            />
-                        </div>
+                            <!-- Password Input -->
+                            <div class="form-group mb-4">
+                                <label for="password" class="form-label text-muted-custom mb-2">
+                                    Password
+                                </label>
+                                <!-- MODIFIED: Grouped input and button into a unified container -->
+                                <div class="input-group">
+                                    <input
+                                        type="password"
+                                        class="form-control form-control-custom"
+                                        id="password"
+                                        placeholder="••••••••"
+                                        autocomplete="off"
+                                        required
+                                    />
+                                    <button type="button" class="btn btn-toggle-custom" id="togglePassword">
+                                        <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
 
-                        <!-- Password -->
-                        <div class="form-group mb-3">
-                            <label for="password">
-                                Password
-                            </label>
+                            <!-- Login Action -->
+                            <button
+                                class="btn btn-brand-custom w-100 mt-3"
+                                type="submit">
+                                Sign In
+                            </button>
 
-                            <input
-                                type="password"
-                                class="form-control"
-                                id="password"
-                                placeholder="Enter password"
-                                 autocomplete="off"
-                                required
-                            />
-                        </div>
+                        </form>
 
-                        <!-- Login Button -->
-                        <button
-                            class="btn btn-primary w-100 mt-3"
-                            type="submit">
-                            Login
-                        </button>
+                        <!-- Secondary Action Link -->
+                        <p class="mt-4 mb-0 text-center text-muted-custom footer-prompt-custom">
+                            Not registered yet?
+                            <a href="/register" class="link-brand-custom ms-1">
+                                Create an account
+                            </a>
+                        </p>
 
-                    </form>
-
-                    <p class="mt-3 text-center">
-                        Not registered?
-                        <a href="/register">
-                            Create an account
-                        </a>
-                    </p>
-
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+// NEW: Visibility toggle implementation
+const togglePassword = document.querySelector('#togglePassword');
+const toggleIcon = document.querySelector('#toggleIcon');
+const passwordInput = document.querySelector('#password');
+
+togglePassword.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+
+    toggleIcon.classList.toggle('bi-eye');
+    toggleIcon.classList.toggle('bi-eye-slash');
+});
 
 document
     .getElementById("loginForm")
@@ -91,14 +233,7 @@ document
     const password = document.getElementById("password").value;
 
     try {
-
-        // IMPORTANT:
-        // OAuth2PasswordRequestForm requires:
-        // application/x-www-form-urlencoded
-        // fields => username & password
-
         const formData = new URLSearchParams();
-
         formData.append("username", email);
         formData.append("password", password);
 
@@ -113,35 +248,20 @@ document
         const data = await response.json();
 
         if (!response.ok) {
-
             alert(data.detail || "Invalid credentials");
-
             return;
         }
 
-        // Save JWT token
-        localStorage.setItem(
-            "token",
-            data.access_token
-        );
+        localStorage.setItem("token", data.access_token);
+        localStorage.removeItem("chat_session_id");
 
-        // Clear any stale chat session state from a previous user
-        localStorage.removeItem("chat_session_id")
-
-        alert("Login successful!");
-
-        // Redirect after login
         window.location.href = "/chatbot";
 
     } catch (error) {
-
         console.error("Login error:", error);
-
         alert("Something went wrong");
     }
-
 });
-
 </script>
 
 {% endblock %}

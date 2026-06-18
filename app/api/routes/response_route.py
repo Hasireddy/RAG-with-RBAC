@@ -1,13 +1,10 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from spacy.cli.benchmark_speed import count_tokens
 from sqlalchemy.orm import Session
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
-import uuid
-import traceback
-import json
 from langchain_openai import ChatOpenAI
 import json
 import traceback
@@ -84,6 +81,7 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
         emp_name = user.get("emp_name")
         email = user.get("email")
         job_title = user.get("job_title")
+
 
         # Department details
         dept_id = user.get("dept_id")
