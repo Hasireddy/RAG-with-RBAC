@@ -1,10 +1,84 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
-    <div class="card p-5 shadow-sm text-center">
-        <h2 class="mb-4">You have been logged out</h2>
-        <a href="/login" class="btn btn-primary mt-3">Login Again</a>
-        <a href="/" class="btn btn-primary mt-3">Go Home</a>
+
+<style>
+    /* Premium background filling space between white navbar and brown footer */
+    .login-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* Floating glassmorphic card design matched with login page */
+    .custom-login-card {
+        border: none;
+        border-radius: 16px;
+        background: #8e98f5;
+        box-shadow: 0 10px 30px rgba(62, 58, 55, 0.08) !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        width: 100%;
+    }
+
+    .custom-login-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px rgba(62, 58, 55, 0.12) !important;
+    }
+
+    /* Dynamic Button styling tying into the brown scheme */
+    .btn-brand-custom {
+        background-color: #4e69c3;
+        border: none;
+        color: #ffffff;
+        padding: 0.75rem 1.2rem; /* MODIFIED: Increased height slightly from 0.6rem to 0.75rem */
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        letter-spacing: 0.3px;
+        transition: all 0.2s ease;
+        display: inline-block;
+        text-align: center;
+        min-width: 145px; /* MODIFIED: Decreased width slightly from 160px to 145px */
+    }
+
+    .btn-brand-custom:hover {
+        background-color: #bdb2ff;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(92, 78, 70, 0.2);
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <!-- MODIFIED: Decreased card column width slightly back down for an elegant balance -->
+            <div class="col-11 col-sm-10 col-md-8 col-lg-7">
+
+                <div class="card custom-login-card">
+                    <!-- MODIFIED: Added vertical padding (py-5) to give the layout card a bit more height/breathing room -->
+                    <div class="card-body p-4 py-sm-5 px-sm-5 text-center">
+
+                        <!-- Main Heading -->
+                        <h2 class="mb-4 fw-bold text-white fs-1">
+                            You have been logged out
+                        </h2>
+
+                        <!-- Navigation Actions -->
+                        <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3 mt-4">
+                            <a href="/login" class="btn btn-brand-custom">
+                                Login Again
+                            </a>
+                            <a href="/" class="btn btn-brand-custom">
+                                Go Home
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
 

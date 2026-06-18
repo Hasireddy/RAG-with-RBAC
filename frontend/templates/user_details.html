@@ -2,70 +2,111 @@
 {% block content %}
 
 <style>
-    .mt-9 {
-        margin-top: 9rem;
+    /* Modern Canvas filling navbar-to-footer space */
+    .details-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        width: 100%;
     }
 
-    .mb-9 {
-        margin-bottom: 9rem;
+    /* Premium deep card design aligned smoothly */
+    .custom-details-card {
+        border: none;
+        border-radius: 16px;
+        background: #8e98f5;
+        box-shadow: 0 20px 40px rgba(28, 35, 18, 0.4) !important;
+    }
+
+    /* Crisp white typography for high contrast reading */
+    .text-light-custom {
+        color: #FFFFFF;
+        letter-spacing: -0.3px;
+    }
+
+    /* Muted pale mint-grey labels to make data entries pop */
+    .text-muted-custom {
+        color: #FFFFFF;
+        font-weight: 500;
+        font-size: 1.15rem; /* Resized from 1.5rem for better side-layout scaling */
+    }
+
+    span {
+        font-size: 1.15rem;
+    }
+
+    /* Dark mode optimized list rows */
+    .custom-list-item {
+        background-color: transparent !important;
+        border-color: rgba(255, 255, 255, 0.2) !important; /* Semi-transparent white rule for better color harmony */
+        padding: 1.1rem 0;
+    }
+
+    .custom-list-item:last-child {
+        border-bottom: 0 !important;
     }
 </style>
 
-<div class="container mt-9 mb-9">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+<div class="details-wrapper">
+    <div class="container py-5">
+        <!-- MODIFIED: Changed from justify-content-center to justify-content-start to stick the layout left -->
+        <div class="row justify-content-start">
+            <div class="col-11 col-sm-10 col-md-7 col-lg-5">
 
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">User Details</h4>
+                <div class="card custom-details-card">
+                    <div class="card-body p-4 p-sm-5">
+
+                        <!-- Main Headings -->
+                        <h2 class="text-center mb-4 fw-bold text-light-custom">
+                            {{ user.emp_name.split()[0] }}'s Workspace
+                        </h2>
+
+                        <!-- Dark Flush Informational Grid -->
+                        <ul class="list-group list-group-flush mb-2">
+
+                            <!-- Employee ID Field -->
+                            <li class="list-group-item d-flex justify-content-between align-items-center custom-list-item">
+                                <strong class="text-muted-custom">Employee ID</strong>
+                                <span class="fw-semibold text-light-custom">{{ user.emp_id }}</span>
+                            </li>
+
+                            <!-- Name Field -->
+                            <li class="list-group-item d-flex justify-content-between align-items-center custom-list-item">
+                                <strong class="text-muted-custom">Full Name</strong>
+                                <span class="fw-semibold text-light-custom">{{ user.emp_name }}</span>
+                            </li>
+
+                            <!-- Email Field -->
+                            <li class="list-group-item d-flex justify-content-between align-items-center custom-list-item">
+                                <strong class="text-muted-custom">Email Address</strong>
+                                <span class="fw-semibold text-light-custom text-lowercase">{{ user.email }}</span>
+                            </li>
+
+                            <!-- Job Title Field -->
+                            <li class="list-group-item d-flex justify-content-between align-items-center custom-list-item">
+                                <strong class="text-muted-custom">Job Title</strong>
+                                <span class="fw-semibold text-light-custom">{{ user.job_title }}</span>
+                            </li>
+
+                            <!-- Departments Field -->
+                            <li class="list-group-item d-flex justify-content-between align-items-center custom-list-item">
+                                <strong class="text-muted-custom">Departments</strong>
+                                <div class="text-end text-capitalize fw-semibold text-light-custom">
+                                     {% if user.departments %}
+                                          <span>[{{ user.departments | join(', ') }}]</span>
+                                     {% else %}
+                                          <span class="text-white opacity-50 small">[N/A]</span>
+                                     {% endif %}
+                                </div>
+                            </li>
+
+                        </ul>
+
+                    </div>
                 </div>
 
-                <div class="card-body">
-
-                    <ul class="list-group list-group-flush">
-
-                        <li class="list-group-item d-flex justify-content-between">
-                            <strong>Employee ID:</strong>
-                            <span>{{ user.emp_id }}</span>
-                        </li>
-
-                        <li class="list-group-item d-flex justify-content-between">
-                            <strong>Name:</strong>
-                            <span>{{ user.emp_name }}</span>
-                        </li>
-
-                        <li class="list-group-item d-flex justify-content-between">
-                            <strong>Email:</strong>
-                            <span>{{ user.email }}</span>
-                        </li>
-
-                        <li class="list-group-item d-flex justify-content-between">
-                            <strong>Job Title:</strong>
-                            <span>{{ user.job_title }}</span>
-                        </li>
-
-                        <li class="list-group-item d-flex justify-content-between">
-                            <strong>Department ID:</strong>
-                            <span>{{ user.dept_id }}</span>
-                        </li>
-
-                        <li class="list-group-item d-flex justify-content-between">
-                            <strong>Departments:</strong>
-                            <ul class="list-unstyled mb-0 text-capitalize">
-                                 {%  if user.departments %}
-                                      [{{ user.departments | join(',')}}]
-                                    {% else %}
-                                        [N/A]
-                                 {% endif %}
-                            </ul>
-
-                        </li>
-
-                    </ul>
-
-                </div>
             </div>
-
         </div>
     </div>
 </div>
