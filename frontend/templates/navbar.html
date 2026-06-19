@@ -9,53 +9,61 @@
         }
 
         .text-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00f5d4 0%, #9b5de5 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            display: inline-block;
         }
 
-        .feature-icon {
-            width: 4rem;
-            height: 4rem;
-            border-radius: 0.75rem;
+
+        /* FIXED: Forces all navbar links to remain clean white with an elegant hover state */
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            transition: color 0.2s ease-in-out;
+            font-size: 20px;
         }
 
-        .pricing-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .navbar-nav .nav-link:hover {
+            color: #ffffff !important;
+
         }
 
-        .pricing-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
+        .btn-nav-outline {
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: transparent;
+            border-radius: 30px; /* Rounded pill style */
+            padding: 8px 22px;
+            font-weight: 500;
+            transition: all 0.25s ease-in-out;
+            text-decoration: none !important;
+    }
 
-        .hero-section {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
+    .btn-nav-outline:hover {
+        background: #ffffff;
+        color: #5e35a6 !important; /* Swaps text to match your navbar background */
+        border-color: #ffffff;
+        transform: translateY(-2px);
+    }
 
-        .step-number {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+    .navbar-brand {
+     color: #9d4edd !important;
+     letter-spacing: 0.3px;
+    }
+    .navbar-icon {
+        color: #9d4edd !important;
+    }
+
     </style>
 </head>
 <body>
 
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top shadow-sm text-white p-3" style="background-color: #5e35a6;">
         <div class="container">
-            <a class="navbar-brand fw-bold text-gradient" href="#">
-                <i class="bi bi-robot me-2"></i>FinSolve Technologies
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-robot me-2 navbar-icon text-gradient"></i>FinSolve Technologies
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,15 +87,15 @@
                 </ul>
                 {% if not user %}
                 <div class="d-flex">
-                    <a href="#" class="btn btn-outline-primary me-2">Register</a>
+                    <a href="#" class="tn btn-nav-outline me-2">Register</a>
                 </div>
                 <div class="d-flex">
-                    <a href="/login" class="btn btn-outline-primary me-2">Login</a>
+                    <a href="/login" class="btn tn btn-nav-outline me-2">Login</a>
                 </div>
                 {% endif %}
                 {% if user %}
                    <div class="d-flex">
-                        <a href="/logout" class="btn btn-outline-primary me-2">Logout</a>
+                        <a href="/logout" class="btn btn-nav-outline me-2">Logout</a>
                     </div>
                 {% endif %}
             </div>
