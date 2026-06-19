@@ -183,7 +183,7 @@ def validate_schema(clean_query: str) -> tuple[bool, str]:
                 f"I cannot retrieve that data because the database does not contain a table named '{table}'. "
                 "Please ask a different question or use company documents."
             )
-        return True, "" # For ceos all access is true
+    return True, "" # For ceos all access is true
 
 
 def enforce_rbac(clean_query: str, departments: list[str], job_title: str, email: str) -> tuple[bool, str]:
@@ -212,6 +212,7 @@ def enforce_rbac(clean_query: str, departments: list[str], job_title: str, email
             )
 
         return True, ""
+    return True, ""
 
 
 
@@ -289,6 +290,11 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
         departments = configurable.get("departments", [])
 
         enriched_query = (
+            "User Profile Context (use these literal values to resolve 'my', 'me', "
+            "or the current user - e.g. filter by the user's email or department):\n"
+            f"- Name: {emp_name}\n"
+            f"- Email: {email}\n"
+            f"- Departments: {', '.join(departments) if departments else 'N/A'}\n\n"
             f"User Question: {query}"
         )
 

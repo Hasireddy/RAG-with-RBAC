@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import re
 import json
 import random
 import time
@@ -25,7 +26,7 @@ logging.basicConfig(level=logging.INFO)
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
 api_key = os.getenv("API_KEY")
 
-client = ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=api_key)
+client = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
 
 # Initialize Langfuse client
 langfuse = get_client()
@@ -291,11 +292,33 @@ def get_response(query:str, session_id: str, emp_name: str, email: str, departme
 
     return data
 
+# Short greetings / small talk that should get a friendly reply instead of a
+# document lookup (which would otherwise return "Information not provided ...").
+_GREETING_RE = re.compile(
+    r"^\s*(hi+|hey+|hello+|hii+|hiya|hola|yo|sup|"
+    r"good\s*(morning|afternoon|evening|day)|greetings|"
+    r"thanks|thank\s*you|thx|ty|"
+    r"bye|goodbye|see\s*you|"
+    r"how\s*are\s*you)\b[\s!.,?]*$",
+    re.IGNORECASE,
+)
+
+
+def is_greeting(query: str) -> bool:
+    """True for short greetings / small talk that need no document retrieval."""
+    return bool(_GREETING_RE.match(query or ""))
 
 def stream_response(query: str, session_id: str, emp_name: str, email: str, departments: List[str]) -> Generator[
     str, None, None]:
     """Streams API response chunks based on semantic search context."""
     start_time = time.perf_counter()
+    # Greetings / small talk: reply conversationally without a document lookup.
+    if is_greeting(query):
+        greeting_name = emp_name or "there"
+        yield json.dumps({
+            "token": f"Hello {greeting_name}! How can I help you with the company documents today?"
+        })
+        return
     session = get_session_history(session_id)
     logging.info(f"The user is {emp_name}, session_id: {session_id}")
 
@@ -365,6 +388,9 @@ def stream_response(query: str, session_id: str, emp_name: str, email: str, depa
 
         # Yield metadata or raw token structure depending on client requirements
         yield json.dumps({"token": chunk_text})
+    follow_up = "\n\nLet me know if you'd like more details on this, or if you have any other questions."
+    full_answer_list.append(follow_up)
+    yield json.dumps({"token": follow_up})
 
     # Reconstruct final complete answer for backend tracking pipelines
     final_answer = "".join(full_answer_list)
@@ -377,14 +403,14 @@ def stream_response(query: str, session_id: str, emp_name: str, email: str, depa
     t3 = time.perf_counter()
     logging.info(f"Summarization: {t3 - t2:.3f}s")
 
-    try:
+    """try:
         if random.random() < EVAL_SAMPLE_RATE:
             logging.info(f"Running RAG evaluation for session={session_id}")
             executor.submit(_run_evals, query, final_answer, contexts, trace_id, session_id, emp_name)
         else:
             logging.info(f"Skipping RAG evaluation for session={session_id}")
     except Exception as eval_err:
-        logging.error(f"Failed to submit background evaluation: {eval_err}")
+        logging.error(f"Failed to submit background evaluation: {eval_err}")"""
 
     end_time = time.perf_counter()
     latency_seconds = end_time - start_time
