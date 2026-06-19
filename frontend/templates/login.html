@@ -92,22 +92,26 @@ html{% extends "base.html" %}
     }
 
     /* Dynamic Button styling tying into the brown scheme */
-    .btn-brand-custom {
-        background-color:#4e69c3;
-        border: none;
-        color: #ffffff;
-        padding: 0.7rem; /* Increased vertical padding */
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 1.15rem; /* Increased button text size */
-        letter-spacing: 0.3px;
-        transition: all 0.2s ease;
+     .btn-brand-custom {
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        background: transparent;
+        border-radius: 30px; /* Elegant rounded pill style */
+        padding: 8px 22px;          /* Shrunk from 0.8rem down to standard nav size */
+        font-weight: 500;
+        font-size: 1rem;            /* Reduced text scale to match standard text */
+        transition: all 0.25s ease-in-out;
+        text-decoration: none !important;
+        display: block !important;
+        margin: 20px auto 0 auto !important;
     }
 
     .btn-brand-custom:hover {
-        background-color: #bdb2ff;
-        color: #ffffff;
-        box-shadow: 0 4px 12px rgba(92, 78, 70, 0.2);
+        background: #ffffff;
+        color: #5e35a6 !important; /* Inverts text color to match your layout background on hover */
+        border-color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
     }
 
     /* Interactive text links styled brightly for visibility */
@@ -186,7 +190,7 @@ html{% extends "base.html" %}
 
                             <!-- Login Action -->
                             <button
-                                class="btn btn-brand-custom w-100 mt-3"
+                                class="btn btn-brand-custom mt-3"
                                 type="submit">
                                 Sign In
                             </button>
