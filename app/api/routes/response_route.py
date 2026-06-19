@@ -1,4 +1,5 @@
 import os
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from spacy.cli.benchmark_speed import count_tokens
@@ -20,6 +21,7 @@ from app.auth.jwt import get_current_user
 from app.models.messages_model import ChatMessage
 from app.agent.nodes import run_agent
 from app.rag.get_api_response import stream_response
+from app.agent.query_classifier import detect_query_type_llm
 
 # Load environment variables
 load_dotenv()
@@ -259,41 +261,62 @@ def generate_stream(payload: QueryRequest, db: Session = Depends(get_db), user:d
                 full_answer_list = []
 
                 # Call your refactored streaming backend function
-                generator = stream_response(
-                    query=query,
-                    session_id=session_id,
-                    emp_name=emp_name,
-                    email=email,
-                    departments=departments
-                )
+                try:
+                    # Route structured/analytical queries (counts, totals, employee
+                    # data, etc.) to the SQL agent; everything else streams via RAG.
+                    query_type = detect_query_type_llm(query)
+                    logging.info(f"Query type classified as: {query_type}")
 
-                for chunk_str in generator:
-                    try:
-                        chunk_data = json.loads(chunk_str)
-                        print("CHUNKS",chunk_data)
+                    if query_type == "SQL":
+                        # The SQL/agent path is not token-streamable; run it and emit
+                        # the finished answer as a single SSE frame.
+                        result = run_agent(
+                            query=query,
+                            session_id=session_id,
+                            emp_id=emp_id,
+                            emp_name=emp_name,
+                            email=email,
+                            job_title=job_title,
+                            departments=departments,
+                        )
 
-                        # Accumulate raw text for eventual database commit
-                        if "token" in chunk_data:
-                            full_answer_list.append(chunk_data["token"])
+                        answer = result["message"]["content"] if result else "No response generated."
+                        full_answer_list.append(answer)
+                        yield f'data: {json.dumps({"token": answer})}\n\n'
+                    else:
+                        # RAG path: stream tokens from the LLM as they are produced.
+                        for chunk_str in stream_response(
+                                query=query,
+                                session_id=session_id,
+                                emp_name=emp_name,
+                                email=email,
+                                departments=departments,
+                        ):
+                            try:
+                                chunk_data = json.loads(chunk_str)
+                                # Accumulate raw text for the eventual database commit.
+                                if "token" in chunk_data:
+                                    full_answer_list.append(chunk_data["token"])
+                                elif "answer" in chunk_data:
+                                    # Guard-rail messages (UNAUTHORIZED / NOT_FOUND).
+                                    full_answer_list.append(chunk_data["answer"])
+                            except Exception:
+                                # Non-JSON fallback chunk; forward it unchanged.
+                                pass
 
                         # Yield chunks using standard Server-Sent Events (SSE) format
                         yield f"data: {chunk_str}\n\n"
 
-                    except Exception:
-                        # Guard rails for fallback string elements
-                        yield f"data: {chunk_str}\n\n"
+                finally:
+                    # 2. Schedule background database save execution once stream finishes
+                    final_answer = "".join(full_answer_list) if full_answer_list else "No response generated."
+                    save_chat_to_db(session_id, emp_id, query, final_answer)
+                    yield "data: [DONE]\n\n"
 
-                    finally:
-                        # 2. Schedule background database save execution once stream finishes
-                        final_answer = "".join(full_answer_list) if full_answer_list else "No response generated."
-                        print(f"FINAL ANSWER { final_answer}")
-                        #background_tasks.add_task(save_chat_to_db, session_id, emp_id, query, final_answer)
-                        save_chat_to_db(session_id, emp_id, query, final_answer)
-                        yield "Success"
+            # 3. Return immediate Streaming Response to client
+            return StreamingResponse(stream_wrapper(), media_type="text/event-stream")
 
 
-                # 3. Return immediate Streaming Response to client
-                return StreamingResponse(stream_wrapper(), media_type="text/event-stream")
 
 
 

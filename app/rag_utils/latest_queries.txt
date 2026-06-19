@@ -143,11 +143,11 @@ Your performance rating is 4.7. If you need more information or assistance, feel
     what are the bug tracking tools?
     Any other tools used?
 
-8. Why did FinSolve choose a microservices architecture? - ENGINEERING
+8. Why did we choose a microservices architecture? - ENGINEERING
 9. How does the API Gateway handle authentication and rate limiting?- ENGINEERING
 
 
-11. How did FinNova’s marketing strategy in Q1 2024 drive customer acquisition and revenue performance across existing and new European markets?-MARKETING
+# 11. How did FinNova’s marketing strategy in Q1 2024 drive customer acquisition and revenue performance across existing and new European markets?-MARKETING
    What was the goal of launching the InstantPay feature?
    What challenges did FinNova face in France?
 

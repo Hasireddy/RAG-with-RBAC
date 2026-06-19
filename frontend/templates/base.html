@@ -495,12 +495,13 @@
                         }
 
                         const cleanJsonString = directRowData.replace(/^data:\s*/, "");
+                        if (cleanJsonString === "[DONE]") continue;
                         try {
                             const parsedData = JSON.parse(cleanJsonString);
 
                             if (parsedData.token) {
                                 targetBubble.textContent += parsedData.token;
-                            } else if (parsedData.error_type) {
+                            } else if (parsedData.answer) {
                                 targetBubble.textContent = parsedData.answer;
                                 if (parsedData.error_type === "UNAUTHORIZED") {
                                     targetBubble.classList.add("text-danger");

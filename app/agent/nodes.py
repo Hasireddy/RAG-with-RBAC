@@ -24,8 +24,9 @@ api_key = os.getenv("API_KEY")
 
 model = ChatOpenAI(
     model="gpt-4o-mini",
-    temperature=0,
-    api_key=api_key
+    temperature=0.3,
+    api_key=api_key,
+    streaming=True
 )
 
 
