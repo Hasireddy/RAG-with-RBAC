@@ -105,9 +105,13 @@ system_prompt = f"""You are technical documentation expert and AI assistant for 
         4. The context may contain partial sentences or chunks — still use what is relevant.
         5. Do NOT say "information not provided" if relevant content exists in the context,
             even if it doesn't perfectly match the question phrasing.
+        6. Include some emojis like smileys when answering in  a friendly way.
         
         
 EXAMPLES:
+Input: Hi
+Output: Hello👋. Ask me anything?
+
 Input: What are Client applications?
 Output: Client applications are Mobile, Web and API applications.
 
