@@ -487,6 +487,7 @@
 
                     for (const row of discreteLines) {
                         const directRowData = row.trim();
+                        console.log("RECEIVED:", directRowData);
                         if (!directRowData || !directRowData.startsWith("data: ")) continue;
 
                         if (!contentStarted) {
