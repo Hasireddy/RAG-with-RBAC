@@ -278,6 +278,7 @@ def generate_stream(payload: QueryRequest, db: Session = Depends(get_db), user:d
                             email=email,
                             job_title=job_title,
                             departments=departments,
+                            dept_id=dept_id
                         )
 
                         answer = result["message"]["content"] if result else "No response generated."
@@ -304,8 +305,8 @@ def generate_stream(payload: QueryRequest, db: Session = Depends(get_db), user:d
                                 # Non-JSON fallback chunk; forward it unchanged.
                                 pass
 
-                        # Yield chunks using standard Server-Sent Events (SSE) format
-                        yield f"data: {chunk_str}\n\n"
+                            # Yield chunks using standard Server-Sent Events (SSE) format
+                            yield f"data: {chunk_str}\n\n"
 
                 finally:
                     # 2. Schedule background database save execution once stream finishes

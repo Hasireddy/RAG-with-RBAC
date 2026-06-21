@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO)
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
 api_key = os.getenv("API_KEY")
 
-client = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key)
+client = ChatOpenAI(model="gpt-4o-mini", temperature=0.3, api_key=api_key, streaming=True)
 
 # Initialize Langfuse client
 langfuse = get_client()
@@ -159,7 +159,7 @@ def is_query_relevant(query: str) -> bool:
     result = guard_chain.invoke({"query": query})
     return result.strip().upper() == "RELEVANT"
 
-chain = (prompt | client.bind(max_tokens=300) | StrOutputParser() )
+chain = (prompt | client.bind(max_tokens=300))
 chain_with_memory = RunnableWithMessageHistory(chain, lambda session_id: memory_store[session_id]["recent_messages"], input_messages_key="query", history_messages_key="history")
 
 def _run_evals(question: str, answer: str, contexts: list[str], trace_id: str, session_id: str, emp_name: str):
@@ -382,8 +382,13 @@ def stream_response(query: str, session_id: str, emp_name: str, email: str, depa
 
     # Yield tokens sequentially to the client
     for chunk in stream_iterable:
+        print(type(chunk))
+        print("************************************")
+        print("RAW", repr(chunk))
         # Check if chunk is a string or LangChain ChatGeneration/AIMessageChunk object
         chunk_text = chunk if isinstance(chunk, str) else getattr(chunk, "content", str(chunk))
+        print("SENDING CHUNK TEXT: ", repr(chunk_text), flush=True)
+        print("***************************")
         full_answer_list.append(chunk_text)
 
         # Yield metadata or raw token structure depending on client requirements

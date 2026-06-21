@@ -172,7 +172,7 @@ graph = agent_builder.compile(checkpointer=checkpointer)
 
 
 #invoke graph
-def run_agent(query: str, session_id: str, emp_id: str, emp_name: str, email: str, job_title: str, departments: list[str]):
+def run_agent(query: str, session_id: str, emp_id: str, emp_name: str, email: str, job_title: str, departments: list[str],dept_id=None):
     query_type = detect_query_type_llm(query)
 
     response = graph.invoke(
@@ -199,6 +199,7 @@ def run_agent(query: str, session_id: str, emp_id: str, emp_name: str, email: st
                     "email": email,
                     "job_title": job_title,
                     "departments": departments,
+                    "dept_id":dept_id
                 }
         }
 

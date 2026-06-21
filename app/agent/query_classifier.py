@@ -13,7 +13,8 @@ client = OpenAI(api_key=API_KEY)
 SQL_TRIGGERS = [
     "average", "sum", "total", "count", "how many", "top", "trend", "kpi", "revenue",
     "profit", "expense", "salary", "employee", "id", "quarter", "year", "report", "record", "details",
-    "list", "filter", "group by", "order by", "where", "select", "show", "what is the", "how many"
+    "list", "filter", "group by", "order by", "where", "select", "show", "what is the", "how many",
+    "what is my"
 ]
 
 RAG_TRIGGERS = [
