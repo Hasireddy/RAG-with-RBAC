@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.routes import company_route, department_route, employee_route,response_route, login_route, query_route
+from app.api.routes import company_route, department_route, employee_route,response_route, login_route
 
 api_router = APIRouter()
 
@@ -8,4 +8,3 @@ api_router.include_router(department_route.router)
 api_router.include_router(employee_route.router)
 api_router.include_router(response_route.router)
 api_router.include_router(login_route.router)
-api_router.include_router(query_route.router)

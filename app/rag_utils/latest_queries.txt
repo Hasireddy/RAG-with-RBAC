@@ -129,11 +129,11 @@ Your performance rating is 4.7. If you need more information or assistance, feel
 
 
 5. What happens during an employee's first week of onboarding?-GENERAL
-   Explain more about this program
-    How long does this initial phase last for new hires?
+    What happens after first week?
+
     Who exactly participates in that buddy program?
     What is the primary objective of the third component you listed?
-    What happens after first week??
+
     Are there any exams or tests at the end of that orientation?)
 
 6. What is current weather in Berlin?- OUT OF SCOPE
@@ -150,6 +150,85 @@ Your performance rating is 4.7. If you need more information or assistance, feel
 # 11. How did FinNova’s marketing strategy in Q1 2024 drive customer acquisition and revenue performance across existing and new European markets?-MARKETING
    What was the goal of launching the InstantPay feature?
    What challenges did FinNova face in France?
+
+*****************************************
+Queries Executive
+******************************************
+1. What benefits are covered under the health insurance policy?
+What are the wellness programs?
+
+2. What happens during an employee's first week of onboarding?
+What is buddy program?
+
+
+3. Why did employee benefits and HR costs increase by 10% during the fiscal year? - FINANCE
+
+4. What is current weather in Berlin? - OUT OF scope
+
+5. Bad input- More than 300 tokens
+6. List the names of all the employees - DATABASE
+List their details?
+List their passwords?
+
+
+
+**********************************
+Engineering department
+***********************************
+
+1. What happens during employees first week of onboarding?
+During the first week of onboarding, employees will participate in policy orientation, compliance training, role-specific training, and a buddy program. 😊
+Let me know if you'd like more details on this, or if you have any other questions.
+
+### Onboarding Process
+- **Pre-Joining**: Offer letter issuance, document submission (ID, address, education, previous employment).
+- **Day 1**: Welcome session, HR induction, IT setup, introduction to team and mentor.
+- **First Week**: Policy orientation, compliance training, role-specific training, buddy program.
+- **First Month**: Probation objectives set, regular check-ins with manager and HR.
+
+
+2.Role of PostgreSQL in FinSolve's system architecture?
+PostgreSQL serves as the primary relational database for FinSolve's system architecture, handling transactional data that requires ACID compliance.
+ It utilizes range-based sharding for high-volume transactional tables and employs read replicas for analytics and reporting workloads. 😊
+ Let me know if you'd like more details on this, or if you have any other questions.
+
+#### 2.3.4 Data Layer
+* **PostgreSQL**: Primary relational database for transactional data requiring ACID compliance.
+
+What are the databases used?
+The databases used are PostgreSQL, which is the primary relational database for transactional data, and MongoDB, which stores user profiles, preferences,
+and semi-structured data. Additionally, Redis is used for caching and session management. 😊
+Let me know if you'd like more details on this, or if you have any other questions
+
+3. FinNova marketing strategy Q1 2024 customer acquisition and revenue performance in existing and new European markets?
+In Q1 2024, FinNova aimed to acquire 150,000 new customers, focusing 60% on existing markets and 40% on new European markets.
+They successfully acquired 145,000 new customers, with 45% from Europe, and generated $6.8 million in revenue, slightly below the $7 million target due to
+regulatory delays in France. 😊
+ Let me know if you'd like more details on this, or if you have any other questions
+
+
+## Q4 - Marketing Overview
+In Q4 2024, our marketing strategy centered on three core pillars: finalizing market penetration in key demographics, fostering stronger customer relationships through personalized engagement, and laying the groundwork for sustained growth in 2025. Key initiatives included:
+
+- **Targeted Campaigns**: Launched multi-channel campaigns across digital, social media, and traditional platforms to capture end-of-year demand.
+- **Customer Engagement**: Enhanced customer loyalty programs and introduced personalized offers to boost retention.
+- **Market Expansion**: Strengthened our B2B marketing efforts to increase enterprise client acquisition, particularly in the technology and finance sectors.
+
+
+4. What is standard notice period?
+The standard notice period is as per the appointment letter, typically ranging from 30 to 90 days. 😊 Let me know if you'd like more details on this, or if you have any other questions.
+
+### Leave Application Process
+- Apply via HRMS/leave portal at least 3 days in advance (except emergencies).
+- Sick leave for more than 2 days requires a medical certificate.
+- Emergency leave to be communicated to manager/HR as soon as possible.
+- Approval from reporting manager and HR required for all leave requests.
+- Leave balance can be viewed on the HRMS portal.
+
+
+
+
+
 
 
 
