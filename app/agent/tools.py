@@ -44,7 +44,7 @@ model = ChatOpenAI(
 def rag_tool(query: str, config: RunnableConfig) -> str:
     """
     Search all company documents and answer questions.
-    Always use thi stool whenever a question may be answered from company documentation.
+    Always use this tool whenever a question may be answered from company documentation.
 
     Examples:
     - Why did FinSolve choose a microservices architecture?
@@ -183,10 +183,10 @@ def validate_schema(clean_query: str) -> tuple[bool, str]:
                 f"I cannot retrieve that data because the database does not contain a table named '{table}'. "
                 "Please ask a different question or use company documents."
             )
-    return True, "" # For ceos all access is true
+        return True, "" # For ceos all access is true
 
 
-def enforce_rbac(clean_query: str, departments: list[str], job_title: str, email: str, dept_ids:list[str] = None) -> tuple[bool, str]:
+def enforce_rbac(clean_query: str, departments: list[str], job_title: str, email: str) -> tuple[bool, str]:
     if has_elevated_access(job_title):
         return True, ""
 
@@ -202,29 +202,16 @@ def enforce_rbac(clean_query: str, departments: list[str], job_title: str, email
     if any(table in SENSITIVE_TABLES for table in sensitive_tables):
         allowed_values = [normalize_text(dept) for dept in departments if dept]
 
-    if email:
-        allowed_values.append(normalize_text(email))
-        # Match by department name or email appearing in the SQL (substring)...
-        name_match = any(value and value in query_text for value in allowed_values)
+        if email:
+            allowed_values.append(normalize_text(email))
 
-        # ...or by the user's department id, which is how employees.dept_id is
-        # actually filtered. Word boundaries prevent an id like 3 from matching
-        # inside unrelated numbers (e.g. a salary of 30000).
-        id_match = any(
-            did and re.search(rf"\b{re.escape(str(did))}\b", query_text)
-            for did in (dept_ids or [])
-        )
-        logger.info(f"RBAC check - sensitive tables = {sensitive_tables}- Departments={departments}- Department ids = {dept_ids}")
-        logger.info(
-            f"RBAC check - Name match = {name_match}- Id match={id_match}- Normalized Sql = {query_text}")
-        if not (name_match or id_match):
+        if not any(value and value in query_text for value in allowed_values):
             return False,(
                 "This request appears to need data outside your permitted department scope. "
                 "Please ask for information related to your own department or provide a more specific scoped request."
             )
 
         return True, ""
-    return True, ""
 
 
 
@@ -259,17 +246,9 @@ strict_sql_prompt = ChatPromptTemplate.from_messages([
             "10. NEVER use placeholder strings like 'current_user' or 'session_user'. Always substitute the literal values from the context into the WHERE clause.\n"
             "11. ONLY use table names that are explicitly listed in the Database Schema section below. Never invent or assume table names like 'leave_policies' exist.\n"
             "12. Employee specific financial records, net income metrics, or leave configurations are contained within the 'employees' or 'companies' tables.\n"
-            "13. 'employees.dept_id' is a JSON ARRAY of department ids (e.g. [1,3]). "
-                        "To match employees in a department id N, use EXACT membership: "
-                        "EXISTS (SELECT 1 FROM json_each(employees.dept_id) WHERE value = N). "
-                        "NEVER use LIKE on dept_id (e.g. dept_id LIKE '%N%') - it wrongly matches ids "
-                        "that merely share digits (1 matches 10, 11, 21...) and leaks across departments.\n"
-                        "14. Use the Department IDs from the User Profile Context to scope the current "
-                        "user's department; do not guess department ids.\n"
 
             "Database Schema:\n"
             "{table_info}"
-
         )
     ),
     ("human", "{input}")
@@ -308,22 +287,8 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
         email = configurable.get("email", "")
         job_title = configurable.get("job_title", "")
         departments = configurable.get("departments", [])
-        dept_id_raw = configurable.get("dept_id")
-        if isinstance(dept_id_raw, (list, tuple)):
-            dept_ids = [str(d) for d in dept_id_raw if d is not None and str(d).strip()]
-        elif dept_id_raw is None or str(dept_id_raw).strip() == "":
-            dept_ids = []
-        else:
-            dept_ids = [str(dept_id_raw)]
 
         enriched_query = (
-            "User Profile Context (use these literal values to resolve 'my', 'me', "
-            "or the current user - e.g. filter by the user's email or department):\n"
-            f"- Name: {emp_name}\n"
-            f"- Email: {email}\n"
-            f"- Departments: {', '.join(departments) if departments else 'N/A'}\n\n"
-            f"- Department IDs (employees.dept_id is a JSON array of these ids): "
-            f"{', '.join(dept_ids) if dept_ids else 'N/A'}\n\n"
             f"User Question: {query}"
         )
 
@@ -393,7 +358,7 @@ def sql_tool(query: str, config: RunnableConfig) -> str:
             logger.warning(f"Schema validation failed: {schema_message}")
             return schema_message
 
-        rbac_ok, rbac_message = enforce_rbac(clean_query, departments, job_title, email, dept_ids)
+        rbac_ok, rbac_message = enforce_rbac(clean_query, departments, job_title, email)
         if not rbac_ok:
             logger.warning(f"RBAC denied SQL execution: {rbac_message}")
             return rbac_message

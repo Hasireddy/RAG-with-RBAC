@@ -3,6 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from typing import List
+from fastapi import Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
 from app.schemas.employee_schema import EmployeeCreate, EmployeeResponse, EmployeeUpdate
 from app.database.session import get_db
@@ -13,10 +16,27 @@ from app.auth.hash_password import hash_password
 
 router = APIRouter(prefix="/employees", tags=["Employees"])
 
+templates_engine = Jinja2Templates(directory="frontend/templates")
+
+
+@router.get("/all", response_class=HTMLResponse)
+def employee_form(request: Request, db: Session = Depends(get_db)):
+    companies = db.query(CompanyDB).all()
+    departments = db.query(DepartmentDB).all()
+
+    return HTMLResponse(
+        templates_engine.get_template("register.html").render({
+            "request": request,
+            "companies": companies,
+            "departments": departments
+        })
+    )
+
+
 
 # Create a new employee, link them to the company, link them to a department, link them to a role
 # Save everything in DB
-@router.post("/", response_model=EmployeeResponse)
+@router.post("/create", response_model=EmployeeResponse)
 def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
     """
     Creates a new employee in the database
@@ -92,24 +112,6 @@ def add_employee(employee:EmployeeCreate, db: Session = Depends(get_db)):
 
 
 
-# Get all employees (Fixed Validation Input should be a valid list)
-@router.get("/", response_model=List[EmployeeResponse])
-def get_employees(db: Session = Depends(get_db)):
-    """
-    Retrieves all employees in the database
-    """
-    employees = db.query(EmployeeDB).all()
-
-    if not employees:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            details="Employees not found. Please create an employee first"
-        )
-
-    return employees
-
-
-
 # Update an employee
 @router.put("/{emp_id}", response_model=EmployeeResponse)
 def update_employee(emp_id: int, employee_update: EmployeeUpdate, db: Session = Depends(get_db)):
@@ -164,31 +166,6 @@ def update_employee(emp_id: int, employee_update: EmployeeUpdate, db: Session = 
         )
 
 
-# Get an employee by ID (Clean & Lean)
-@router.get("/{emp_id}", response_model=EmployeeResponse)
-def get_employee_by_id(emp_id: int, db: Session = Depends(get_db)):
-    """
-    Retrieves employee details by given ID
-    """
-    try:
-        emp = db.query(EmployeeDB).filter(EmployeeDB.emp_id == emp_id).first()
-
-        if not emp:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Employee with given ID not found"
-            )
-
-        # No manual department queries or mapping needed!
-        # Pydantic reads the 'departments' property directly from your model.
-        return emp
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An unexpected internal server error occurred while retrieving the employee."
-        )
-
 
 # Delete an employee
 @router.delete("/{emp_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -207,3 +184,22 @@ def delete_employee(emp_id: int, db: Session = Depends(get_db)):
     db.delete(emp)
     db.commit()
     return None
+
+
+
+# Get all employees (Fixed Validation Input should be a valid list)
+@router.get("/details", response_model=List[EmployeeResponse])
+def get_employees(db: Session = Depends(get_db)):
+    """
+    Retrieves all employees in the database
+    """
+    employees = db.query(EmployeeDB).all()
+
+    if not employees:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            details="Employees not found. Please create an employee first"
+        )
+
+    return employees
+

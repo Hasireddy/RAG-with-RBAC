@@ -107,8 +107,8 @@ system_prompt = f"""You are technical documentation expert and AI assistant for 
         5. Do NOT say "information not provided" if relevant content exists in the context,
             even if it doesn't perfectly match the question phrasing.
         6. Include some emojis like smileys when answering in  a friendly way.
-        
-        
+       
+                
 EXAMPLES:
 Input: Hi
 Output: Hello👋. Ask me anything?
@@ -117,14 +117,13 @@ Input: What are Client applications?
 Output: Client applications are Mobile, Web and API applications.
 
 Input: Who invented electricity?
-Output:ERROR: Information not provided in the documents.
+Output: Information not provided in the documents.
 
 Input: Why did HR costs increase?
 Output: According to the documents, HR costs increased due to expanded employee benefits and wellness programs during the fiscal year.
 
 Input: What is the dress code?
-Output: Information not provided in the documents.
-
+Output: Information not provided in the documents. 
 
 """
 
@@ -159,8 +158,10 @@ def is_query_relevant(query: str) -> bool:
     result = guard_chain.invoke({"query": query})
     return result.strip().upper() == "RELEVANT"
 
-chain = (prompt | client.bind(max_tokens=300))
+
+chain = (prompt | client.bind(max_tokens=500))
 chain_with_memory = RunnableWithMessageHistory(chain, lambda session_id: memory_store[session_id]["recent_messages"], input_messages_key="query", history_messages_key="history")
+
 
 def _run_evals(question: str, answer: str, contexts: list[str], trace_id: str, session_id: str, emp_name: str):
     try:
@@ -308,6 +309,13 @@ def is_greeting(query: str) -> bool:
     """True for short greetings / small talk that need no document retrieval."""
     return bool(_GREETING_RE.match(query or ""))
 
+def remove_markdown(text: str) -> str:
+    text = re.sub(r"\*\*(.*?)\*\*", r"\1", text)  # remove bold **
+    text = re.sub(r"__(.*?)__", r"\1", text)      # remove underline __
+    text = re.sub(r"\*(.*?)\*", r"\1", text)      # remove italics *
+    return text
+
+
 def stream_response(query: str, session_id: str, emp_name: str, email: str, departments: List[str]) -> Generator[
     str, None, None]:
     """Streams API response chunks based on semantic search context."""
@@ -382,13 +390,13 @@ def stream_response(query: str, session_id: str, emp_name: str, email: str, depa
 
     # Yield tokens sequentially to the client
     for chunk in stream_iterable:
-        print(type(chunk))
-        print("************************************")
-        print("RAW", repr(chunk))
+        #print(type(chunk))
+        #print("************************************")
+        #print("RAW", repr(chunk))
         # Check if chunk is a string or LangChain ChatGeneration/AIMessageChunk object
         chunk_text = chunk if isinstance(chunk, str) else getattr(chunk, "content", str(chunk))
-        print("SENDING CHUNK TEXT: ", repr(chunk_text), flush=True)
-        print("***************************")
+        #print("SENDING CHUNK TEXT: ", repr(chunk_text), flush=True)
+        #print("***************************")
         full_answer_list.append(chunk_text)
 
         # Yield metadata or raw token structure depending on client requirements
