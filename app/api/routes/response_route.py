@@ -117,7 +117,8 @@ def create_response(payload: QueryRequest, db: Session = Depends(get_db), user:d
             emp_name=emp_name,
             email=email,
             job_title=job_title,
-            departments=departments
+            departments=departments,
+            dept_id=dept_id
         )
 
         if response_text is None:
@@ -316,9 +317,3 @@ def generate_stream(payload: QueryRequest, db: Session = Depends(get_db), user:d
 
             # 3. Return immediate Streaming Response to client
             return StreamingResponse(stream_wrapper(), media_type="text/event-stream")
-
-
-
-
-
-
