@@ -85,30 +85,6 @@ Are there any exams or tests at the end of that orientation?)
     Any other tools used?
 
 
-*******************Database**************
-1. How many employees are there in the company?- CEO ROLE
-List the names of employees in the company?
-List the employees whose balance leaves are zero?
-2. Provide me the details
-
-3. How many employees are there in the company?- EMPLOYEE ROLE
-(There are currently 2 employees in the finance department. If you need information about any other department or have more questions, feel free to ask!)
-
-4. Give me the details of employees in Engineering  department whose performance rating is greater than 4
-
-
-(List the details of all employees in the company
-I can provide employee details only for your department, which is marketing. Would you like me to list the details of all employees in the marketing department?
-how many employees in the company
-I can provide the number of employees only for your department, marketing. Would you like me to get the count of employees in the marketing department?
-yes
-
-There are 2 employees in the marketing department. If you need any more information, feel free to ask!
-Provide their details
-I apologize, but I am currently unable to retrieve detailed information about employees in your department beyond the count. If you have any other questions or need assistance with something else, please let me know!
-What is my performance rating
-Your performance rating is 4.7. If you need more information or assistance, feel free to ask!
-)
 
 #1. Why did employee benefits and HR costs increase by 10% during the fiscal year?- FINANCE
 #In what specific workforce programs is the company investing?
@@ -155,18 +131,24 @@ Your performance rating is 4.7. If you need more information or assistance, feel
 Queries Executive
 ******************************************
 1. What benefits are covered under the health insurance policy?
-What are the wellness programs?
+2. Give me a summary of last quarterly expense reports- Finance
 
 2. What happens during an employee's first week of onboarding?
 What is buddy program?
 
+3. Why did employee benefits and HR costs increase by 10% during the fiscal year?  - FINANCE
+Give me a summary of last quarterly expense reports?
 
-3. Why did employee benefits and HR costs increase by 10% during the fiscal year? - FINANCE
 
 4. What is current weather in Berlin? - OUT OF scope
 
-5. Bad input- More than 300 tokens
-6. List the names of all the employees - DATABASE
+5. Bad input- More than 300 tokens/ To prevent users to accidentally spend more tokens
+
+6. List the names of all the employees in the company?
+What are their performance ratings?- DATABASE
+Delete the employees table-Database
+Provide their salary details
+
 List their details?
 List their passwords?
 
@@ -175,55 +157,55 @@ List their passwords?
 **********************************
 Engineering department
 ***********************************
-
-1. What happens during employees first week of onboarding?
-During the first week of onboarding, employees will participate in policy orientation, compliance training, role-specific training, and a buddy program. 😊
-Let me know if you'd like more details on this, or if you have any other questions.
-
-### Onboarding Process
-- **Pre-Joining**: Offer letter issuance, document submission (ID, address, education, previous employment).
-- **Day 1**: Welcome session, HR induction, IT setup, introduction to team and mentor.
-- **First Week**: Policy orientation, compliance training, role-specific training, buddy program.
-- **First Month**: Probation objectives set, regular check-ins with manager and HR.
+USER QUERIES:
+1.List the salaries of all the employees in the company?- DATABASE
+ What is my performance rating?
+ Delete employees table
 
 
-2.Role of PostgreSQL in FinSolve's system architecture?
-PostgreSQL serves as the primary relational database for FinSolve's system architecture, handling transactional data that requires ACID compliance.
- It utilizes range-based sharding for high-volume transactional tables and employs read replicas for analytics and reporting workloads. 😊
- Let me know if you'd like more details on this, or if you have any other questions.
+2. Why did employee benefits and HR costs increase by 10% during the fiscal year?
 
-#### 2.3.4 Data Layer
-* **PostgreSQL**: Primary relational database for transactional data requiring ACID compliance.
-
-What are the databases used?
-The databases used are PostgreSQL, which is the primary relational database for transactional data, and MongoDB, which stores user profiles, preferences,
-and semi-structured data. Additionally, Redis is used for caching and session management. 😊
-Let me know if you'd like more details on this, or if you have any other questions
-
-3. FinNova marketing strategy Q1 2024 customer acquisition and revenue performance in existing and new European markets?
-In Q1 2024, FinNova aimed to acquire 150,000 new customers, focusing 60% on existing markets and 40% on new European markets.
-They successfully acquired 145,000 new customers, with 45% from Europe, and generated $6.8 million in revenue, slightly below the $7 million target due to
-regulatory delays in France. 😊
- Let me know if you'd like more details on this, or if you have any other questions
+3. what are the bug tracking tools?
+    How are they resolved?
+    Any other tools used?
 
 
-## Q4 - Marketing Overview
-In Q4 2024, our marketing strategy centered on three core pillars: finalizing market penetration in key demographics, fostering stronger customer relationships through personalized engagement, and laying the groundwork for sustained growth in 2025. Key initiatives included:
+Langchain streaming is implemented to enhance the responsiveness of the application and . It displays output progressively,even before a complete response is ready,
+streaming significantly improves user experience when dealing Latency.
 
-- **Targeted Campaigns**: Launched multi-channel campaigns across digital, social media, and traditional platforms to capture end-of-year demand.
-- **Customer Engagement**: Enhanced customer loyalty programs and introduced personalized offers to boost retention.
-- **Market Expansion**: Strengthened our B2B marketing efforts to increase enterprise client acquisition, particularly in the technology and finance sectors.
+Langchain memory. I am storing 10 previous interactions and summarizing them, once it reaches a
+threshold, so it wont flood the LLm context window limit.
 
 
-4. What is standard notice period?
-The standard notice period is as per the appointment letter, typically ranging from 30 to 90 days. 😊 Let me know if you'd like more details on this, or if you have any other questions.
 
-### Leave Application Process
-- Apply via HRMS/leave portal at least 3 days in advance (except emergencies).
-- Sick leave for more than 2 days requires a medical certificate.
-- Emergency leave to be communicated to manager/HR as soon as possible.
-- Approval from reporting manager and HR required for all leave requests.
-- Leave balance can be viewed on the HRMS portal.
+
+
+
+
+
+
+
+3. What approvals are required for pull requests? -ENGINEERING
+How to apply for this approval?
+
+3. How are bugs prioritized and resolved?  -
+
+What are the tracking tools used?
+
+
+4.List the names of all the employees?- DATABASE
+What is their performance rating?
+
+
+4. List the details of employees in my department?- CHALLENGE FACING- It cannot understand and interpret the human language queries
+What is my performance rating?-CHALLENGE
+What is the performance rating?- I should train this SQL tool
+
+5. Why did employee benefits and HR costs increase by 10% during the fiscal year?- I do not have access instead of you do not have access
+
+
+
+
 
 
 

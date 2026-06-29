@@ -9,15 +9,21 @@ API_KEY = os.getenv("API_KEY")
 
 client = OpenAI(api_key=API_KEY)
 
+# Strong, unambiguous signals that a query needs the structured database.
+# Generic words ("details", "id", "year", "what is the") were intentionally
+# removed because they collide with documentation questions and forced policy
+# queries down the SQL path.
 SQL_TRIGGERS = [
-    "average", "sum", "total", "count", "how many", "top", "trend", "kpi", "revenue",
-    "profit", "expense", "salary", "employee", "id", "quarter", "year", "report", "record", "details",
-    "list", "filter", "group by", "order by", "where", "select", "show", "what is the", "how many"
+    "how many", "count", "average", "headcount",
+    "salary", "salaries", "leave balance", "leaves balance", "balance leaves",
+    "leaves taken", "performance rating", "list all employees", "list employees",
 ]
 
+# Strong signals that a query is answered from documents / knowledge base.
 RAG_TRIGGERS = [
-    "policy", "procedure", "guideline", "documentation", "faq", "explain", "what is", "why", "how to",
-    "process", "manual", "onboarding", "architecture", "design", "overview", "best practice"
+    "policy", "policies", "procedure", "guideline", "documentation", "faq",
+    "process", "manual", "onboarding", "architecture", "design", "best practice",
+    "pto", "notice period", "handbook", "microservices", "ci/cd", "pull request",
 ]
 
 
@@ -27,25 +33,31 @@ def detect_query_type_llm(query: str) -> str:
     if not normalized:
         return "RAG"
 
-    for term in SQL_TRIGGERS:
-        if re.search(rf"\b{re.escape(term)}\b", normalized):
-            return "SQL"
+    sql_hit = any(re.search(rf"\b{re.escape(term)}\b", normalized) for term in SQL_TRIGGERS)
+    rag_hit = any(re.search(rf"\b{re.escape(term)}\b", normalized) for term in RAG_TRIGGERS)
 
-    for term in RAG_TRIGGERS:
-        if re.search(rf"\b{re.escape(term)}\b", normalized):
-            return "RAG"
+    # Only short-circuit when the signal is unambiguous (exactly one category).
+    # Anything ambiguous (both or neither) falls through to the LLM classifier.
+    if sql_hit and not rag_hit:
+        return "SQL"
+    if rag_hit and not sql_hit:
+        return "RAG"
 
     prompt = f"""
-    You are a classifier that decides whether  a user's query should be handled by Structured SQL query using SQL (database access) logic or
-    unstructured document search(RAG).
+    You are a classifier that decides whether  a user's query should be handled by:
+    - Structured SQL query using SQL (database access) logic or
+    - unstructured document search(RAG).
 
-   If the query requests specific records, metrics, counts, trends, KPIs, employee data, department data,
+   RULES:
+   - If the query requests specific records, metrics, counts, trends, KPIs, employee data, department data,
     financial figures, or other structured attributes, answer: SQL.
 
-    If the query is conceptual, procedural, policy-oriented, documentation-focused, explanatory, or knowledge-base related,
+    - If the query is conceptual, procedural, policy-oriented, documentation-focused, explanatory, or knowledge-base related,
     answer: RAG.
 
-    Respond with only one word: Either ***SQL*** or ***RAG***.
+    Response format:
+    - Respond with only one word: Either SQL or RAG.
+    - Do not include any explanation or additional text.
 
     Here is the query:
     "{query}"
@@ -72,3 +84,5 @@ def detect_query_type_llm(query: str) -> str:
     if result not in {"SQL", "RAG"}:
         return "RAG"
     return result
+
+

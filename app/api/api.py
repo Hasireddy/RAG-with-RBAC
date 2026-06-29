@@ -1,6 +1,8 @@
+import pydantic
 from fastapi import APIRouter
 from app.api.routes import company_route, department_route, employee_route,response_route, login_route
 
+pydantic.root_validator = pydantic.model_validator
 api_router = APIRouter()
 
 api_router.include_router(company_route.router)
