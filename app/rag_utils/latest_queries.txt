@@ -86,47 +86,6 @@ Are there any exams or tests at the end of that orientation?)
 
 
 
-#1. Why did employee benefits and HR costs increase by 10% during the fiscal year?- FINANCE
-#In what specific workforce programs is the company investing?
-1. What percentage of the Vendor Services expense was allocated to marketing-related activities?-FINANCE
-2. What is the Return on Investment (ROI) for FinSolve Technologies? -- finance
-3. What was the percentage increase in FinSolve Technologies's net income in 2024?-FINANCE
-
-2. Why did FinSolve Technologies’ net income increase only 12% despite 25% revenue growth in 2024?- FINANCE
-
-3. How many days of sick leave are employees entitled to per year? -GENERAL
-   How to apply this leave?
-   How to get the approval?
-
-4. What is the standard notice period?- GENERAL
-    How long does full and final settlement take?
-    What company assets must be returned during exit?
-    Are exit interviews mandatory?
-
-
-5. What happens during an employee's first week of onboarding?-GENERAL
-    What happens after first week?
-
-    Who exactly participates in that buddy program?
-    What is the primary objective of the third component you listed?
-
-    Are there any exams or tests at the end of that orientation?)
-
-6. What is current weather in Berlin?- OUT OF SCOPE
-
-7. How are bugs prioritized and resolved? - ENGINEERING
-    what happens if bugs are not addressed in 2 weeks?
-    what are the bug tracking tools?
-    Any other tools used?
-
-8. Why did we choose a microservices architecture? - ENGINEERING
-9. How does the API Gateway handle authentication and rate limiting?- ENGINEERING
-
-
-# 11. How did FinNova’s marketing strategy in Q1 2024 drive customer acquisition and revenue performance across existing and new European markets?-MARKETING
-   What was the goal of launching the InstantPay feature?
-   What challenges did FinNova face in France?
-
 *****************************************
 Queries Executive
 ******************************************
@@ -162,46 +121,14 @@ USER QUERIES:
  What is my performance rating?
  Delete employees table
 
-
-2. Why did employee benefits and HR costs increase by 10% during the fiscal year?
-
-3. what are the bug tracking tools?
-    How are they resolved?
-    Any other tools used?
-
-
-Langchain streaming is implemented to enhance the responsiveness of the application and . It displays output progressively,even before a complete response is ready,
-streaming significantly improves user experience when dealing Latency.
-
-Langchain memory. I am storing 10 previous interactions and summarizing them, once it reaches a
-threshold, so it wont flood the LLm context window limit.
-
-
-
-
-
-
-
-
-
-
-3. What approvals are required for pull requests? -ENGINEERING
+2. What approvals are required for pull requests? -ENGINEERING
 How to apply for this approval?
 
-3. How are bugs prioritized and resolved?  -
-
+3. How are bugs prioritized and resolved?  - ENGINEERING
 What are the tracking tools used?
 
 
-4.List the names of all the employees?- DATABASE
-What is their performance rating?
 
-
-4. List the details of employees in my department?- CHALLENGE FACING- It cannot understand and interpret the human language queries
-What is my performance rating?-CHALLENGE
-What is the performance rating?- I should train this SQL tool
-
-5. Why did employee benefits and HR costs increase by 10% during the fiscal year?- I do not have access instead of you do not have access
 
 
 

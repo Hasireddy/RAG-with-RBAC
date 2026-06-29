@@ -26,7 +26,7 @@ The architecture includes:
 generation and RAG processing.
 * **LangChain**: underlying integration framework utilized for prompt management, chat memory 
 and LLM tool calling.
-* **SQLite** *: Lightweight database used for executing structured SQL queries.
+* **SQLite**: Lightweight database used for executing structured SQL queries.
 * **RAGAS EVALUATOR**: evaluates responses on metrics like Faithfulness (how grounded the answer 
   is in retrieved context) and Answer Relevancy (how relevant the answer is to the user's question), 
   ensuring trustworthy and high-quality outputs.
