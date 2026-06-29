@@ -313,7 +313,7 @@ def generate_stream(payload: QueryRequest, db: Session = Depends(get_db), user:d
                     # 2. Schedule background database save execution once stream finishes
                     final_answer = "".join(full_answer_list) if full_answer_list else "No response generated."
                     save_chat_to_db(session_id, emp_id, query, final_answer)
-                    yield "data: [DONE]\n\n"
+                    #yield "data: [DONE]\n\n"
 
             # 3. Return immediate Streaming Response to client
             return StreamingResponse(stream_wrapper(), media_type="text/event-stream")
