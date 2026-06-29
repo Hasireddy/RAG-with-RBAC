@@ -22,10 +22,10 @@ The architecture includes:
 
 * **FastAPI backend**: for business logic, user management, and RAG handling.
 * **HTML & CSS**: a clean, interactive chat interface built with HTML and CSS.
-  * **LangGraph**: Core orchestration framework used to build stateful, multi-agent workflows for SQL
-    generation and RAG processing.
-    * **LangChain**: underlying integration framework utilized for prompt management, chat memory 
-    and LLM tool calling.
+* **LangGraph**: Core orchestration framework used to build stateful, multi-agent workflows for SQL
+generation and RAG processing.
+* **LangChain**: underlying integration framework utilized for prompt management, chat memory 
+and LLM tool calling.
 * **SQLite** *: Lightweight database used for executing structured SQL queries.
 * **RAGAS EVALUATOR**: evaluates responses on metrics like Faithfulness (how grounded the answer 
   is in retrieved context) and Answer Relevancy (how relevant the answer is to the user's question), 
