@@ -94,7 +94,7 @@ def rag_tool(query: str, config: RunnableConfig) -> str:
 # DATABASE SETUP
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-db_file_path = os.path.join(BASE_DIR, "company_database.db")
+db_file_path = os.path.join(BASE_DIR, "data", "company_database.db")
 
 logger.info(f"Database path: {db_file_path}")
 
@@ -106,15 +106,17 @@ if not os.path.exists(db_file_path):
 
 try:
     #init_db()
-    db = SQLDatabase.from_uri(f"sqlite:///{db_file_path}")
+    engine = create_engine(f"sqlite:///{db_file_path}", future=True)
+
+    db = SQLDatabase(engine)
 
     logger.info(
         f"Loaded DB tables: {db.get_usable_table_names()}"
     )
 
-    engine = create_engine(f"sqlite:///{db_file_path}", future=True)
     inspector = inspect(engine)
     db_schema = {}
+
 
     try:
         for table_name in inspector.get_table_names():
