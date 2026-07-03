@@ -128,6 +128,20 @@ uvicorn app.main:app --reload
 Then open your browser and go to:
  http://127.0.0.1:8000
 
+# Deployment on AWS with Terraform
+
+### 1. Clone repository
+git clone https://github.com/Hasireddy/RAG-with-RBAC
+cd RAG-with-RBAC
+
+### 2. Deploy using Terraform
+cd terraform
+terraform init
+terraform apply
+
+### 3. Access application
+http://<EC2_PUBLIC_IP>:8000
+
 
 
 
