@@ -1,7 +1,17 @@
 # Byte-compiled / optimized / DLL files
 
 .env
-terraform.tfvars
+.terraform/
+
+# State files (NEVER commit)
+*.tfstate
+*.tfstate.*
+terraform.tfstate
+terraform.tfstate.backup
+
+# Logs
+crash.log
+
 __pycache__/
 *.py[codz]
 *$py.class
