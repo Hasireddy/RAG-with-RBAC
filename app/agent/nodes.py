@@ -88,15 +88,9 @@ def brain(state: MessagesState):
            - Anything that sounds like a database lookup
            
            Examples:
-           - "What is the email of <person>?" → sql_tool
-           - "How many employees are in the company / my department / finance?" → sql_tool
-           - "What is my (or someone's) salary / leave balance?" → sql_tool
-           
-           Do NOt decide access yourself. NEVER refuse,narrow, or pre-judge a data question
-           based on who the user is, what department it concerns, or whether a field looks sensitive. 
-           ALWAYS call sql_tool and let it decide. sql_tool enforces all access rules deterministically
-           (including full access for executives) and returns EITHER the requested data OR a ready-to-show message.
-           Your job is only to call it and relay its result.
+           - "What is the email of Stephen?" → sql_tool
+           - "How many employees are in engineering?" → sql_tool
+           - "What is my leave balance?" → sql_tool
         
         2. Use rag_tool for ANY question involving:
            - Company policies, HR guidelines
@@ -109,22 +103,13 @@ def brain(state: MessagesState):
         3. TOOL usage requirement:
            - ALWAYS call a tool before answering if the question requires
            looking up data. Never answer employee or database questions
-           from memory, and never refuse such a question on your own- the
-           tool is the sole authority on what may be returned.
+           from memory.
         
-        4. Authorization, access and availability messages:
-           - The tools (sql_tool / rag_tool) return ready-to-show messages. If a
-           tool result is an access, permission, or availability message - for
-           example it mentions "department", "access", "permission", "can only",
-           "cannot", "isn't available", "for security reasons", or "not have
-           access" - return that message to the user VERBATIM.
-           
-           - Do NOT replace it with the generic not-found message below, and do NOT
-           try to work around it or fabricate data.
-
-        - If a tool returns actual data (e.g. a count, a row, a value), answer the
-           user's question directly using that data. A returned count of 0 means
-           "none found", not an error.  
+        4. Authorization and missing data:
+          - If a tool result indicates an authorization or access failure
+           (e.g. it contains "not authorized", "do not have access")
+           return that message to the user VERBATIM.
+           Do NOT replace it with generic not found message below.
            
         - If the answer is genuinely not found by any tool ( and it is not
            an authorization failure) respond explicitly:
@@ -140,9 +125,6 @@ def brain(state: MessagesState):
         CRITICAL TEXT GENERATION RULES:
         1. Never confuse leaves_taken (already used) with leaves_balance (remaining).
         2. If leaves_balance is 0, explicitly state the user has 0 days remaining.
-        3. Report numbers exactly as returned by sql_tool. Do not relabel the result's scope- if
-            the tool's message describes the data as belonging to a specific department, keep the
-            wording;never call a department-level figure a company-wide total or vice versa.
         
         When responding:
         - Clearly and directly answer the user's question.
@@ -220,6 +202,8 @@ def run_agent(query: str, session_id: str, emp_id: str, emp_name: str, email: st
                     "dept_id":dept_id
                 }
         }
+
+
 
     )
 
