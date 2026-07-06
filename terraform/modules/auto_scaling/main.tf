@@ -30,6 +30,30 @@ resource "aws_launch_template" "app" {
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
   user_data = base64encode(file("userdata.sh"))
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
+
+  block_device_mappings {
+
+    device_name = "/dev/xvda"
+
+    ebs {
+      encrypted   = true
+      volume_size = 20
+      volume_type = "gp3"
+    }
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = "app-instance"
+    }
+  }
 }
 
 
@@ -48,4 +72,30 @@ resource "aws_autoscaling_group" "asg" {
   target_group_arns = [aws_lb_target_group.tg.arn]
 
   health_check_type = "ELB"
+
+   health_check_grace_period = 300
+
+  tag {
+    key                 = "Name"
+    value               = "app-instance"
+    propagate_at_launch = true
+  }
+}
+
+
+resource "aws_autoscaling_policy" "cpu_scaling" {
+
+  name                   = "cpu-scaling"
+  autoscaling_group_name = aws_autoscaling_group.asg.name
+
+  policy_type = "TargetTrackingScaling"
+
+  target_tracking_configuration {
+
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+
+    target_value = 70
+  }
 }

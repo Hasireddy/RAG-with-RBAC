@@ -40,8 +40,12 @@ resource "aws_eip" "eip"{
 # NAT Gateway(for private subnets)
 resource "aws_nat_gateway" "nat_gw"{
   allocation_id = aws_eip.eip.id
-  subnet_id = aws_subnet.public_subnets[count.index].id
+  subnet_id = aws_subnet.public_subnets[0].id
   depends_on = [aws_internet_gateway.my_igw]
+
+  tags = {
+    Name = "nat-gateway"
+  }
 }
 
 

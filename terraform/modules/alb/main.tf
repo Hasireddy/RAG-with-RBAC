@@ -19,9 +19,13 @@ resource "aws_lb_target_group" "tg"{
   protocol            = "HTTP"
   matcher             = "200"
   interval            = 30
+  timeout             = 5
   healthy_threshold   = 2
   unhealthy_threshold = 2
-}
+  }
+  tags = {
+    Name = "app-tg"
+  }
 }
 
 #Listener
@@ -36,9 +40,3 @@ resource "aws_lb_listener" "http"{
   }
 }
 
-resource "aws_lb_target_group_attachment" "app" {
-  count = 2
-  target_group_arn = aws_lb_target_group.tg.arn
-  target_id        = aws_instance.app[count.index].id
-  port             = 8000
-}

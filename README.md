@@ -132,11 +132,14 @@ Then open your browser and go to:
 
 ### 1. Clone repository
 git clone https://github.com/Hasireddy/RAG-with-RBAC
+
 cd RAG-with-RBAC
 
 ### 2. Deploy using Terraform
 cd terraform
+
 terraform init
+
 terraform apply
 
 ### 3. Access application

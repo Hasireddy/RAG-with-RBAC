@@ -1,14 +1,14 @@
 #ALB security group
-resource "aws_security_group" "alb_sg" {
-  name   = "web"
+resource "aws_security_group" "app_sg" {
+  name   = "rag-security-group"
   vpc_id = aws_vpc.my_vpc.id
 
   ingress {
-    description = "HTTP from VPC"
-    from_port   = 80
-    to_port     = 80
+    description = "Allow traffic from ALB"
+    from_port   = 8000
+    to_port     = 8000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [aws-security_group.alb_sg.id]
   }
   egress {
     from_port   = 0
@@ -18,6 +18,6 @@ resource "aws_security_group" "alb_sg" {
   }
 
   tags = {
-    Name = "ALB-sg"
+    Name = "app-sg"
   }
 }
