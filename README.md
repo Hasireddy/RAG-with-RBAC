@@ -180,9 +180,37 @@ Login to AWS console to confirm all the resources created.
 <img src="frontend/static/images/ec2_summary.png" alt="Screenshot">
 <img src="frontend/static/images/proj_subnet.png" alt="Screenshot">
 <img src="frontend/static/images/cloud_watch_alarm.png" alt="Screenshot">
+<img src="frontend/static/images/rag_screenshot3.png" alt="Screenshot">
 <img src="frontend/static/images/proj_screenshot.png" alt="Screenshot">
 <img src="frontend/static/images/rag_screenshot2.png" alt="Screenshot">
-<img src="frontend/static/images/rag_screenshot3.png" alt="Screenshot">
+
+### 10. Terraform Modules
+This project uses Terraform modules to organize and manage the infrastructure code effectively.
+You can reuse these modules or customize them as needed.
+
+### 11. Architecture Highlights
+* Built with Terraform using Infrastructure as Code (IaC)
+* Deployed across 2 AWS Availability Zones for high availability
+* 2 Public Subnets and 2 Private Subnets within a custom VPC
+* Application Load Balancer (ALB) to distribute incoming traffic
+* Auto Scaling Group (ASG) configured to scale up to 4 EC2 instances
+* Internet Gateway for secure public access to the application
+* Amazon CloudWatch Alarm checks metrics every 5 minutes and triggers an alert when the threshold exceeds 0.15
+* t2.micro EC2 instances selected to provide a cost-effective solution for a lightweight application
+
+### 11. Conclusion
+This project demonstrates how Terraform can be used to automate the deployment of a secure, scalable, and highly available AWS infrastructure.
+The architecture spans **two Availability Zones**, with **public and private subnets**, an **Internet Gateway**, and an **Application Load Balancer (ALB)
+** to distribute traffic across EC2 instances.
+
+An **Auto Scaling Group** scales the application up to **four EC2 instances** based on demand, while **Amazon CloudWatch** monitors the environment 
+every five minutes and triggers an alarm when the configured threshold exceeds **0.15**. To keep costs low for this lightweight application, 
+**t2.micro** instances were used.
+
+Overall, this project showcases Infrastructure as Code (IaC) best practices, making the infrastructure reproducible, 
+easier to manage, and ready for future expansion.
+
+
 
 
 
