@@ -140,7 +140,9 @@ cd RAG-with-RBAC
 Update required values such as AWS region, instance details, key pair, networking, and application-specific settings.
 
 mkdir terraform
+
 cd terraform
+
 vim terraform.tfvars
 
 api_key: Set the value for OPENAI_API_KEY
