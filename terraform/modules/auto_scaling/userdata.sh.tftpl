@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+dnf update -y
+
+dnf install -y python3.11 python3.11-pip git
+
+cd /home/ec2-user
+
+# Clone application
+git clone https://github.com/Hasireddy/RAG-with-RBAC app
+
+chown -R ec2-user:ec2-user /home/ec2-user/app
+
+cd /home/ec2-user/app
+
+# Create environment variables
+# Replace YOUR_API_KEY_VALUE with a secure injection method later
+cat > /home/ec2-user/app/.env <<EOF
+API_KEY=${api_key}
+EOF
+
+chown ec2-user:ec2-user .env
+
+# Load environment variables
+export $(grep -v '^#' .env | xargs)
+
+# Install dependencies
+python3.11 -m pip install --upgrade pip
+python3.11 -m pip install -r requirements.txt
+
+# Start FastAPI
+nohup python3.11 -m uvicorn app.main:app \
+  --host 0.0.0.0 \
+  --port 8000 \
+  > /home/ec2-user/app.log 2>&1 &
+
+echo "Application started" >> /home/ec2-user/app.log

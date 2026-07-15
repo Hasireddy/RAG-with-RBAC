@@ -2,6 +2,7 @@
 
 .env
 .terraform/
+terraform.tfvars
 
 # State files (NEVER commit)
 *.tfstate

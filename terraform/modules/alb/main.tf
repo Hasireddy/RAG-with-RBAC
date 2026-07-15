@@ -1,10 +1,10 @@
 #AlB(Multi-AZ)
 resource "aws_lb" "alb"{
-  name = "app-alb"
+  name = "app-alb-new"
   load_balancer_type = "application"
   internal = false
-  subnets = aws_subnet.public_subnets[*].id
-  security_groups = [aws_security_group.alb_sg.id]
+  subnets = var.public_subnet_ids
+  security_groups = [var.alb_sg_id]
 }
 
 #target group
@@ -12,7 +12,7 @@ resource "aws_lb_target_group" "tg"{
   name = "app-tg"
   port = 8000
   protocol = "HTTP"
-  vpc_id = aws_vpc.my_vpc.id
+  vpc_id = var.vpc_id
 
   health_check {
   path                = "/"
