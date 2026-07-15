@@ -175,7 +175,14 @@ http://<ALB_DNS_NAME>/
 ### 9. Confirm Infrastructure
 Login to AWS console to confirm all the resources created.
 
-<img src="frontend/static/images/proj_vpc.png" alt="Screenshot" width="600">
+<img src="frontend/static/images/proj_vpc.png" alt="Screenshot">
+<img src="frontend/static/images/proj_ec2.png" alt="Screenshot">
+<img src="frontend/static/images/ec2_summary.png" alt="Screenshot">
+<img src="frontend/static/images/proj_subnet.png" alt="Screenshot">
+<img src="frontend/static/images/cloud_watch_alarm.png" alt="Screenshot">
+<img src="frontend/static/images/proj_screenshot.png" alt="Screenshot">
+<img src="frontend/static/images/rag_screenshot2.png" alt="Screenshot">
+<img src="frontend/static/images/rag_screenshot3.png" alt="Screenshot">
 
 
 
