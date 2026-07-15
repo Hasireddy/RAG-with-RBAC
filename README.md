@@ -166,11 +166,17 @@ terraform plan
 ### 7. Deploy Infrastructure
 terraform apply
 
-### 3. Access the Application
+### 8. Access the Application
 After deployment is complete, the web application can be access via the Elastic Load Balancer's DNS name. 
 Copy the DNS name Terraform will output and paste it into your web browser.
 
 http://<ALB_DNS_NAME>/
+
+### 9. Confirm Infrastructure
+Login to AWS console to confirm all the resources created.
+
+<img src="frontend/static/images/proj_vpc.png" alt="Screenshot" width="600">
+
 
 
 
