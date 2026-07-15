@@ -135,15 +135,40 @@ git clone https://github.com/Hasireddy/RAG-with-RBAC
 
 cd RAG-with-RBAC
 
-### 2. Deploy using Terraform
-cd terraform
 
+### 2. Create Terraform directory and Configure Terraform variables
+Update required values such as AWS region, instance details, key pair, networking, and application-specific settings.
+
+mkdir terraform
+cd terraform
+vim terraform.tfvars
+
+api_key: Set the value for OPENAI_API_KEY
+
+### 3. Format Terraform files
+Run fmt command to fix any syntax error
+
+terraform fmt
+
+### 4. Initialize Terraform
 terraform init
 
+### 5. Validate Terraform configuration
+terraform validate
+
+### 6. Review deployment plan
+Run the following command to see all resources terraform will create and check if matches your expectation.
+
+terraform plan
+
+### 7. Deploy Infrastructure
 terraform apply
 
-### 3. Access application
-http://<EC2_PUBLIC_IP>:8000
+### 3. Access the Application
+After deployment is complete, the web application can be access via the Elastic Load Balancer's DNS name. 
+Copy the DNS name Terraform will output and paste it into your web browser.
+
+http://<ALB_DNS_NAME>/
 
 
 
