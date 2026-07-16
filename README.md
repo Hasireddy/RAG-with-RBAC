@@ -139,7 +139,7 @@ uvicorn app.main:app --reload
 Then open your browser and go to:
  http://127.0.0.1:8000
 
-# Highly Available Two-Tier Web Application Infrastructure on AWS with Terraform
+# Automated AWS Infrastructure Deployment Using Terraform
 
 This project demonstrates the deployment of a secure and scalable two-tier web application on AWS using Terraform. 
 The infrastructure follows Infrastructure as Code (IaC) principles and includes a custom VPC, public and private subnets 
