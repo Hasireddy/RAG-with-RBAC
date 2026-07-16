@@ -5,13 +5,13 @@ and ensures employees access only the information aligned with their corporate p
 
 ## Table of Contents
 
-- [🧩 Business Problem](#business-problem)
-- [🧠 Solution Overview](#solution-overview)
+- [🧩 Business Problem](#-business-problem)
+- [🧠 Solution Overview](#-solution-overview)
 - [System Architecture Diagram](#system-architecture-diagram)
 - [Architecture Overview](#architecture-overview)
-- [Future Enhancements](#future-enhancements)
+- [Future Enhancements](#7-future-enhancements)
 - [Quick Start](#quick-start)
-- [Automated AWS Infrastructure Deployment Using Terraform](#terraform-deployment)
+- [Automated AWS Infrastructure Deployment Using Terraform](#automated-aws-infrastructure-deployment-using-terraform)
 
 
 # 🧩 Business Problem
