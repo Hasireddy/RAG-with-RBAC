@@ -3,6 +3,17 @@
 FinSight is a secure, intelligent chatbot powered by LLMs + RAG with Role Based Access Control(RBAC) that answers questions from enterprise documents
 and ensures employees access only the information aligned with their corporate privileges.
 
+# Table of Contents
+
+[[* Business Problem](#Business Problem)
+[* Solution Overview](#Solution Overview)
+[* System Architecture Diagram](#System Architecture Diagram)
+*[ Architecture Overview](#Architecture Overview)
+[* Future Enhancements](#Future Enhancements)
+[* Quick Start](#Quick Start)
+[* Automated AWS Infrastructure Deployment Using Terraform](#Highly Available Two-Tier Web Application Infrastructure on AWS with Terraform)
+
+
 # 🧩 Business Problem
 
 1. FinSolve Technologies faced operational inefficiencies caused by communication delays and fragmented document access across departments like Finance, Marketing, Engineering , and C-level Executives.
@@ -128,7 +139,23 @@ uvicorn app.main:app --reload
 Then open your browser and go to:
  http://127.0.0.1:8000
 
-# Deployment on AWS with Terraform
+# Highly Available Two-Tier Web Application Infrastructure on AWS with Terraform
+
+This project demonstrates the deployment of a secure and scalable two-tier web application on AWS using Terraform. 
+The infrastructure follows Infrastructure as Code (IaC) principles and includes a custom VPC, public and private subnets 
+across two Availability Zones, an Application Load Balancer (ALB), an Auto Scaling Group (ASG), EC2 instances, 
+an Internet Gateway,and Amazon CloudWatch. Due to limited AWS permissions, a NAT Gateway could not be created, 
+so the EC2 instances are deployed in public subnets. The application uses SQLite as its embedded database, 
+providing a simple and cost-effective solution for this lightweight project. 
+Terraform modules are used to organize the infrastructure, making it reusable, maintainable, and easy to extend.
+
+* **Web/Application Tier**: EC2 instances deployed in public subnets across two Availability Zones, fronted by an Application Load Balancer (ALB). 
+An Auto Scaling Group automatically scales the instances based on demand to improve availability and reliability.
+
+* **Database Layer**: The application uses SQLite, an embedded database stored locally on each EC2 instance. 
+SQLite was chosen for its simplicity and low cost. As a future enhancement, the database can be migrated 
+to Amazon RDS to create a true three-tier architecture.
+
 
 ### 1. Clone repository
 git clone https://github.com/Hasireddy/RAG-with-RBAC
