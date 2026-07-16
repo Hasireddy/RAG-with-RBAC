@@ -207,6 +207,10 @@ An **Auto Scaling Group** scales the application up to **four EC2 instances** ba
 every five minutes and triggers an alarm when the configured threshold exceeds **0.15**. To keep costs low for this lightweight application, 
 **t2.micro** instances were used.
 
+The application currently uses a **local SQLite database**, which is sufficient for development and demonstration purposes. 
+Because SQLite stores data on the individual EC2 instance, it does not provide shared or persistent storage across multiple instances. 
+As a future enhancement, the application will be migrated to Amazon RDS to provide a managed, highly available, and scalable database solution.
+
 Overall, this project showcases Infrastructure as Code (IaC) best practices, making the infrastructure reproducible, 
 easier to manage, and ready for future expansion.
 
