@@ -3,15 +3,15 @@
 FinSight is a secure, intelligent chatbot powered by LLMs + RAG with Role Based Access Control(RBAC) that answers questions from enterprise documents
 and ensures employees access only the information aligned with their corporate privileges.
 
-# Table of Contents
+## Table of Contents
 
-[[* Business Problem](#Business Problem)
-[* Solution Overview](#Solution Overview)
-[* System Architecture Diagram](#System Architecture Diagram)
-*[ Architecture Overview](#Architecture Overview)
-[* Future Enhancements](#Future Enhancements)
-[* Quick Start](#Quick Start)
-[* Automated AWS Infrastructure Deployment Using Terraform](#Highly Available Two-Tier Web Application Infrastructure on AWS with Terraform)
+- [Business Problem](#business-problem)
+- [Solution Overview](#solution-overview)
+- [System Architecture Diagram](#system-architecture-diagram)
+- [Architecture Overview](#architecture-overview)
+- [Future Enhancements](#future-enhancements)
+- [Quick Start](#quick-start)
+- [Automated AWS Infrastructure Deployment Using Terraform](#highly-available-two-tier-web-application-infrastructure-on-aws-with-terraform)
 
 
 # 🧩 Business Problem
