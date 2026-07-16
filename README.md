@@ -5,8 +5,10 @@ and ensures employees access only the information aligned with their corporate p
 
 ## Table of Contents
 
-- [Business Problem](#business-problem)
-- [Solution Overview](#solution-overview)
+- <a name="business-problem"></a>
+## 🧩 Business Problem
+- <a name="solution-overview"></a>
+## 🧠 Solution Overview
 - [System Architecture Diagram](#system-architecture-diagram)
 - [Architecture Overview](#architecture-overview)
 - [Future Enhancements](#future-enhancements)
