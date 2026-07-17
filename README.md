@@ -144,8 +144,8 @@ Then open your browser and go to:
 This project demonstrates the deployment of a secure and scalable two-tier web application on AWS using Terraform. 
 The infrastructure follows Infrastructure as Code (IaC) principles and includes a custom VPC, public and private subnets 
 across two Availability Zones, an Application Load Balancer (ALB), an Auto Scaling Group (ASG), EC2 instances, 
-an Internet Gateway,and Amazon CloudWatch. Due to limited AWS permissions, a NAT Gateway could not be created, 
-so the EC2 instances are deployed in public subnets. The application uses SQLite as its embedded database, 
+an Internet Gateway,and Amazon CloudWatch. NAT Gateway could not be created due to an explicit organization level service control denial.
+So the EC2 instances are deployed in public subnets. The application uses SQLite as its embedded database, 
 providing a simple and cost-effective solution for this lightweight project. 
 Terraform modules are used to organize the infrastructure, making it reusable, maintainable, and easy to extend.
 
@@ -155,6 +155,9 @@ An Auto Scaling Group automatically scales the instances based on demand to impr
 * **Database Layer**: The application uses SQLite, an embedded database stored locally on each EC2 instance. 
 SQLite was chosen for its simplicity and low cost. As a future enhancement, the database can be migrated 
 to Amazon RDS to create a true three-tier architecture.
+
+
+<img src="frontend/static/images/aws_architecture.png" alt="Screenshot">
 
 
 ### 1. Clone repository
@@ -204,8 +207,7 @@ Login to AWS console to confirm all the resources created.
 
 <img src="frontend/static/images/proj_vpc.png" alt="Screenshot">
 <img src="frontend/static/images/proj_ec2.png" alt="Screenshot">
-<img src="frontend/static/images/ec2_summary.png" alt="Screenshot">
-<img src="frontend/static/images/proj_subnet.png" alt="Screenshot">
+<img src="frontend/static/images/proj_ig.png" alt="Screenshot">
 <img src="frontend/static/images/cloud_watch_alarm.png" alt="Screenshot">
 <img src="frontend/static/images/rag_screenshot3.png" alt="Screenshot">
 <img src="frontend/static/images/proj_screenshot.png" alt="Screenshot">
@@ -218,7 +220,7 @@ You can reuse these modules or customize them as needed.
 ### 11. Architecture Highlights
 * Built with Terraform using Infrastructure as Code (IaC)
 * Deployed across 2 AWS Availability Zones for high availability
-* 2 Public Subnets and 2 Private Subnets within a custom VPC
+* 2 Public Subnets within a custom VPC
 * Application Load Balancer (ALB) to distribute incoming traffic
 * Auto Scaling Group (ASG) configured to scale up to 4 EC2 instances
 * Internet Gateway for secure public access to the application
@@ -227,7 +229,7 @@ You can reuse these modules or customize them as needed.
 
 ### 11. Conclusion
 This project demonstrates how Terraform can be used to automate the deployment of a secure, scalable, and highly available AWS infrastructure.
-The architecture spans **two Availability Zones**, with **public and private subnets**, an **Internet Gateway**, and an **Application Load Balancer (ALB)
+The architecture spans **two Availability Zones**, with **public subnets**, an **Internet Gateway**, and an **Application Load Balancer (ALB)
 ** to distribute traffic across EC2 instances.
 
 An **Auto Scaling Group** scales the application up to **four EC2 instances** based on demand, while **Amazon CloudWatch** monitors the environment 
