@@ -1,10 +1,10 @@
 provider "aws" {
-  region = "eu-central-1"
+  region = var.aws_region
 }
 
 module "vpc" {
   source     = "./modules/vpc"
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr
 }
 
 module "security_groups" {

@@ -9,6 +9,8 @@ terraform.tfvars
 *.tfstate.*
 terraform.tfstate
 terraform.tfstate.backup
+*.tfplan
+plan.txt
 
 # Logs
 crash.log

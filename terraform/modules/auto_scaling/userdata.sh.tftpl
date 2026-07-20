@@ -3,7 +3,7 @@ set -e
 
 dnf update -y
 
-dnf install -y python3.11 python3.11-pip git
+dnf install -y python3.11 python3.11-pip git awscli
 
 cd /home/ec2-user
 
@@ -14,16 +14,21 @@ chown -R ec2-user:ec2-user /home/ec2-user/app
 
 cd /home/ec2-user/app
 
-# Create environment variables
-# Replace YOUR_API_KEY_VALUE with a secure injection method later
+# Retrieve API key from AWS Systems Manager Parameter Store
+API_KEY=$(aws ssm get-parameter \
+  --name "/rag/openai_api_key" \
+  --with-decryption \
+  --query "Parameter.Value" \
+  --output text)
+
 cat > /home/ec2-user/app/.env <<EOF
-API_KEY=${api_key}
+API_KEY=${API_KEY}
 EOF
 
-chown ec2-user:ec2-user .env
+chown ec2-user:ec2-user /home/ec2-user/app/.env
 
 # Load environment variables
-export $(grep -v '^#' .env | xargs)
+export $(grep -v '^#' /home/ec2-user/app/.env | xargs)
 
 # Install dependencies
 python3.11 -m pip install --upgrade pip

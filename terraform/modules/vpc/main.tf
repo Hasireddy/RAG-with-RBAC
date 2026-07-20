@@ -32,10 +32,14 @@ resource "aws_subnet" "public_subnets"{
   count = var.public_subnets_count
   vpc_id = aws_vpc.my_vpc.id
   cidr_block = cidrsubnet(var.cidr_block, 8, count.index)
-  availability_zone = data.aws_availability_zones.azs.names[count.index]
+  availability_zone = data.aws_availability_zones.azs.names[
+  count.index % length(data.aws_availability_zones.azs.names)
+  ]
   map_public_ip_on_launch = true
   tags = {
-    Name = "public-${data.aws_availability_zones.azs.names[count.index]}"
+    Name = "public-${data.aws_availability_zones.azs.names[
+count.index % length(data.aws_availability_zones.azs.names)
+]}"
   }
 }
 
@@ -45,10 +49,14 @@ resource "aws_subnet" "private_subnets" {
   count = var.private_subnets_count
   vpc_id = aws_vpc.my_vpc.id
   cidr_block =  cidrsubnet(var.cidr_block, 8, count.index + var.public_subnets_count)
-  availability_zone = data.aws_availability_zones.azs.names[count.index]
-  map_public_ip_on_launch = true
+  availability_zone = data.aws_availability_zones.azs.names[
+   count.index % length(data.aws_availability_zones.azs.names)
+  ]
+  map_public_ip_on_launch = false
   tags = {
-    Name = "private-${data.aws_availability_zones.azs.names[count.index]}"
+    Name = "private-${data.aws_availability_zones.azs.names[
+count.index % length(data.aws_availability_zones.azs.names)
+]}"
   }
 }
 
@@ -76,9 +84,17 @@ resource "aws_route_table_association" "public_rt_assoc"{
 }
 
 
-#private subnet route association
-resource "aws_route_table_association" "app_rt_assoc"{
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  tags = {
+    Name = "private-rt"
+  }
+}
+
+resource "aws_route_table_association" "private_rt_assoc" {
   count = var.private_subnets_count
-  subnet_id = aws_subnet.private_subnets[count.index].id
-  route_table_id = aws_route_table.public_rt.id
+
+  subnet_id      = aws_subnet.private_subnets[count.index].id
+  route_table_id = aws_route_table.private_rt.id
 }

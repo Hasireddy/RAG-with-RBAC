@@ -16,14 +16,12 @@ data "aws_ami" "amazon_linux" {
 
 #Launch template
 resource "aws_launch_template" "app" {
-  name_prefix   = "app-"
+  name_prefix   = "${var.name_prefix}-"
   image_id      = data.aws_ami.amazon_linux.id
-  instance_type = "t2.micro"
+  instance_type =  var.instance_type
   key_name = var.key_name
 
-  user_data = base64encode(templatefile("${path.module}/userdata.sh.tftpl", {
-    api_key         = var.api_key
-  }))
+  user_data = base64encode(templatefile("${path.module}/userdata.sh.tftpl", {name_prefix = var.name_prefix}))
   network_interfaces {
     associate_public_ip_address = true
     security_groups = [var.app_sg_id]
@@ -49,13 +47,26 @@ resource "aws_launch_template" "app" {
     resource_type = "instance"
 
     tags = {
-      Name = "app-instance"
+      Name = "${var.name_prefix}-instance"
     }
   }
 }
 
+resource "aws_ssm_parameter" "api_key" {
+  name  = "/${var.name_prefix}/openai_api_key"
+  type  = "SecureString"
+  value = var.api_key
+
+   lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
+
+
 resource "aws_iam_role" "app_role" {
-  name = "app-instance-role"
+  name = "${var.name_prefix}-instance-role"
   assume_role_policy = jsonencode({
       Version = "2012-10-17"
       Statement = [{
@@ -66,8 +77,31 @@ resource "aws_iam_role" "app_role" {
   })
 }
 
+resource "aws_iam_role_policy" "ssm_secret_access" {
+
+  role = aws_iam_role.app_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ssm:GetParameter"
+        ]
+
+        Resource = aws_ssm_parameter.api_key.arn
+      }
+    ]
+  })
+}
+
+
+
 resource "aws_iam_instance_profile" "app_profile" {
-  name = "app-instance-profile"
+  name = "${var.name_prefix}-instance-profile"
   role = aws_iam_role.app_role.name
 }
 
@@ -79,14 +113,14 @@ resource "aws_iam_role_policy_attachment" "ssm_access" {
 
 #Auto Scaling group
 resource "aws_autoscaling_group" "asg" {
-  desired_capacity    = 2
-  max_size            = 4
-  min_size            = 2
+  desired_capacity    = var.desired_capacity
+  max_size            = var.max_size
+  min_size            = var.min_size
   vpc_zone_identifier = var.public_subnet_ids
 
   launch_template {
     id      = aws_launch_template.app.id
-    version = "$Latest"
+    version = aws_launch_template.app.latest_version
   }
 
     target_group_arns = [var.target_group_arn]
@@ -105,7 +139,7 @@ resource "aws_autoscaling_group" "asg" {
 
     tag {
       key                 = "Name"
-      value               = "app-instance"
+      value               = "${var.name_prefix}-instance"
       propagate_at_launch = true
     }
   }
@@ -113,7 +147,7 @@ resource "aws_autoscaling_group" "asg" {
 
 resource "aws_autoscaling_policy" "cpu_scaling" {
 
-  name                   = "cpu-scaling"
+  name                   = "${var.name_prefix}-cpu-scaling"
   autoscaling_group_name = aws_autoscaling_group.asg.name
 
   policy_type = "TargetTrackingScaling"
@@ -124,7 +158,7 @@ resource "aws_autoscaling_policy" "cpu_scaling" {
       predefined_metric_type = "ASGAverageCPUUtilization"
     }
 
-    target_value = 70.0
+    target_value = var.cpu_target_value
   }
 }
 
