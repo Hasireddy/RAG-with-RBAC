@@ -4,13 +4,21 @@
 .terraform/
 terraform.tfvars
 
+# Terraform working directories
+**/.terraform/
+
 # State files (NEVER commit)
 *.tfstate
 *.tfstate.*
 terraform.tfstate
 terraform.tfstate.backup
+
+# Terraform plan files
 *.tfplan
 plan.txt
+
+# Terraform lock files in modules
+terraform/.terraform.lock.hcl
 
 # Logs
 crash.log
