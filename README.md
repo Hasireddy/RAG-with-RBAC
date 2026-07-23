@@ -146,12 +146,6 @@ The infrastructure follows Infrastructure as Code (IaC) principles and includes 
 across two Availability Zones, an Application Load Balancer (ALB), an Auto Scaling Group (ASG), EC2 instances, 
 an Internet Gateway,and Amazon CloudWatch. 
 
-**Known Limitation**: The intended architecture deploys EC2 instances in private subnets with outbound internet access through a NAT Gateway. 
-However, in the AWS organization used for this project, the creation of a NAT Gateway was explicitly denied by an organization-level Service 
-Control Policy (SCP). As a temporary workaround, the EC2 instances were deployed in public subnets to keep the infrastructure functional. 
-In a production environment, the EC2 instances would reside in private subnets behind a NAT Gateway (or, where cost is a concern, 
-a properly configured NAT instance) while remaining accessible only through the Application Load Balancer.
-
 Terraform modules are used to organize the infrastructure, making it reusable, maintainable, and easy to extend.
 
 * **Web/Application Tier**: EC2 instances deployed in public subnets across two Availability Zones, fronted by an Application Load Balancer (ALB). 
@@ -160,6 +154,14 @@ An Auto Scaling Group automatically scales the instances based on demand to impr
 * **Database Layer**: The application uses SQLite, an embedded database stored locally on each EC2 instance. 
 SQLite was chosen for its simplicity and low cost. As a future enhancement, the database can be migrated 
 to Amazon RDS to create a true three-tier architecture.
+
+**Known Limitation**: The intended architecture deploys EC2 instances in private subnets with outbound internet access through a NAT Gateway. 
+However, in the AWS organization used for this project, the creation of a NAT Gateway was explicitly denied by an organization-level Service 
+Control Policy (SCP). As a temporary workaround, the EC2 instances were deployed in public subnets to keep the infrastructure functional. 
+In a production environment, the EC2 instances would reside in private subnets behind a NAT Gateway (or, where cost is a concern, 
+a properly configured NAT instance) while remaining accessible only through the Application Load Balancer.
+
+
 
 
 <img src="frontend/static/images/aws_architecture.png" alt="Screenshot">
