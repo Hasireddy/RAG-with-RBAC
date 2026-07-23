@@ -250,7 +250,7 @@ As a future enhancement, the application will be migrated to Amazon RDS to provi
 Overall, this project showcases Infrastructure as Code (IaC) best practices, making the infrastructure reproducible, 
 easier to manage, and ready for future expansion.
 
-### 12. ## Known Limitations
+### 12. Known Limitations
 
 - NAT Gateway creation was blocked by an organization-level Service Control Policy (SCP), so EC2 instances were temporarily deployed in public subnets.
 - The intended production architecture places EC2 instances in private subnets with outbound internet access through a NAT Gateway.
