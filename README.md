@@ -144,9 +144,14 @@ Then open your browser and go to:
 This project demonstrates the deployment of a secure and scalable two-tier web application on AWS using Terraform. 
 The infrastructure follows Infrastructure as Code (IaC) principles and includes a custom VPC, public and private subnets 
 across two Availability Zones, an Application Load Balancer (ALB), an Auto Scaling Group (ASG), EC2 instances, 
-an Internet Gateway,and Amazon CloudWatch. NAT Gateway could not be created due to an explicit organization level service control denial.
-So the EC2 instances are deployed in public subnets. The application uses SQLite as its embedded database, 
-providing a simple and cost-effective solution for this lightweight project. 
+an Internet Gateway,and Amazon CloudWatch. 
+
+**Known Limitation**: The intended architecture deploys EC2 instances in private subnets with outbound internet access through a NAT Gateway. 
+However, in the AWS organization used for this project, the creation of a NAT Gateway was explicitly denied by an organization-level Service 
+Control Policy (SCP). As a temporary workaround, the EC2 instances were deployed in public subnets to keep the infrastructure functional. 
+In a production environment, the EC2 instances would reside in private subnets behind a NAT Gateway (or, where cost is a concern, 
+a properly configured NAT instance) while remaining accessible only through the Application Load Balancer.
+
 Terraform modules are used to organize the infrastructure, making it reusable, maintainable, and easy to extend.
 
 * **Web/Application Tier**: EC2 instances deployed in public subnets across two Availability Zones, fronted by an Application Load Balancer (ALB). 
@@ -242,6 +247,13 @@ As a future enhancement, the application will be migrated to Amazon RDS to provi
 
 Overall, this project showcases Infrastructure as Code (IaC) best practices, making the infrastructure reproducible, 
 easier to manage, and ready for future expansion.
+
+### 12. ## Known Limitations
+
+- NAT Gateway creation was blocked by an organization-level Service Control Policy (SCP), so EC2 instances were temporarily deployed in public subnets.
+- The intended production architecture places EC2 instances in private subnets with outbound internet access through a NAT Gateway.
+- A NAT instance could also be considered as a lower-cost alternative where appropriate.
+- SQLite is used as the database for simplicity. For production workloads, Amazon RDS (e.g., PostgreSQL or MySQL) would be a more suitable choice.
 
 
 
