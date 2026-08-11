@@ -14,6 +14,7 @@ module "security_groups" {
 
 module "alb" {
   source            = "./modules/alb"
+  name_prefix = "my-app"
   vpc_id            = module.vpc.network.vpc_id
   public_subnet_ids = module.vpc.network.public_subnets
   alb_sg_id         = module.security_groups.alb_sg_id

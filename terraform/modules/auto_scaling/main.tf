@@ -21,7 +21,13 @@ resource "aws_launch_template" "app" {
   instance_type =  var.instance_type
   key_name = var.key_name
 
-  user_data = base64encode(templatefile("${path.module}/userdata.sh.tftpl", {name_prefix = var.name_prefix}))
+  #user_data = base64encode(templatefile("${path.module}/userdata.sh.tftpl", {name_prefix = var.name_prefix}))
+  user_data = base64encode(
+  templatefile("${path.module}/userdata.sh.tftpl", {
+    name_prefix = var.name_prefix
+    API_KEY     = var.api_key
+  })
+)
   network_interfaces {
     associate_public_ip_address = true
     security_groups = [var.app_sg_id]
