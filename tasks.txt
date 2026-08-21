@@ -1,0 +1,2 @@
+we have verified Postgresql is storing the embeddings
+Need to rewrite semantic retrieval in semantic_docs_search.py

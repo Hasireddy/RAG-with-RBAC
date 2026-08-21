@@ -1,27 +1,33 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import os
 from typing import Generator
 
-# Engine: Connect to DB
-# Session: Open connection where we interact with DB
-# Base: Base class models for creating SQLAlchemy ORM
-# Model: Python Class -> DB Table
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-db_url = "sqlite:///./data/company_database.db"
+load_dotenv()
 
-engine = create_engine(db_url, connect_args={"check_same_thread": False})
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL environment variable is not configured."
+    )
 
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+)
 
 def get_db() -> Generator:
-    """
-    Dependency that provides a database session.
-
-    Yields a database session and ensures it's properly closed
-    after the request is complete.
-    """
     db = SessionLocal()
+
     try:
         yield db
     finally:

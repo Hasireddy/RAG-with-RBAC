@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime, JSON
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, object_session
 from sqlalchemy.sql import func
 from app.database.base import Base
@@ -29,7 +30,7 @@ class EmployeeDB(Base):
     # Foreign key: Each employee belongs to a department and each department belongs to a company
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
     #dept_id = Column(JSON, ForeignKey("departments.id", ondelete="CASCADE"), index=True, nullable=False, default=list)
-    dept_id = Column(JSON, index=True, nullable=False, default=list)
+    dept_id = Column(JSONB, nullable=False, default=list)
 
 
     # Relationship: Employee is in Department and in a Company

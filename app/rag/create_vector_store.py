@@ -9,12 +9,12 @@ from .split_documents import split_docs_chunks
 
 # Load environment variables
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
-api_key = os.getenv("API_KEY")
+API_KEY = os.getenv("API_KEY")
 
-client = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=api_key)
+client = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=API_KEY)
 
 
-# Step3: Create Embeddings and Fiass vector store
+# Step3: Create Embeddings and Faiss vector store
 def create_vector_store():
     """Create embeddings and vector store"""
 
